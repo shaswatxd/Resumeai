@@ -124,13 +124,24 @@ export function CommandPalette({
       },
       {
         category: 'Quick Actions',
-        id: 'design-panel',
-        title: 'Open Design & Typography Settings',
-        subtitle: 'Customize fonts, margins, line-height & colors',
-        icon: LayoutTemplate,
+        id: 'job-tracker',
+        title: 'Open Job Application Tracker CRM',
+        subtitle: 'Track interviews, salary offers, and pipelines',
+        icon: Briefcase,
         action: () => {
           onClose()
-          onOpenDesign()
+          window.open('/tracker', '_blank')
+        },
+      },
+      {
+        category: 'Quick Actions',
+        id: 'cover-letter',
+        title: 'Open Smart Cover Letter Generator',
+        subtitle: 'Generate tailored cover letter from resume',
+        icon: FileText,
+        action: () => {
+          onClose()
+          window.open('/cover-letter', '_blank')
         },
       },
       {

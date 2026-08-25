@@ -83,11 +83,14 @@ export default function Page() {
             26 Layouts
           </Link>
           <Link href="/cover-letter" className="transition-colors hover:text-foreground">
-            Smart Cover Letter
+            Cover Letter
+          </Link>
+          <Link href="/tracker" className="transition-colors hover:text-foreground">
+            Job Tracker
           </Link>
           <Link
             href="/builder"
-            className="flex items-center gap-1.5 transition-colors hover:text-foreground"
+            className="flex items-center gap-1.5 transition-colors hover:text-foreground font-semibold text-foreground"
           >
             <span className="size-1.5 rounded-full bg-emerald-400" />
             Studio
@@ -245,6 +248,9 @@ export default function Page() {
             </Link>
             <Link href="/cover-letter" className="transition-colors hover:text-foreground">
               Cover Letter
+            </Link>
+            <Link href="/tracker" className="transition-colors hover:text-foreground">
+              Job Tracker
             </Link>
           </nav>
         </div>

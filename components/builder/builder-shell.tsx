@@ -242,6 +242,11 @@ export function BuilderShell() {
                     onClick={handleFillSample}
                   />
                   <MenuItem
+                    icon={Briefcase}
+                    label="Job Tracker Pipeline"
+                    onClick={() => window.open('/tracker', '_blank')}
+                  />
+                  <MenuItem
                     icon={Copy}
                     label="Copy ATS Plain Text"
                     onClick={handleCopyPlainText}

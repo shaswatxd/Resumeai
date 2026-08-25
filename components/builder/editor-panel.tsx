@@ -504,35 +504,69 @@ function BulletEditor({
   onChange: (b: string[]) => void
 }) {
   return (
-    <div className="flex flex-col gap-2">
-      {bullets.map((b, i) => (
-        <div key={i} className="flex items-start gap-2">
-          <Textarea
-            className="min-h-[52px]"
-            value={b}
-            placeholder="Describe an achievement with impact..."
-            onChange={(e) =>
-              onChange(bullets.map((x, xi) => (xi === i ? e.target.value : x)))
-            }
-          />
-          <Button
-            variant="ghost"
-            size="icon"
-            className="mt-0.5 shrink-0"
-            aria-label="Remove highlight"
-            onClick={() => onChange(bullets.filter((_, xi) => xi !== i))}
-          >
-            <X className="size-4" />
-          </Button>
-        </div>
-      ))}
+    <div className="flex flex-col gap-2.5">
+      {bullets.map((b, i) => {
+        const text = b.trim()
+        const hasMetric = /\d+(\.\d+)?%|\$\d+|\d+k|\d+\+|\b\d{2,}\b|\b[2-9]x\b/i.test(text)
+        const hasActionVerb = /^(Architected|Engineered|Spearheaded|Designed|Built|Developed|Deployed|Optimized|Increased|Reduced|Cut|Launched|Scaled|Streamlined|Automated|Pioneered|Led|Orchestrated|Transformed|Revamped|Implemented|Generated|Delivered|Negotiated|Accelerated)\b/i.test(text)
+        const isWeak = /^(Responsible for|Worked on|Helped with|Assisted in|Tasked with|Handled|Was involved in)\b/i.test(text)
+
+        return (
+          <div key={i} className="rounded-lg border border-border/60 bg-secondary/20 p-2.5 space-y-1.5">
+            <div className="flex items-start gap-2">
+              <Textarea
+                className="min-h-[48px] text-xs bg-background/50 leading-relaxed"
+                value={b}
+                placeholder="Describe an achievement with measurable impact..."
+                onChange={(e) =>
+                  onChange(bullets.map((x, xi) => (xi === i ? e.target.value : x)))
+                }
+              />
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-7 shrink-0 text-muted-foreground hover:text-destructive"
+                aria-label="Remove highlight"
+                onClick={() => onChange(bullets.filter((_, xi) => xi !== i))}
+              >
+                <X className="size-3.5" />
+              </Button>
+            </div>
+
+            {/* Live Impact Feedback Pills */}
+            {text.length > 8 && (
+              <div className="flex flex-wrap items-center gap-1.5 pt-0.5 text-[10px]">
+                {hasActionVerb && (
+                  <span className="rounded bg-emerald-500/15 px-1.5 py-0.5 font-medium text-emerald-400">
+                    ✓ Strong Action Verb
+                  </span>
+                )}
+                {hasMetric ? (
+                  <span className="rounded bg-emerald-500/15 px-1.5 py-0.5 font-medium text-emerald-400">
+                    ✓ Quantified Metric
+                  </span>
+                ) : (
+                  <span className="rounded bg-secondary/60 px-1.5 py-0.5 font-medium text-muted-foreground">
+                    💡 Tip: Add numbers (e.g. 20%, $50k, 5x)
+                  </span>
+                )}
+                {isWeak && (
+                  <span className="rounded bg-amber-500/15 px-1.5 py-0.5 font-medium text-amber-300">
+                    ⚠️ Passive starter (Replace with "Spearheaded" or "Engineered")
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
+        )
+      })}
       <Button
-        variant="ghost"
+        variant="outline"
         size="sm"
-        className="self-start"
+        className="self-start h-8 text-xs border-dashed"
         onClick={() => onChange([...bullets, ''])}
       >
-        <Plus className="size-3.5" /> Add highlight
+        <Plus className="size-3.5" /> Add bullet point
       </Button>
     </div>
   )
