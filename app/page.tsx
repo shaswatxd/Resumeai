@@ -78,7 +78,7 @@ export default function Page() {
           </div>
         </div>
 
-        <nav className="hidden items-center gap-7 text-sm font-medium text-muted-foreground sm:flex">
+        <nav className="hidden items-center gap-6 text-sm font-medium text-muted-foreground sm:flex">
           <Link href="/templates" className="transition-colors hover:text-foreground">
             26 Layouts
           </Link>
@@ -87,6 +87,9 @@ export default function Page() {
           </Link>
           <Link href="/tracker" className="transition-colors hover:text-foreground">
             Job Tracker
+          </Link>
+          <Link href="/interview" className="transition-colors hover:text-foreground">
+            Interview Prep
           </Link>
           <Link
             href="/builder"
@@ -251,6 +254,9 @@ export default function Page() {
             </Link>
             <Link href="/tracker" className="transition-colors hover:text-foreground">
               Job Tracker
+            </Link>
+            <Link href="/interview" className="transition-colors hover:text-foreground">
+              Interview Prep
             </Link>
           </nav>
         </div>

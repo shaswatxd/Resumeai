@@ -19,6 +19,8 @@ import {
   Undo2,
   Redo2,
   BookOpen,
+  Briefcase,
+  HelpCircle,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { EditorPanel } from '@/components/builder/editor-panel'
@@ -245,6 +247,11 @@ export function BuilderShell() {
                     icon={Briefcase}
                     label="Job Tracker Pipeline"
                     onClick={() => window.open('/tracker', '_blank')}
+                  />
+                  <MenuItem
+                    icon={HelpCircle}
+                    label="STAR Interview Prep"
+                    onClick={() => window.open('/interview', '_blank')}
                   />
                   <MenuItem
                     icon={Copy}

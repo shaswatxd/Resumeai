@@ -20,6 +20,7 @@ import {
   X,
   Sparkles,
   Command,
+  HelpCircle,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import {
@@ -142,6 +143,17 @@ export function CommandPalette({
         action: () => {
           onClose()
           window.open('/cover-letter', '_blank')
+        },
+      },
+      {
+        category: 'Quick Actions',
+        id: 'interview-prep',
+        title: 'Open STAR Interview Prep Simulator',
+        subtitle: 'Practice tailored behavioral and technical questions',
+        icon: HelpCircle,
+        action: () => {
+          onClose()
+          window.open('/interview', '_blank')
         },
       },
       {
