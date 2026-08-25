@@ -22,7 +22,7 @@ import {
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Input, Label, Textarea } from '@/components/ui/field'
 import { cn } from '@/lib/utils'
-import { uid, type ResumeData } from '@/lib/resume-types'
+import { uid, type ResumeData, type TemplateId, TEMPLATES, templateSupportsPhoto } from '@/lib/resume-types'
 import { ROLE_CATEGORIES } from '@/lib/bullet-library'
 import { PhotoEditor } from '@/components/builder/photo-editor'
 
@@ -45,11 +45,12 @@ const TABS: { id: TabId; label: string; icon: typeof User }[] = [
 
 type Props = {
   data: ResumeData
+  template?: TemplateId
   onChange: (updater: (prev: ResumeData) => ResumeData) => void
   onOpenLibrary?: () => void
 }
 
-export function EditorPanel({ data, onChange, onOpenLibrary }: Props) {
+export function EditorPanel({ data, template, onChange, onOpenLibrary }: Props) {
   const [tab, setTab] = useState<TabId>('personal')
 
   const set = <K extends keyof ResumeData>(key: K, value: ResumeData[K]) =>
@@ -105,7 +106,14 @@ export function EditorPanel({ data, onChange, onOpenLibrary }: Props) {
 
       {/* Scrollable body */}
       <div className="scroll-thin flex-1 overflow-y-auto px-5 py-6">
-        {tab === 'personal' && <PersonalTab data={data} set={set} onOpenLibrary={onOpenLibrary} />}
+        {tab === 'personal' && (
+          <PersonalTab
+            data={data}
+            template={template}
+            set={set}
+            onOpenLibrary={onOpenLibrary}
+          />
+        )}
         {tab === 'experience' && <ExperienceTab data={data} onChange={onChange} onOpenLibrary={onOpenLibrary} />}
         {tab === 'education' && <EducationTab data={data} onChange={onChange} />}
         {tab === 'skills' && <SkillsTab data={data} set={set} />}
@@ -127,7 +135,7 @@ export function EditorPanel({ data, onChange, onOpenLibrary }: Props) {
         <Button
           size="lg"
           className="h-11 flex-1 px-4"
-          disabled={tabIndex === TABS.length - 1}
+          disabled={tabIndex === 0 ? false : tabIndex === TABS.length - 1}
           onClick={() =>
             setTab(TABS[Math.min(TABS.length - 1, tabIndex + 1)].id)
           }
@@ -143,73 +151,100 @@ export function EditorPanel({ data, onChange, onOpenLibrary }: Props) {
 /* ------------------------------- Personal --------------------------------- */
 function PersonalTab({
   data,
+  template,
   set,
   onOpenLibrary,
 }: {
   data: ResumeData
+  template?: TemplateId
   set: <K extends keyof ResumeData>(k: K, v: ResumeData[K]) => void
   onOpenLibrary?: () => void
 }) {
   const [photoModalOpen, setPhotoModalOpen] = useState(false)
+  const supportsPhoto = template ? templateSupportsPhoto(template) : true
+  const currentTemplate = template ? TEMPLATES.find((t) => t.id === template) : null
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Photo row */}
-      <div className="flex items-center gap-4 rounded-xl border border-border bg-secondary/20 p-4">
-        <button
-          type="button"
-          onClick={() => setPhotoModalOpen(true)}
-          className="group relative flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-border bg-secondary transition-all hover:scale-105 hover:border-primary"
-          title="Click to edit or change photo"
-        >
-          {data.photo ? (
-            <img
-              src={data.photo}
-              alt={data.fullName || 'Photo'}
-              className="size-full object-cover"
-            />
-          ) : (
-            <User className="size-7 text-muted-foreground" />
-          )}
-          <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
-            <Upload className="size-4 text-white" />
-          </div>
-        </button>
-        <div className="flex-1">
-          <p className="text-sm font-medium">Profile photo</p>
-          <p className="text-xs text-muted-foreground">
-            Optional — JPG, PNG, WebP or sample headshot
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          {data.photo && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => set('photo', '')}
-              aria-label="Remove photo"
-            >
-              <Trash2 className="size-4 text-destructive" />
-            </Button>
-          )}
-          <Button
-            variant="outline"
-            size="sm"
+      {/* Photo row — only shown if template supports photos */}
+      {supportsPhoto ? (
+        <div className="flex items-center gap-4 rounded-xl border border-border bg-secondary/20 p-4">
+          <button
+            type="button"
             onClick={() => setPhotoModalOpen(true)}
+            className="group relative flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-border bg-secondary transition-all hover:scale-105 hover:border-primary"
+            title="Click to edit or change photo"
           >
-            <Upload className="size-3.5" />
-            <span>{data.photo ? 'Crop / Change' : 'Upload Photo'}</span>
-          </Button>
+            {data.photo ? (
+              <img
+                src={data.photo}
+                alt={data.fullName || 'Photo'}
+                className="size-full object-cover"
+              />
+            ) : (
+              <User className="size-7 text-muted-foreground" />
+            )}
+            <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
+              <Upload className="size-4 text-white" />
+            </div>
+          </button>
+          <div className="flex-1">
+            <p className="text-sm font-medium">Profile photo</p>
+            <p className="text-xs text-muted-foreground">
+              Optional — JPG, PNG, WebP or sample headshot
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            {data.photo && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => set('photo', '')}
+                aria-label="Remove photo"
+              >
+                <Trash2 className="size-4 text-destructive" />
+              </Button>
+            )}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPhotoModalOpen(true)}
+            >
+              <Upload className="size-3.5" />
+              <span>{data.photo ? 'Crop / Change' : 'Upload Photo'}</span>
+            </Button>
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className="flex items-center justify-between rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-4">
+          <div className="flex items-center gap-3">
+            <span className="flex size-9 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-400">
+              <User className="size-5" />
+            </span>
+            <div>
+              <p className="text-sm font-semibold text-foreground">
+                Photo-Free ATS Layout
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {currentTemplate?.name || 'Selected layout'} is intentionally text-only for maximum ATS compliance.
+              </p>
+            </div>
+          </div>
+          <span className="rounded-full bg-emerald-500/15 px-2.5 py-0.5 text-[10px] font-bold text-emerald-400">
+            ATS Optimal
+          </span>
+        </div>
+      )}
 
-      <PhotoEditor
-        open={photoModalOpen}
-        onClose={() => setPhotoModalOpen(false)}
-        photo={data.photo}
-        onSave={(newPhoto) => set('photo', newPhoto)}
-        onRemove={() => set('photo', '')}
-      />
+      {supportsPhoto && (
+        <PhotoEditor
+          open={photoModalOpen}
+          onClose={() => setPhotoModalOpen(false)}
+          photo={data.photo}
+          onSave={(newPhoto) => set('photo', newPhoto)}
+          onRemove={() => set('photo', '')}
+        />
+      )}
 
       {/* Inputs */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">

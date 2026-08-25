@@ -332,6 +332,7 @@ export function BuilderShell() {
         >
           <EditorPanel
             data={data}
+            template={template}
             onChange={(u) => setData(u)}
             onOpenLibrary={() => setLibraryOpen(true)}
           />

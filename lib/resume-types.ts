@@ -112,34 +112,40 @@ export type Template = {
   description: string
   category: string
   tag?: string
+  hasPhoto?: boolean
 }
 
 export const TEMPLATES: Template[] = [
-  { id: 'luxury', name: 'Luxury Gold', category: 'Luxury', description: 'Deep tones with a gold hairline accent', tag: 'Featured' },
-  { id: 'canva-emerald', name: 'Emerald Suite', category: 'Creative', description: 'Emerald gradient sidebar, rounded avatars & pill tags', tag: 'Featured' },
-  { id: 'canva-coral', name: 'Coral Luxe', category: 'Modern', description: 'Warm coral/rose rounded card containers & modern icons', tag: 'Featured' },
-  { id: 'ats-pro', name: 'ATS Pro', category: 'ATS Professional', description: 'Pure single-column, parser-safe, zero graphics', tag: 'ATS' },
-  { id: 'modern', name: 'Modern Edge', category: 'Modern', description: 'Crisp geometric header with accent underline' },
-  { id: 'corporate', name: 'Corporate Suite', category: 'Corporate', description: 'Structured two-tone header, boardroom-ready' },
-  { id: 'minimal', name: 'Pure Minimal', category: 'Minimal', description: 'Generous whitespace, quiet typography', tag: 'ATS' },
-  { id: 'elegant', name: 'Elegant Serif', category: 'Elegant', description: 'Centered serif name, thin hairline rules' },
-  { id: 'canva-executive', name: 'Executive Prime', category: 'Executive', description: 'Regal navy & gold hairline serif leadership layout', tag: 'Pro' },
-  { id: 'canva-creative', name: 'Vibrant Studio', category: 'Creative', description: 'Vibrant color block layout with floating avatar card', tag: 'Pro' },
-  { id: 'designer', name: 'Designer Grid', category: 'Designer', description: 'Portfolio-style grid with photo showcase' },
-  { id: 'developer', name: 'Dev Terminal', category: 'Developer', description: 'Monospace, terminal-inspired dev layout', tag: 'Dev' },
-  { id: 'student', name: 'Student Rise', category: 'Student', description: 'Education-first layout for students' },
-  { id: 'business', name: 'Business Slate', category: 'Business', description: 'Slate sidebar, confident business tone' },
-  { id: 'marketing', name: 'Marketing Pulse', category: 'Marketing', description: 'Punchy stats-forward marketing layout' },
-  { id: 'dark-theme', name: 'Midnight Pro', category: 'Dark Theme', description: 'Deep dark paper with glowing accent', tag: 'New' },
-  { id: 'classic', name: 'Classic Heritage', category: 'Classic', description: 'Timeless serif, ATS-friendly', tag: 'ATS' },
-  { id: 'canva-gradient', name: 'Gradient Edge', category: 'Modern', description: 'Dynamic gradient header banner with experience timeline dots', tag: 'Pro' },
-  { id: 'canva-obsidian', name: 'Obsidian Dark', category: 'Dark Theme', description: 'Charcoal paper background with neon accent text & glassy cards', tag: 'Pro' },
-  { id: 'canva-infographic', name: 'Infographic Spark', category: 'Infographic', description: 'Visual stat cards, highlighted strength badges & progress bars', tag: 'Pro' },
+  { id: 'luxury', name: 'Luxury Gold', category: 'Luxury', description: 'Deep tones with a gold hairline accent', tag: 'Featured', hasPhoto: true },
+  { id: 'canva-emerald', name: 'Emerald Suite', category: 'Creative', description: 'Emerald gradient sidebar, rounded avatars & pill tags', tag: 'Featured', hasPhoto: true },
+  { id: 'canva-coral', name: 'Coral Luxe', category: 'Modern', description: 'Warm coral/rose rounded card containers & modern icons', tag: 'Featured', hasPhoto: true },
+  { id: 'ats-pro', name: 'ATS Pro', category: 'ATS Professional', description: 'Pure single-column, parser-safe, zero graphics', tag: 'ATS', hasPhoto: false },
+  { id: 'modern', name: 'Modern Edge', category: 'Modern', description: 'Crisp geometric header with accent underline', hasPhoto: true },
+  { id: 'corporate', name: 'Corporate Suite', category: 'Corporate', description: 'Structured two-tone header, boardroom-ready', hasPhoto: false },
+  { id: 'minimal', name: 'Pure Minimal', category: 'Minimal', description: 'Generous whitespace, quiet typography', tag: 'ATS', hasPhoto: false },
+  { id: 'elegant', name: 'Elegant Serif', category: 'Elegant', description: 'Centered serif name, thin hairline rules', hasPhoto: false },
+  { id: 'canva-executive', name: 'Executive Prime', category: 'Executive', description: 'Regal navy & gold hairline serif leadership layout', tag: 'Pro', hasPhoto: true },
+  { id: 'canva-creative', name: 'Vibrant Studio', category: 'Creative', description: 'Vibrant color block layout with floating avatar card', tag: 'Pro', hasPhoto: true },
+  { id: 'designer', name: 'Designer Grid', category: 'Designer', description: 'Portfolio-style grid with photo showcase', hasPhoto: true },
+  { id: 'developer', name: 'Dev Terminal', category: 'Developer', description: 'Monospace, terminal-inspired dev layout', tag: 'Dev', hasPhoto: false },
+  { id: 'student', name: 'Student Rise', category: 'Student', description: 'Education-first layout for students', hasPhoto: true },
+  { id: 'business', name: 'Business Slate', category: 'Business', description: 'Slate sidebar, confident business tone', hasPhoto: true },
+  { id: 'marketing', name: 'Marketing Pulse', category: 'Marketing', description: 'Punchy stats-forward marketing layout', hasPhoto: true },
+  { id: 'dark-theme', name: 'Midnight Pro', category: 'Dark Theme', description: 'Deep dark paper with glowing accent', tag: 'New', hasPhoto: true },
+  { id: 'classic', name: 'Classic Heritage', category: 'Classic', description: 'Timeless serif, ATS-friendly', tag: 'ATS', hasPhoto: false },
+  { id: 'canva-gradient', name: 'Gradient Edge', category: 'Modern', description: 'Dynamic gradient header banner with experience timeline dots', tag: 'Pro', hasPhoto: true },
+  { id: 'canva-obsidian', name: 'Obsidian Dark', category: 'Dark Theme', description: 'Charcoal paper background with neon accent text & glassy cards', tag: 'Pro', hasPhoto: true },
+  { id: 'canva-infographic', name: 'Infographic Spark', category: 'Infographic', description: 'Visual stat cards, highlighted strength badges & progress bars', tag: 'Pro', hasPhoto: true },
 ]
 
 export const TEMPLATE_CATEGORIES: string[] = Array.from(
   new Set(TEMPLATES.map((t) => t.category)),
 )
+
+export function templateSupportsPhoto(templateId: TemplateId): boolean {
+  const tpl = TEMPLATES.find((t) => t.id === templateId)
+  return tpl?.hasPhoto ?? false
+}
 
 /* -------------------------------- colors -------------------------------- */
 
