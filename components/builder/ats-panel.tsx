@@ -8,7 +8,11 @@ import {
   XCircle,
   Sparkles,
   Target,
-  Loader2,
+  BookOpen,
+  Check,
+  Plus,
+  AlertCircle,
+  TrendingUp,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Label, Textarea } from '@/components/ui/field'
@@ -16,7 +20,7 @@ import { cn } from '@/lib/utils'
 import type { ResumeData } from '@/lib/resume-types'
 
 const ACTION_VERBS =
-  /^(led|built|architected|designed|developed|launched|shipped|created|improved|optimized|reduced|increased|drove|managed|mentored|migrated|automated|delivered|implemented|scaled|owned|spearheaded|established|streamlined|negotiated|analyzed|engineered|founded|grew|won|achieved|transformed|modernized|accelerated|championed|orchestrated|pioneered)/i
+  /^(led|built|architected|designed|developed|launched|shipped|created|improved|optimized|reduced|increased|drove|managed|mentored|migrated|automated|delivered|implemented|scaled|owned|spearheaded|established|streamlined|negotiated|analyzed|engineered|founded|grew|won|achieved|transformed|modernized|accelerated|championed|orchestrated|pioneered|constructed|formulated|delegated|mobilized)/i
 
 const STOPWORDS = new Set(
   'the a an and or but with for from into onto over under of in on at to by as is are was were be been being have has had do does did will would can could should may might must that this these those you your we our they their it its not no yes if then than so such very more most other some any all each every both few many much own same able about across after against along among around because before behind below beneath beside between beyond during except inside near outside since through throughout till toward until upon within without work team job role company candidate experience years responsibilities requirements qualifications skills ability strong excellent looking join us'.split(
@@ -24,7 +28,7 @@ const STOPWORDS = new Set(
   ),
 )
 
-type Check = { label: string; pass: boolean; hint: string }
+type Check = { label: string; pass: boolean; hint: string; category: 'Structure' | 'Content' | 'Impact' }
 
 function resumeText(d: ResumeData): string {
   return [
@@ -57,51 +61,59 @@ function extractKeywords(jd: string): string[] {
 
 function computeChecks(d: ResumeData): Check[] {
   const bullets = d.experience.flatMap((e) => e.bullets).filter((b) => b.trim())
-  const quantified = bullets.filter((b) => /\d/.test(b))
+  const quantified = bullets.filter((b) => /\d|%|\$|₹|k|m/i.test(b))
   const verbStarts = bullets.filter((b) => ACTION_VERBS.test(b.trim()))
   const summaryWords = d.summary.trim().split(/\s+/).filter(Boolean).length
   const totalWords = resumeText(d).split(/\s+/).filter(Boolean).length
 
   return [
     {
-      label: 'Contact info complete',
+      category: 'Structure',
+      label: 'Complete Contact Details',
       pass: Boolean(d.email && d.phone && (d.linkedin || d.website || d.github)),
-      hint: 'Add email, phone and at least one link (LinkedIn/GitHub/site).',
+      hint: 'Include email, phone number, and at least one online link (LinkedIn/GitHub/Portfolio).',
     },
     {
-      label: 'Professional summary (30–90 words)',
+      category: 'Content',
+      label: 'Impactful Summary (30–90 words)',
       pass: summaryWords >= 30 && summaryWords <= 90,
-      hint: `Currently ${summaryWords} words — aim for a tight 3-sentence summary.`,
+      hint: `Currently ${summaryWords} words — aim for a concise 3-sentence summary highlighting core strengths.`,
     },
     {
-      label: 'Work experience with bullet points',
+      category: 'Structure',
+      label: 'Experience with 3+ Achievement Bullets',
       pass: d.experience.length > 0 && bullets.length >= 3,
-      hint: 'Add at least one role with 3+ achievement bullets.',
+      hint: 'Include at least one work experience entry with 3 or more detailed achievement bullets.',
     },
     {
-      label: 'Bullets are quantified',
+      category: 'Impact',
+      label: 'Quantified Metrics in Bullets (≥ 40%)',
       pass: bullets.length > 0 && quantified.length / bullets.length >= 0.4,
-      hint: 'Add numbers (%, ₹/$, time saved) to at least 40% of bullets.',
+      hint: `Currently ${Math.round((quantified.length / Math.max(1, bullets.length)) * 100)}% quantified. Include measurable results (%, $, time saved, users scaled).`,
     },
     {
-      label: 'Bullets start with action verbs',
+      category: 'Impact',
+      label: 'Action-Verb Starter Bullets (≥ 60%)',
       pass: bullets.length > 0 && verbStarts.length / bullets.length >= 0.6,
-      hint: 'Start bullets with verbs like Led, Built, Reduced, Shipped.',
+      hint: 'Start bullets with strong power verbs (e.g., Spearheaded, Architected, Reduced, Accelerated).',
     },
     {
-      label: '6+ relevant skills listed',
+      category: 'Content',
+      label: 'Key Skills Section (6–15 skills)',
       pass: d.skills.length >= 6,
-      hint: `You have ${d.skills.length} — recruiters and ATS scan for 6-12.`,
+      hint: `You currently have ${d.skills.length} skills listed. Recruiters and ATS bots scan for 6–15 relevant skills.`,
     },
     {
-      label: 'Education present',
+      category: 'Structure',
+      label: 'Education & Degree Listed',
       pass: d.education.length > 0,
-      hint: 'Add your degree or main program.',
+      hint: 'Include your college/university degree, graduation year, or relevant certification.',
     },
     {
-      label: 'Good overall length (250–900 words)',
-      pass: totalWords >= 250 && totalWords <= 900,
-      hint: `Currently ~${totalWords} words. One page ≈ 400-600 words.`,
+      category: 'Structure',
+      label: 'Optimal Resume Length (250–800 words)',
+      pass: totalWords >= 250 && totalWords <= 800,
+      hint: `Currently ~${totalWords} words. Ideal single-page resume length is 400–600 words.`,
     },
   ]
 }
@@ -110,18 +122,23 @@ export function AtsPanel({
   open,
   onClose,
   resume,
+  onUpdateResume,
+  onOpenLibrary,
 }: {
   open: boolean
   onClose: () => void
   resume: ResumeData
+  onUpdateResume?: (updater: (prev: ResumeData) => ResumeData) => void
+  onOpenLibrary?: () => void
 }) {
   const [jd, setJd] = useState('')
-  const [aiResult, setAiResult] = useState('')
-  const [tailorResult, setTailorResult] = useState('')
-  const [loading, setLoading] = useState<'ats' | 'tailor' | null>(null)
 
   const checks = useMemo(() => computeChecks(resume), [resume])
   const passCount = checks.filter((c) => c.pass).length
+
+  const bullets = resume.experience.flatMap((e) => e.bullets).filter((b) => b.trim())
+  const quantifiedBullets = bullets.filter((b) => /\d|%|\$|₹|k|m/i.test(b))
+  const actionVerbBullets = bullets.filter((b) => ACTION_VERBS.test(b.trim()))
 
   const { keywordScore, matched, missing } = useMemo(() => {
     if (!jd.trim()) return { keywordScore: null, matched: [], missing: [] }
@@ -147,48 +164,29 @@ export function AtsPanel({
   const scoreColor =
     score >= 80 ? 'text-emerald-400' : score >= 55 ? 'text-amber-400' : 'text-red-400'
 
-  const context = {
-    name: resume.fullName,
-    role: resume.role,
-    skills: resume.skills,
-    summary: resume.summary,
-    experience: resume.experience.map((e) => ({
-      role: e.role,
-      company: e.company,
-      bullets: e.bullets,
-    })),
-    education: resume.education.map((e) => ({
-      degree: e.degree,
-      school: e.school,
-    })),
-    projects: resume.projects.map((p) => ({
-      name: p.name,
-      description: p.description,
-    })),
+  const handleAddKeywordToSkills = (keyword: string) => {
+    if (!onUpdateResume) return
+    const formatted = keyword.charAt(0).toUpperCase() + keyword.slice(1)
+    if (resume.skills.map((s) => s.toLowerCase()).includes(keyword.toLowerCase())) return
+    onUpdateResume((prev) => ({
+      ...prev,
+      skills: [...prev.skills, formatted],
+    }))
   }
 
-  const runAi = async (action: 'ats' | 'tailor') => {
-    setLoading(action)
-    try {
-      const res = await fetch('/api/ai', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action,
-          jobDescription: jd.trim() || undefined,
-          context,
-        }),
-      })
-      const json = await res.json()
-      const text = json.text ?? json.error ?? 'Something went wrong.'
-      if (action === 'ats') setAiResult(text)
-      else setTailorResult(text)
-    } catch {
-      const msg = 'Network error — please try again.'
-      if (action === 'ats') setAiResult(msg)
-      else setTailorResult(msg)
-    } finally {
-      setLoading(null)
+  const handleAddAllMissing = () => {
+    if (!onUpdateResume || missing.length === 0) return
+    const existing = new Set(resume.skills.map((s) => s.toLowerCase()))
+    const toAdd = missing
+      .filter((k) => !existing.has(k.toLowerCase()))
+      .slice(0, 8)
+      .map((k) => k.charAt(0).toUpperCase() + k.slice(1))
+
+    if (toAdd.length > 0) {
+      onUpdateResume((prev) => ({
+        ...prev,
+        skills: [...prev.skills, ...toAdd],
+      }))
     }
   }
 
@@ -204,21 +202,21 @@ export function AtsPanel({
       />
       <aside
         className={cn(
-          'fixed inset-y-0 right-0 z-50 flex w-[440px] max-w-[94vw] flex-col border-l border-border bg-popover shadow-2xl transition-transform duration-300',
+          'fixed inset-y-0 right-0 z-50 flex w-[480px] max-w-[94vw] flex-col border-l border-border bg-popover shadow-2xl transition-transform duration-300',
           open ? 'translate-x-0' : 'translate-x-full',
         )}
         role="dialog"
         aria-label="ATS score"
       >
-        <header className="flex items-center justify-between border-b border-border px-5 py-4">
+        <header className="flex items-center justify-between border-b border-border px-5 py-3.5">
           <div className="flex items-center gap-2">
             <span className="flex size-8 items-center justify-center rounded-lg bg-primary/15 text-primary">
               <Gauge className="size-4" />
             </span>
             <div>
-              <h2 className="text-sm font-semibold">ATS Score & Job Match</h2>
+              <h2 className="text-sm font-semibold">ATS Intelligence Auditor</h2>
               <p className="text-[11px] text-muted-foreground">
-                Beat the resume-screening bots
+                Instant offline recruiter readiness & JD keyword matching
               </p>
             </div>
           </div>
@@ -228,7 +226,7 @@ export function AtsPanel({
         </header>
 
         <div className="scroll-thin flex-1 overflow-y-auto p-5">
-          {/* Score */}
+          {/* Score card */}
           <div className="flex items-center gap-5 rounded-2xl border border-border bg-secondary/25 p-5">
             <div className="relative flex size-24 shrink-0 items-center justify-center">
               <svg viewBox="0 0 100 100" className="size-24 -rotate-90">
@@ -267,23 +265,63 @@ export function AtsPanel({
             <div>
               <p className="text-sm font-semibold">
                 {score >= 80
-                  ? 'Great — recruiter ready'
+                  ? '🚀 Excellent — Recruiter Ready'
                   : score >= 55
-                    ? 'Decent — room to improve'
-                    : 'Needs work'}
+                    ? '⚡ Decent — Great Potential'
+                    : '⚠️ Needs Optimization'}
               </p>
               <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
                 {passCount}/{checks.length} structure checks passed
                 {keywordScore !== null && (
-                  <> · {keywordScore}% keyword match with the job description</>
+                  <> · <strong>{keywordScore}%</strong> JD keyword match</>
                 )}
+              </p>
+              {onOpenLibrary && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="mt-2.5 h-7 text-xs border-primary/40 bg-primary/10 text-primary hover:bg-primary/20"
+                  onClick={() => {
+                    onClose()
+                    onOpenLibrary()
+                  }}
+                >
+                  <BookOpen className="mr-1 size-3" />
+                  Open Bullet & Verb Library
+                </Button>
+              )}
+            </div>
+          </div>
+
+          {/* Quick stats grid */}
+          <div className="mt-4 grid grid-cols-2 gap-2.5">
+            <div className="rounded-xl border border-border bg-secondary/15 p-3">
+              <p className="text-[10px] uppercase font-semibold text-muted-foreground">
+                Action-Verb Starters
+              </p>
+              <p className="mt-1 text-lg font-bold text-foreground">
+                {actionVerbBullets.length}/{bullets.length}
+                <span className="ml-1 text-xs font-normal text-muted-foreground">
+                  ({Math.round((actionVerbBullets.length / Math.max(1, bullets.length)) * 100)}%)
+                </span>
+              </p>
+            </div>
+            <div className="rounded-xl border border-border bg-secondary/15 p-3">
+              <p className="text-[10px] uppercase font-semibold text-muted-foreground">
+                Quantified Bullets
+              </p>
+              <p className="mt-1 text-lg font-bold text-foreground">
+                {quantifiedBullets.length}/{bullets.length}
+                <span className="ml-1 text-xs font-normal text-muted-foreground">
+                  ({Math.round((quantifiedBullets.length / Math.max(1, bullets.length)) * 100)}%)
+                </span>
               </p>
             </div>
           </div>
 
-          {/* Checklist */}
+          {/* Structure Checklist */}
           <h3 className="mb-2 mt-6 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-            Structure checklist
+            Structure & Readiness Checklist
           </h3>
           <div className="flex flex-col gap-1.5">
             {checks.map((c) => (
@@ -297,7 +335,7 @@ export function AtsPanel({
                   <XCircle className="mt-0.5 size-4 shrink-0 text-red-400" />
                 )}
                 <div>
-                  <p className="text-sm">{c.label}</p>
+                  <p className="text-sm font-medium">{c.label}</p>
                   {!c.pass && (
                     <p className="text-xs text-muted-foreground">{c.hint}</p>
                   )}
@@ -306,36 +344,53 @@ export function AtsPanel({
             ))}
           </div>
 
-          {/* JD matching */}
-          <h3 className="mb-2 mt-6 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-            Match against a job description
-          </h3>
+          {/* JD Matching section */}
+          <div className="mb-2 mt-6 flex items-center justify-between">
+            <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+              Match against target Job Description
+            </h3>
+          </div>
           <Label htmlFor="jd" className="sr-only">
             Job description
           </Label>
           <Textarea
             id="jd"
             className="min-h-[110px]"
-            placeholder="Paste the job description here to get a keyword-match score and tailoring advice..."
+            placeholder="Paste any target job description here to instantly detect missing keywords and compare skills..."
             value={jd}
             onChange={(e) => setJd(e.target.value)}
           />
 
           {keywordScore !== null && (
-            <div className="mt-3 flex flex-col gap-2">
+            <div className="mt-3 flex flex-col gap-3 rounded-xl border border-border bg-secondary/20 p-3.5">
               {missing.length > 0 && (
                 <div>
-                  <p className="mb-1.5 text-xs font-semibold text-red-400">
-                    Missing keywords ({missing.length})
-                  </p>
+                  <div className="mb-2 flex items-center justify-between">
+                    <p className="text-xs font-semibold text-red-400">
+                      Missing keywords in resume ({missing.length})
+                    </p>
+                    {onUpdateResume && (
+                      <button
+                        type="button"
+                        onClick={handleAddAllMissing}
+                        className="text-[11px] text-primary hover:underline font-medium"
+                      >
+                        + Add top missing to skills
+                      </button>
+                    )}
+                  </div>
                   <div className="flex flex-wrap gap-1.5">
                     {missing.map((k) => (
-                      <span
+                      <button
+                        type="button"
                         key={k}
-                        className="rounded-md border border-red-400/30 bg-red-400/10 px-2 py-0.5 text-xs text-red-300"
+                        onClick={() => handleAddKeywordToSkills(k)}
+                        title="Click to add to skills"
+                        className="group flex items-center gap-1 rounded-md border border-red-400/30 bg-red-400/10 px-2 py-0.5 text-xs text-red-300 transition-all hover:bg-red-400/20"
                       >
-                        {k}
-                      </span>
+                        <span>{k}</span>
+                        <span className="opacity-0 group-hover:opacity-100 text-[10px]">+</span>
+                      </button>
                     ))}
                   </div>
                 </div>
@@ -359,58 +414,8 @@ export function AtsPanel({
               )}
             </div>
           )}
-
-          {/* AI buttons */}
-          <div className="mt-4 flex gap-2">
-            <Button
-              variant="outline"
-              className="h-10 flex-1 border-primary/40 bg-primary/10 text-primary hover:bg-primary/20"
-              disabled={loading !== null}
-              onClick={() => runAi('ats')}
-            >
-              {loading === 'ats' ? (
-                <Loader2 className="size-4 animate-spin" />
-              ) : (
-                <Sparkles className="size-4" />
-              )}
-              AI Deep Analysis
-            </Button>
-            <Button
-              variant="outline"
-              className="h-10 flex-1"
-              disabled={loading !== null || !jd.trim()}
-              onClick={() => runAi('tailor')}
-            >
-              {loading === 'tailor' ? (
-                <Loader2 className="size-4 animate-spin" />
-              ) : (
-                <Target className="size-4" />
-              )}
-              Tailor to this job
-            </Button>
-          </div>
-
-          {aiResult && (
-            <ResultCard title="AI analysis" text={aiResult} />
-          )}
-          {tailorResult && (
-            <ResultCard title="Tailoring advice" text={tailorResult} />
-          )}
         </div>
       </aside>
     </>
-  )
-}
-
-function ResultCard({ title, text }: { title: string; text: string }) {
-  return (
-    <div className="mt-4 rounded-xl border border-primary/30 bg-primary/5 p-4">
-      <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-primary">
-        {title}
-      </p>
-      <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">
-        {text}
-      </p>
-    </div>
   )
 }

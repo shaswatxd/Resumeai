@@ -16,10 +16,11 @@ import {
 type Message = { role: 'user' | 'ai'; text: string }
 
 const SUGGESTIONS = [
-  'Make my summary more impactful',
-  'Suggest strong action verbs',
-  'Turn my duties into achievements',
-  'Tailor my resume for a PM role',
+  '✨ Polish experience using Google XYZ formula',
+  '🎙️ What interview questions will they ask me?',
+  '🎯 How can I optimize my resume for a Senior role?',
+  '📈 Quantify my summary & key achievements',
+  '💡 Suggest missing technical & leadership skills',
 ]
 
 const LIVE_PREVIEW_BTN = {

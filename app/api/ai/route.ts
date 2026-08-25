@@ -70,7 +70,7 @@ const RESUME_JSON_SHAPE = `{
 }`
 
 type Body = {
-  action: 'chat' | 'summary' | 'bullets' | 'skills' | 'ats' | 'cover' | 'tailor' | 'build' | 'enhance-all'
+  action: 'chat' | 'summary' | 'bullets' | 'skills' | 'ats' | 'cover' | 'tailor' | 'build' | 'enhance-all' | 'xyz-polish' | 'interview-prep'
   prompt?: string
   history?: { role: 'user' | 'ai'; text: string }[]
   jobDescription?: string
@@ -215,6 +215,34 @@ export async function POST(req: Request) {
           .join('\n\n'),
       })
       return Response.json({ text: text.trim() })
+    }
+
+    if (action === 'xyz-polish') {
+      const text = await generate({
+        system:
+          'You are a premier executive resume writer and Google recruiter. Rewrite the provided work experiences/bullet points using Google\'s "Accomplished [X] as measured by [Y], by doing [Z]" formula. Always ensure each bullet has a strong action verb, clear context, and estimated/plausible quantifiable metrics (e.g. percentages, dollars, latency reduced, user scale). Return ONLY raw JSON in this format: {"experience": [{"id": "<matching exp id>", "bullets": ["bullet 1", "bullet 2"]}]}',
+        prompt: `Polish these experience bullets into Google XYZ quantified achievements:\n\n${resumeContext(context)}`,
+      })
+      try {
+        const parsed = extractJson(text) as { experience?: { id: string; bullets: string[] }[] }
+        return Response.json({ experience: parsed.experience ?? [] })
+      } catch {
+        return Response.json({ error: 'Failed to polish bullets.' }, { status: 500 })
+      }
+    }
+
+    if (action === 'interview-prep') {
+      const text = await generate({
+        system:
+          'You are an expert technical and behavioral hiring manager. Based on the candidate\'s resume and target role (or job description), generate 5 high-yield interview questions they are most likely to be asked. For each question, provide: 1) Why interviewers ask it, 2) A STAR-framework (Situation, Task, Action, Result) model answer strategy using their actual background, 3) A pro-tip to stand out. Return ONLY clean structured JSON with this shape: {"questions": [{"question": "...", "type": "Behavioral" | "Technical" | "Leadership", "whyAsked": "...", "starStrategy": "...", "proTip": "..."}]}',
+        prompt: `Generate tailored interview questions for this candidate.\n\nRESUME:\n${resumeContext(context)}\n\n${jobDescription ? `TARGET JOB:\n${jobDescription}` : ''}`,
+      })
+      try {
+        const parsed = extractJson(text)
+        return Response.json(parsed)
+      } catch {
+        return Response.json({ error: 'Failed to generate interview questions.' }, { status: 500 })
+      }
     }
 
     if (action === 'build') {

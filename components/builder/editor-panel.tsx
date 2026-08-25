@@ -17,11 +17,13 @@ import {
   ArrowLeft,
   Loader2,
   Wand2,
+  BookOpen,
 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Button, buttonVariants } from '@/components/ui/button'
 import { Input, Label, Textarea } from '@/components/ui/field'
 import { cn } from '@/lib/utils'
 import { uid, type ResumeData } from '@/lib/resume-types'
+import { ROLE_CATEGORIES } from '@/lib/bullet-library'
 
 type TabId =
   | 'personal'
@@ -43,85 +45,35 @@ const TABS: { id: TabId; label: string; icon: typeof User }[] = [
 type Props = {
   data: ResumeData
   onChange: (updater: (prev: ResumeData) => ResumeData) => void
+  onOpenLibrary?: () => void
 }
 
-export function EditorPanel({ data, onChange }: Props) {
+export function EditorPanel({ data, onChange, onOpenLibrary }: Props) {
   const [tab, setTab] = useState<TabId>('personal')
-  const [enhancing, setEnhancing] = useState(false)
 
   const set = <K extends keyof ResumeData>(key: K, value: ResumeData[K]) =>
     onChange((prev) => ({ ...prev, [key]: value }))
-
-  const handleEnhanceAll = async () => {
-    setEnhancing(true)
-    try {
-      const res = await fetch('/api/ai', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'enhance-all',
-          context: {
-            name: data.fullName,
-            role: data.role,
-            skills: data.skills,
-            summary: data.summary,
-            experience: data.experience.map((e) => ({
-              id: e.id,
-              role: e.role,
-              company: e.company,
-              bullets: e.bullets,
-            })),
-          },
-        }),
-      })
-      const json = await res.json()
-      if (json.summary || json.experience) {
-        onChange((prev) => {
-          const newExp = prev.experience.map((exp) => {
-            const match = json.experience?.find((e: { id: string; bullets: string[] }) => e.id === exp.id)
-            return match && match.bullets?.length ? { ...exp, bullets: match.bullets } : exp
-          })
-          return {
-            ...prev,
-            summary: json.summary || prev.summary,
-            experience: newExp,
-          }
-        })
-      }
-    } catch {
-      alert('AI enhance failed — please try again.')
-    } finally {
-      setEnhancing(false)
-    }
-  }
 
   const tabIndex = TABS.findIndex((t) => t.id === tab)
 
   return (
     <div className="flex h-full flex-col">
-      {/* Top AI Action Banner */}
+      {/* Top Library Action Banner */}
       <div className="border-b border-border bg-primary/10 px-4 py-2 flex items-center justify-between">
         <div className="flex items-center gap-2 text-xs font-medium text-primary">
-          <Sparkles className="size-3.5" />
-          <span>AI Resume Optimizer</span>
+          <BookOpen className="size-3.5" />
+          <span>Pro Bullet & Phrase Library</span>
         </div>
-        <Button
-          size="sm"
-          variant="outline"
-          className="h-7 text-xs gap-1 border-primary/40 text-primary hover:bg-primary/20"
-          onClick={handleEnhanceAll}
-          disabled={enhancing}
-        >
-          {enhancing ? (
-            <>
-              <Loader2 className="size-3 animate-spin" /> Enhancing…
-            </>
-          ) : (
-            <>
-              <Wand2 className="size-3" /> Auto-Enhance Resume
-            </>
-          )}
-        </Button>
+        {onOpenLibrary && (
+          <Button
+            size="sm"
+            variant="outline"
+            className="h-7 text-xs gap-1 border-primary/40 bg-background text-primary hover:bg-primary/20"
+            onClick={onOpenLibrary}
+          >
+            <BookOpen className="size-3" /> Browse Library
+          </Button>
+        )}
       </div>
 
       {/* Tabs */}
@@ -191,9 +143,11 @@ export function EditorPanel({ data, onChange }: Props) {
 function PersonalTab({
   data,
   set,
+  onOpenLibrary,
 }: {
   data: ResumeData
   set: <K extends keyof ResumeData>(k: K, v: ResumeData[K]) => void
+  onOpenLibrary?: () => void
 }) {
   const onPhoto = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -203,86 +157,67 @@ function PersonalTab({
     reader.readAsDataURL(file)
   }
 
-  const generateSummary = async () => {
-    const res = await fetch('/api/ai', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        action: 'summary',
-        context: {
-          name: data.fullName,
-          role: data.role,
-          skills: data.skills,
-          summary: data.summary,
-          experience: data.experience.map((e) => ({
-            role: e.role,
-            company: e.company,
-            bullets: e.bullets,
-          })),
-        },
-      }),
-    })
-    const json = await res.json()
-    if (json.text) set('summary', json.text)
-    else throw new Error(json.error ?? 'failed')
-  }
-
   return (
-    <div className="flex flex-col gap-5">
-      <div>
-        <Label>Profile photo (optional)</Label>
-        <div className="flex items-center gap-4">
-          <div className="flex size-16 items-center justify-center overflow-hidden rounded-full border border-border bg-secondary/50 text-muted-foreground">
-            {data.photo ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={data.photo || '/placeholder.svg'}
-                alt="Profile"
-                className="size-full object-cover"
-              />
-            ) : (
-              <User className="size-6" />
-            )}
-          </div>
-          <div className="flex gap-2">
-            <label className="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-lg border border-border bg-secondary/50 px-3 text-sm font-medium transition-colors hover:bg-secondary">
-              <Upload className="size-4" /> Upload
-              <input
-                type="file"
-                accept="image/*"
-                className="sr-only"
-                onChange={onPhoto}
-              />
-            </label>
-            {data.photo && (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-9"
-                onClick={() => set('photo', '')}
-              >
-                Remove
-              </Button>
-            )}
-          </div>
+    <div className="flex flex-col gap-4">
+      {/* Photo row */}
+      <div className="flex items-center gap-4 rounded-xl border border-border bg-secondary/20 p-4">
+        <div className="relative flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-border bg-secondary">
+          {data.photo ? (
+            <img
+              src={data.photo}
+              alt={data.fullName || 'Photo'}
+              className="size-full object-cover"
+            />
+          ) : (
+            <User className="size-7 text-muted-foreground" />
+          )}
+        </div>
+        <div className="flex-1">
+          <p className="text-sm font-medium">Profile photo</p>
+          <p className="text-xs text-muted-foreground">
+            Optional — JPG, PNG or WebP
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          {data.photo && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => set('photo', '')}
+              aria-label="Remove photo"
+            >
+              <Trash2 className="size-4 text-destructive" />
+            </Button>
+          )}
+          <label className={cn(buttonVariants({ variant: 'outline', size: 'sm' }), 'cursor-pointer')}>
+            <Upload className="size-4" />
+            <span className="hidden sm:inline">{data.photo ? 'Change' : 'Upload'}</span>
+            <input
+              type="file"
+              accept="image/*"
+              className="sr-only"
+              onChange={onPhoto}
+            />
+          </label>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div>
+      {/* Inputs */}
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div className="sm:col-span-2">
           <Label htmlFor="fullName">Full name</Label>
           <Input
             id="fullName"
-            placeholder="Digvijay Singh"
+            placeholder="Sarah Jenkins"
             value={data.fullName}
             onChange={(e) => set('fullName', e.target.value)}
           />
         </div>
-        <div>
-          <Label htmlFor="role">Target role</Label>
+        <div className="sm:col-span-2">
+          <Label htmlFor="role">Target job title</Label>
           <Input
             id="role"
-            placeholder="Full Stack Developer"
+            placeholder="Senior Product Designer"
             value={data.role}
             onChange={(e) => set('role', e.target.value)}
           />
@@ -292,7 +227,7 @@ function PersonalTab({
           <Input
             id="email"
             type="email"
-            placeholder="digvijay@email.com"
+            placeholder="sarah@example.com"
             value={data.email}
             onChange={(e) => set('email', e.target.value)}
           />
@@ -301,53 +236,71 @@ function PersonalTab({
           <Label htmlFor="phone">Phone</Label>
           <Input
             id="phone"
-            placeholder="+91 98765 43210"
+            placeholder="+1 (555) 012-3456"
             value={data.phone}
             onChange={(e) => set('phone', e.target.value)}
           />
         </div>
-        <div>
+        <div className="sm:col-span-2">
           <Label htmlFor="location">Location</Label>
           <Input
             id="location"
-            placeholder="Bengaluru, India"
+            placeholder="San Francisco, CA (or Remote)"
             value={data.location}
             onChange={(e) => set('location', e.target.value)}
           />
         </div>
-        <div>
-          <Label htmlFor="linkedin">LinkedIn</Label>
-          <Input
-            id="linkedin"
-            placeholder="linkedin.com/in/digvijaysingh"
-            value={data.linkedin}
-            onChange={(e) => set('linkedin', e.target.value)}
-          />
-        </div>
-        <div>
-          <Label htmlFor="github">GitHub (optional)</Label>
-          <Input
-            id="github"
-            placeholder="github.com/digvijaysingh"
-            value={data.github}
-            onChange={(e) => set('github', e.target.value)}
-          />
-        </div>
-        <div>
-          <Label htmlFor="website">Website (optional)</Label>
-          <Input
-            id="website"
-            placeholder="digvijay.dev"
-            value={data.website}
-            onChange={(e) => set('website', e.target.value)}
-          />
+      </div>
+
+      {/* Links */}
+      <div className="rounded-xl border border-border bg-secondary/10 p-4">
+        <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          Online presence
+        </p>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <div>
+            <Label htmlFor="linkedin">LinkedIn</Label>
+            <Input
+              id="linkedin"
+              placeholder="linkedin.com/in/..."
+              value={data.linkedin}
+              onChange={(e) => set('linkedin', e.target.value)}
+            />
+          </div>
+          <div>
+            <Label htmlFor="github">GitHub</Label>
+            <Input
+              id="github"
+              placeholder="github.com/..."
+              value={data.github}
+              onChange={(e) => set('github', e.target.value)}
+            />
+          </div>
+          <div>
+            <Label htmlFor="website">Website / Portfolio</Label>
+            <Input
+              id="website"
+              placeholder="sarah.design"
+              value={data.website}
+              onChange={(e) => set('website', e.target.value)}
+            />
+          </div>
         </div>
       </div>
 
+      {/* Summary */}
       <div>
         <div className="mb-1.5 flex items-center justify-between">
           <Label className="mb-0">Professional summary</Label>
-          <AiGenerateButton onGenerate={generateSummary} />
+          {onOpenLibrary && (
+            <button
+              type="button"
+              onClick={onOpenLibrary}
+              className="inline-flex items-center gap-1 rounded-md border border-primary/40 bg-primary/10 px-2 py-1 text-xs font-medium text-primary transition-colors hover:bg-primary/20"
+            >
+              <BookOpen className="size-3" /> Browse Library
+            </button>
+          )}
         </div>
         <Textarea
           className="min-h-[120px]"
@@ -356,8 +309,7 @@ function PersonalTab({
           onChange={(e) => set('summary', e.target.value)}
         />
         <p className="mt-1.5 text-xs text-muted-foreground">
-          Tip: fill in your role and skills first — AI uses them to write a
-          sharper summary.
+          Tip: fill in your role and skills first to highlight your core strengths.
         </p>
       </div>
     </div>
@@ -368,16 +320,25 @@ function PersonalTab({
 function ExperienceTab({
   data,
   onChange,
+  onOpenLibrary,
 }: {
   data: ResumeData
   onChange: (u: (p: ResumeData) => ResumeData) => void
+  onOpenLibrary?: () => void
 }) {
   const add = () =>
     onChange((p) => ({
       ...p,
       experience: [
         ...p.experience,
-        { id: uid('exp'), role: '', company: '', start: '', end: '', bullets: [''] },
+        {
+          id: uid('exp'),
+          role: '',
+          company: '',
+          start: '',
+          end: '',
+          bullets: [''],
+        },
       ],
     }))
 
@@ -390,57 +351,40 @@ function ExperienceTab({
   const remove = (id: string) =>
     onChange((p) => ({ ...p, experience: p.experience.filter((e) => e.id !== id) }))
 
-  const improveBullets = async (exp: ResumeData['experience'][number]) => {
-    const res = await fetch('/api/ai', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        action: 'bullets',
-        context: {
-          role: exp.role,
-          company: exp.company,
-          bullets: exp.bullets.filter((b) => b.trim()),
-        },
-      }),
-    })
-    const json = await res.json()
-    if (json.bullets?.length) update(exp.id, { bullets: json.bullets })
-    else throw new Error(json.error ?? 'failed')
-  }
-
   return (
     <div className="flex flex-col gap-4">
       {data.experience.length === 0 && (
         <EmptyState
           icon={Briefcase}
-          text="No work experience yet. Add your first role to get started."
+          text="Add your relevant work history, internships, or freelance roles."
         />
       )}
 
       {data.experience.map((exp, idx) => (
         <div
           key={exp.id}
-          className="rounded-xl border border-border bg-secondary/25 p-4"
+          className="rounded-xl border border-border bg-secondary/10 p-4"
         >
           <div className="mb-3 flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Role {idx + 1}
+            <span className="text-xs font-semibold text-muted-foreground">
+              Role #{idx + 1}
             </span>
             <Button
               variant="ghost"
-              size="icon-sm"
+              size="sm"
               onClick={() => remove(exp.id)}
               aria-label="Remove role"
             >
               <Trash2 className="size-4 text-destructive" />
             </Button>
           </div>
+
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
               <Label>Job title</Label>
               <Input
                 value={exp.role}
-                placeholder="Senior Software Engineer"
+                placeholder="Product Designer"
                 onChange={(e) => update(exp.id, { role: e.target.value })}
               />
             </div>
@@ -448,7 +392,7 @@ function ExperienceTab({
               <Label>Company</Label>
               <Input
                 value={exp.company}
-                placeholder="Acme Inc."
+                placeholder="Acme Corp"
                 onChange={(e) => update(exp.id, { company: e.target.value })}
               />
             </div>
@@ -456,7 +400,7 @@ function ExperienceTab({
               <Label>Start</Label>
               <Input
                 value={exp.start}
-                placeholder="Jan 2022"
+                placeholder="2021"
                 onChange={(e) => update(exp.id, { start: e.target.value })}
               />
             </div>
@@ -471,11 +415,16 @@ function ExperienceTab({
           </div>
           <div className="mt-3">
             <div className="mb-1.5 flex items-center justify-between">
-              <Label className="mb-0">Highlights</Label>
-              <AiGenerateButton
-                label="AI Improve"
-                onGenerate={() => improveBullets(exp)}
-              />
+              <Label className="mb-0">Achievement Bullets</Label>
+              {onOpenLibrary && (
+                <button
+                  type="button"
+                  onClick={onOpenLibrary}
+                  className="inline-flex items-center gap-1 rounded-md border border-primary/40 bg-primary/10 px-2 py-1 text-xs font-medium text-primary transition-colors hover:bg-primary/20"
+                >
+                  <BookOpen className="size-3" /> Browse Phrases
+                </button>
+              )}
             </div>
             <BulletEditor
               bullets={exp.bullets}
@@ -485,9 +434,20 @@ function ExperienceTab({
         </div>
       ))}
 
-      <Button variant="outline" className="h-11" onClick={add}>
-        <Plus className="size-4" /> Add role
-      </Button>
+      <div className="flex gap-2">
+        <Button variant="outline" className="h-11 flex-1" onClick={add}>
+          <Plus className="size-4" /> Add role
+        </Button>
+        {onOpenLibrary && (
+          <Button
+            variant="outline"
+            className="h-11 border-primary/40 text-primary hover:bg-primary/10"
+            onClick={onOpenLibrary}
+          >
+            <BookOpen className="size-4" /> Bullet Library
+          </Button>
+        )}
+      </div>
     </div>
   )
 }
@@ -643,7 +603,6 @@ function SkillsTab({
   set: <K extends keyof ResumeData>(k: K, v: ResumeData[K]) => void
 }) {
   const [draft, setDraft] = useState('')
-  const [suggesting, setSuggesting] = useState(false)
   const [suggestions, setSuggestions] = useState<string[]>([])
 
   const addSkill = (value: string) => {
@@ -652,30 +611,24 @@ function SkillsTab({
     if (!data.skills.includes(v)) set('skills', [...data.skills, v])
   }
 
-  const suggestSkills = async () => {
-    setSuggesting(true)
-    try {
-      const res = await fetch('/api/ai', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'skills',
-          context: {
-            role: data.role,
-            skills: data.skills,
-            summary: data.summary,
-          },
-        }),
-      })
-      const json = await res.json()
-      if (json.skills?.length) {
-        setSuggestions(
-          (json.skills as string[]).filter((s) => !data.skills.includes(s)),
-        )
+  const suggestSkills = () => {
+    const roleLow = (data.role || '').toLowerCase()
+    let pool: string[] = []
+
+    for (const cat of ROLE_CATEGORIES) {
+      for (const r of cat.roles) {
+        if (roleLow && (r.title.toLowerCase().includes(roleLow) || roleLow.includes(r.title.toLowerCase()))) {
+          pool.push(...r.skills)
+        }
       }
-    } finally {
-      setSuggesting(false)
     }
+
+    if (pool.length === 0) {
+      pool = ['React', 'TypeScript', 'Node.js', 'Python', 'SQL', 'Git', 'Agile / Scrum', 'Leadership', 'UI/UX Design', 'Cloud Architecture']
+    }
+
+    const available = Array.from(new Set(pool)).filter((s) => !data.skills.includes(s))
+    setSuggestions(available.slice(0, 10))
   }
 
   return (
@@ -715,12 +668,12 @@ function SkillsTab({
           Your skills
         </span>
         <button
+          type="button"
           onClick={suggestSkills}
-          disabled={suggesting}
-          className="inline-flex items-center gap-1 rounded-md border border-primary/40 bg-primary/10 px-2 py-1 text-xs font-medium text-primary transition-colors hover:bg-primary/20 disabled:opacity-60"
+          className="inline-flex items-center gap-1 rounded-md border border-primary/40 bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary transition-colors hover:bg-primary/20"
         >
-          <Sparkles className={cn('size-3.5', suggesting && 'animate-pulse')} />
-          {suggesting ? 'Thinking…' : 'AI Suggest'}
+          <Sparkles className="size-3.5" />
+          Recommended Skills
         </button>
       </div>
 
@@ -754,7 +707,7 @@ function SkillsTab({
       {suggestions.length > 0 && (
         <div>
           <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            AI suggestions — tap to add
+            Top skill recommendations — tap to add
           </p>
           <div className="flex flex-wrap gap-2">
             {suggestions.map((s: string) => (
@@ -1087,42 +1040,3 @@ function EmptyState({ icon: Icon, text }: { icon: typeof User; text: string }) {
   )
 }
 
-function AiGenerateButton({
-  onGenerate,
-  label = 'AI Generate',
-}: {
-  onGenerate: () => Promise<void>
-  label?: string
-}) {
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(false)
-
-  const run = async () => {
-    setLoading(true)
-    setError(false)
-    try {
-      await onGenerate()
-    } catch {
-      setError(true)
-      setTimeout(() => setError(false), 2500)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  return (
-    <button
-      onClick={run}
-      disabled={loading}
-      className={cn(
-        'inline-flex items-center gap-1 rounded-md border px-2 py-1 text-xs font-medium transition-colors disabled:opacity-60',
-        error
-          ? 'border-destructive/40 bg-destructive/10 text-destructive'
-          : 'border-primary/40 bg-primary/10 text-primary hover:bg-primary/20',
-      )}
-    >
-      <Sparkles className={cn('size-3.5', loading && 'animate-pulse')} />
-      {loading ? 'Writing…' : error ? 'Failed — retry' : label}
-    </button>
-  )
-}

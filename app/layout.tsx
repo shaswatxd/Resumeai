@@ -59,36 +59,56 @@ const resumeFontVars = [
   .map((f) => f.variable)
   .join(' ')
 
+const SITE_URL = 'https://resumeaihai.vercel.app'
+
 export const metadata: Metadata = {
-  metadataBase: new URL('https://resumeaihai.vercel.app'),
+  metadataBase: new URL(SITE_URL),
   title: {
-    default: 'ResumeAI — Free AI Resume Builder with ATS Score',
-    template: '%s · ResumeAI',
+    default: 'ResumePro — Free Professional Resume Builder with ATS Auditor',
+    template: '%s · ResumePro',
   },
   description:
-    'Build a standout resume in minutes: 26 premium templates, real AI writing help, ATS score with job-description matching, AI cover letters, and one-click PDF export. Free, no sign-up.',
+    'Build a standout resume in minutes: 26 premium templates, pro bullet & phrase library, ATS score with job-description matching, smart cover letters, and one-click PDF export. Free, no sign-up.',
   keywords: [
     'resume builder',
-    'AI resume',
-    'free resume builder',
+    'free resume maker',
     'ATS resume checker',
-    'cover letter generator',
-    'CV maker',
     'resume templates',
+    'CV maker',
+    'cover letter generator',
+    'clean resume format',
+    'PDF resume export',
+    'FAANG resume',
   ],
+  authors: [{ name: 'ResumePro' }],
+  creator: 'ResumePro',
   openGraph: {
-    title: 'ResumeAI — Free AI Resume Builder with ATS Score',
-    description:
-      '26 premium templates, real AI writing, ATS scoring, cover letters and one-click PDF. Free, no sign-up.',
-    url: 'https://resumeaihai.vercel.app',
-    siteName: 'ResumeAI',
     type: 'website',
+    locale: 'en_US',
+    url: SITE_URL,
+    title: 'ResumePro — Free Professional Resume Builder with ATS Auditor',
+    description:
+      '26 premium templates, pro bullet library, ATS scoring, cover letters and one-click PDF. Free, no sign-up.',
+    siteName: 'ResumePro',
+    images: [{ url: '/og.png', width: 1200, height: 630, alt: 'ResumePro' }],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'ResumeAI — Free AI Resume Builder',
+    title: 'ResumePro — Free Professional Resume Builder',
     description:
-      '26 templates · Real AI writing · ATS score · Cover letters · Free PDF export',
+      '26 templates · Pro bullet library · ATS score · Cover letters · Free PDF export',
+    images: ['/og.png'],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
   },
 }
 

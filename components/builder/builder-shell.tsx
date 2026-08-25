@@ -16,13 +16,17 @@ import {
   FileDown,
   Wand2,
   Copy,
+  Undo2,
+  Redo2,
+  BookOpen,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { EditorPanel } from '@/components/builder/editor-panel'
 import { PreviewPanel } from '@/components/builder/preview-panel'
 import { DesignPanel } from '@/components/builder/design-panel'
-import { AiPanel } from '@/components/builder/ai-panel'
 import { AtsPanel } from '@/components/builder/ats-panel'
+import { BulletLibraryModal } from '@/components/builder/bullet-library-modal'
+import { CommandPalette } from '@/components/builder/command-palette'
 import { useResumeStore } from '@/hooks/use-resume-store'
 import { EMPTY_DATA, SAMPLE_DATA, type ResumeData } from '@/lib/resume-types'
 import { cn } from '@/lib/utils'
@@ -34,6 +38,10 @@ export function BuilderShell() {
     theme,
     design,
     hydrated,
+    canUndo,
+    canRedo,
+    undo,
+    redo,
     setData,
     setTemplate,
     setTheme,
@@ -42,11 +50,23 @@ export function BuilderShell() {
   } = useResumeStore()
 
   const [drawerOpen, setDrawerOpen] = useState(false)
-  const [aiOpen, setAiOpen] = useState(false)
+  const [libraryOpen, setLibraryOpen] = useState(false)
   const [atsOpen, setAtsOpen] = useState(false)
+  const [paletteOpen, setPaletteOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [mobileView, setMobileView] = useState<'edit' | 'preview'>('edit')
   const importRef = useRef<HTMLInputElement>(null)
+
+  // Calculate quick ATS readiness score for the header badge
+  const quickAtsScore = (() => {
+    let pts = 0
+    if (data.fullName && data.email && data.phone) pts += 25
+    if (data.summary && data.summary.length >= 80) pts += 20
+    if (data.experience.length > 0 && data.experience.some((e) => e.bullets.length > 0)) pts += 25
+    if (data.skills.length >= 4) pts += 15
+    if (data.education.length > 0) pts += 15
+    return Math.min(100, pts)
+  })()
 
   const handleReset = () => {
     if (confirm('Clear all resume fields? This cannot be undone.')) {
@@ -83,7 +103,7 @@ export function BuilderShell() {
     const prev = document.title
     document.title = data.fullName
       ? `${data.fullName} - Resume`
-      : 'Resume - ResumeAI'
+      : 'Resume - ResumePro'
     window.print()
     document.title = prev
   }
@@ -95,7 +115,7 @@ export function BuilderShell() {
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `${(data.fullName || 'resume').replace(/\s+/g, '-').toLowerCase()}-resumeai.json`
+    a.download = `${(data.fullName || 'resume').replace(/\s+/g, '-').toLowerCase()}-resumepro.json`
     a.click()
     URL.revokeObjectURL(url)
     setMenuOpen(false)
@@ -113,7 +133,7 @@ export function BuilderShell() {
         if (parsed.template) setTemplate(parsed.template)
         if (parsed.theme) setTheme(parsed.theme)
       } catch {
-        alert('Invalid file — expected a ResumeAI JSON export.')
+        alert('Invalid file — expected a ResumePro JSON export.')
       }
     }
     reader.readAsText(file)
@@ -129,33 +149,71 @@ export function BuilderShell() {
           <Link
             href="/"
             className="group relative flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground"
-            aria-label="ResumeAI home"
+            aria-label="ResumePro home"
           >
             <FileText className="size-5 transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110" />
           </Link>
           <div className="hidden sm:block">
-            <p className="text-sm font-semibold leading-none">ResumeAI</p>
+            <p className="text-sm font-semibold leading-none">ResumePro</p>
             <p className="text-[11px] text-muted-foreground">
               {hydrated ? 'Saved locally' : 'Loading…'}
             </p>
           </div>
+
+          {/* Undo / Redo */}
+          <div className="ml-2 flex items-center gap-0.5 rounded-lg border border-border/80 bg-secondary/30 p-0.5">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 text-muted-foreground hover:text-foreground disabled:opacity-30"
+              disabled={!canUndo}
+              onClick={undo}
+              title="Undo (Ctrl+Z)"
+            >
+              <Undo2 className="size-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 text-muted-foreground hover:text-foreground disabled:opacity-30"
+              disabled={!canRedo}
+              onClick={redo}
+              title="Redo (Ctrl+Y)"
+            >
+              <Redo2 className="size-4" />
+            </Button>
+          </div>
+
           <Button
             variant="outline"
             size="lg"
-            className="ml-2 h-10"
+            className="ml-1 h-10"
             onClick={() => setDrawerOpen(true)}
           >
             <LayoutTemplate className="size-4" />
             <span className="hidden sm:inline">Design</span>
           </Button>
+
           <Button
             variant="outline"
             size="lg"
-            className="h-10"
+            className="h-10 gap-2"
             onClick={() => setAtsOpen(true)}
           >
             <Gauge className="size-4" />
             <span className="hidden sm:inline">ATS Score</span>
+            <span
+              className={cn(
+                'rounded-full px-2 py-0.5 text-xs font-bold tabular-nums',
+                quickAtsScore >= 80
+                  ? 'bg-emerald-500/15 text-emerald-400'
+                  : quickAtsScore >= 50
+                    ? 'bg-amber-500/15 text-amber-400'
+                    : 'bg-red-500/15 text-red-400',
+              )}
+            >
+              {quickAtsScore}%
+            </span>
           </Button>
         </div>
 
@@ -222,11 +280,23 @@ export function BuilderShell() {
           <Button
             variant="outline"
             size="lg"
-            className="h-10 border-primary/40 bg-primary/10 text-primary hover:bg-primary/20"
-            onClick={() => setAiOpen(true)}
+            className="h-10 border-border bg-secondary/30 text-foreground hover:bg-secondary/60 gap-1.5"
+            onClick={() => setPaletteOpen(true)}
+            title="Command Palette (Ctrl + K)"
           >
-            <Sparkles className="size-4" />
-            <span className="hidden sm:inline">Ask AI</span>
+            <span className="hidden sm:inline text-xs font-medium">Search / Jump</span>
+            <kbd className="rounded bg-background/80 px-1.5 py-0.5 text-[10px] font-mono font-semibold text-muted-foreground border border-border">
+              ⌘K
+            </kbd>
+          </Button>
+          <Button
+            variant="outline"
+            size="lg"
+            className="h-10 border-primary/40 bg-primary/10 text-primary hover:bg-primary/20"
+            onClick={() => setLibraryOpen(true)}
+          >
+            <BookOpen className="size-4" />
+            <span className="hidden sm:inline">Bullet Library</span>
           </Button>
           <Button size="lg" className="h-10" onClick={handlePrint}>
             <Download className="size-4" />
@@ -260,7 +330,11 @@ export function BuilderShell() {
             mobileView === 'edit' ? 'flex' : 'hidden',
           )}
         >
-          <EditorPanel data={data} onChange={(u) => setData(u)} />
+          <EditorPanel
+            data={data}
+            onChange={(u) => setData(u)}
+            onOpenLibrary={() => setLibraryOpen(true)}
+          />
         </section>
 
         {/* Preview */}
@@ -277,6 +351,7 @@ export function BuilderShell() {
             theme={theme}
             design={design}
             onChange={setData}
+            onDesignChange={setDesign}
             onTemplate={setTemplate}
             onOpenAts={() => setAtsOpen(true)}
           />
@@ -295,19 +370,30 @@ export function BuilderShell() {
         onDesign={setDesign}
         onData={setData}
       />
-      <AiPanel
-        open={aiOpen}
-        onClose={() => setAiOpen(false)}
-        resume={data}
+      <BulletLibraryModal
+        open={libraryOpen}
+        onClose={() => setLibraryOpen(false)}
         onApplyData={setData}
-        onApplyTemplate={setTemplate}
-        onLivePreview={() => {
-          setAiOpen(false)
-          setMobileView('preview')
-          document.getElementById('preview-section')?.scrollIntoView({ behavior: 'smooth' })
-        }}
       />
-      <AtsPanel open={atsOpen} onClose={() => setAtsOpen(false)} resume={data} />
+      <AtsPanel
+        open={atsOpen}
+        onClose={() => setAtsOpen(false)}
+        resume={data}
+        onUpdateResume={setData}
+        onOpenLibrary={() => setLibraryOpen(true)}
+      />
+      <CommandPalette
+        open={paletteOpen}
+        onClose={() => setPaletteOpen(false)}
+        onSelectTemplate={setTemplate}
+        onSelectTheme={setTheme}
+        onOpenLibrary={() => setLibraryOpen(true)}
+        onOpenDesign={() => setDrawerOpen(true)}
+        onOpenAts={() => setAtsOpen(true)}
+        onPrintPdf={handlePrint}
+        onApplyData={setData}
+        onReset={() => setData(EMPTY_DATA)}
+      />
     </div>
   )
 }

@@ -1,215 +1,142 @@
 import Link from 'next/link'
 import {
   ArrowRight,
-  Sparkles,
-  LayoutTemplate,
-  Download,
-  Eye,
-  ShieldCheck,
-  Wand2,
   FileText,
-  Gauge,
-  PenLine,
-  FileJson,
-  type LucideIcon,
+  LayoutTemplate,
+  CheckCircle2,
+  Sparkles,
+  Command,
+  ShieldCheck,
+  Zap,
 } from 'lucide-react'
 import { buttonVariants } from '@/components/ui/button'
 import { ResumeDocument } from '@/components/resume/resume-document'
 import { SAMPLE_DATA, TEMPLATES, THEMES } from '@/lib/resume-types'
+import { InteractiveHero } from '@/components/landing/interactive-hero'
+import { BentoGrid } from '@/components/landing/bento-grid'
 import { cn } from '@/lib/utils'
-
-const FEATURES: { icon: LucideIcon; title: string; text: string }[] = [
-  {
-    icon: Eye,
-    title: 'Real-time preview',
-    text: 'See every edit instantly rendered on a pixel-perfect A4 sheet.',
-  },
-  {
-    icon: LayoutTemplate,
-    title: `${TEMPLATES.length} premium templates`,
-    text: 'Switch layouts and accent colors in one click — content stays intact.',
-  },
-  {
-    icon: Sparkles,
-    title: 'Real AI writing',
-    text: 'AI writes your summary, rewrites bullets into achievements, and suggests skills.',
-  },
-  {
-    icon: Gauge,
-    title: 'ATS score & job match',
-    text: 'Instant ATS checklist plus keyword matching against any job description.',
-  },
-  {
-    icon: PenLine,
-    title: 'AI cover letters',
-    text: 'A tailored cover letter generated from your resume in seconds.',
-  },
-  {
-    icon: Download,
-    title: 'One-click PDF',
-    text: 'Export a clean, ATS-friendly PDF ready to send anywhere.',
-  },
-  {
-    icon: ShieldCheck,
-    title: 'Private by default',
-    text: 'Your data is saved in your browser — nothing leaves your device.',
-  },
-  {
-    icon: FileJson,
-    title: 'Backup & restore',
-    text: 'Export your resume as JSON and import it on any device.',
-  },
-  {
-    icon: Wand2,
-    title: 'Guided sections',
-    text: 'Experience, projects, certifications, languages, awards — all organized.',
-  },
-]
-
-const STEPS = [
-  {
-    n: '01',
-    title: 'Fill in your details',
-    text: 'Guided tabs for every section. Empty preview shows sample data so you always see the end result.',
-  },
-  {
-    n: '02',
-    title: 'Let AI polish it',
-    text: 'Generate a summary, turn duties into quantified achievements, and check your ATS score against the job.',
-  },
-  {
-    n: '03',
-    title: 'Pick a design & export',
-    text: `Choose from ${TEMPLATES.length} templates and ${THEMES.length} accent colors, then download a crisp PDF.`,
-  },
-]
 
 const FAQS = [
   {
-    q: 'Is ResumeAI really free?',
-    a: 'Yes. The builder, all templates, PDF export, ATS scoring and AI assistance are free to use.',
+    q: 'Is ResumePro really 100% free with no paywalls?',
+    a: 'Yes. All 26 templates, vector PDF export, the 50+ pro bullet library, and real-time ATS auditing are completely free with zero hidden subscriptions.',
   },
   {
-    q: 'Is my data safe?',
-    a: 'Your resume lives in your browser (localStorage) — it is never stored on our servers. Only the text you explicitly send to the AI assistant is processed to generate suggestions.',
+    q: 'How is my privacy protected?',
+    a: 'Your resume data lives strictly inside your browser (localStorage). We do not send your personal details, work history, or contact numbers to any remote server or third-party database.',
   },
   {
-    q: 'Are the templates ATS-friendly?',
-    a: 'Yes. Templates tagged "ATS" use single-column layouts, standard section names and real text (no images of text), which applicant tracking systems parse reliably.',
+    q: 'Are the templates strictly ATS-friendly?',
+    a: 'Yes. Templates tagged "ATS" and single-column styles use standard semantic section hierarchies and selectable vector text (never raster images of text), ensuring perfect parsing by Workday, Greenhouse, Lever, and Taleo.',
   },
   {
-    q: 'Can I use it on my phone?',
-    a: 'Yes — the builder has a dedicated mobile mode with an edit/preview switcher.',
+    q: 'Can I export a backup and restore later?',
+    a: 'Yes. You can download a standalone JSON backup file anytime from the top menu and restore it on any computer or mobile browser in 1 click.',
   },
   {
-    q: 'How does the ATS score work?',
-    a: 'We run 8 structural checks (quantified bullets, action verbs, length, contact info…) locally, and if you paste a job description we compute keyword coverage plus optional AI deep analysis.',
-  },
-  {
-    q: 'Can I move my resume to another device?',
-    a: 'Export it as a JSON backup from the builder menu and import it anywhere.',
+    q: 'How does the ATS score calculation work?',
+    a: 'We evaluate 8 core structural indicators (action-verb starters, quantifiable metrics, contact verification, section completeness) and allow you to compare your resume directly against any target Job Description.',
   },
 ]
 
 const SHOWCASE = ['luxury', 'canva-emerald', 'canva-coral'] as const
 
 export default function Page() {
-  const blue = THEMES[0]
-  const purple = THEMES[1]
-  const green = THEMES[2]
-  const showcaseThemes = [blue, purple, green]
+  const showcaseThemes = [THEMES[0], THEMES[1], THEMES[2]]
 
   return (
-    <main className="relative min-h-dvh overflow-hidden">
-      {/* soft accent glow */}
+    <main className="relative min-h-dvh overflow-hidden bg-background text-foreground">
+      {/* Ambient background studio lighting */}
       <div
         aria-hidden
-        className="pointer-events-none absolute -top-40 left-1/2 h-[520px] w-[820px] -translate-x-1/2 rounded-full opacity-30 blur-3xl"
+        className="pointer-events-none absolute -top-40 left-1/2 h-[600px] w-[1000px] -translate-x-1/2 rounded-full opacity-25 blur-3xl"
         style={{
           background:
             'radial-gradient(closest-side, oklch(0.62 0.2 292), transparent)',
         }}
       />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute top-[45%] right-0 h-[450px] w-[600px] rounded-full opacity-15 blur-3xl"
+        style={{
+          background:
+            'radial-gradient(closest-side, oklch(0.7 0.18 190), transparent)',
+        }}
+      />
 
-      {/* Nav */}
-      <header className="relative z-10 mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
-        <div className="flex items-center gap-2">
-          <span className="flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
+      {/* Modern Studio Navbar */}
+      <header className="relative z-20 mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
+        <div className="flex items-center gap-3">
+          <span className="flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm">
             <FileText className="size-5" />
           </span>
-          <span className="text-lg font-semibold">ResumeAI</span>
+          <div className="flex items-center gap-2">
+            <span className="text-lg font-bold tracking-tight">ResumePro</span>
+            <span className="rounded-full bg-secondary/80 px-2 py-0.5 text-[10px] font-mono font-medium text-muted-foreground">
+              v2.0
+            </span>
+          </div>
         </div>
-        <nav className="hidden items-center gap-6 text-sm text-muted-foreground sm:flex">
+
+        <nav className="hidden items-center gap-7 text-sm font-medium text-muted-foreground sm:flex">
           <Link href="/templates" className="transition-colors hover:text-foreground">
-            Templates
+            26 Layouts
           </Link>
           <Link href="/cover-letter" className="transition-colors hover:text-foreground">
-            Cover letter
+            Smart Cover Letter
+          </Link>
+          <Link
+            href="/builder"
+            className="flex items-center gap-1.5 transition-colors hover:text-foreground"
+          >
+            <span className="size-1.5 rounded-full bg-emerald-400" />
+            Studio
           </Link>
         </nav>
-        <Link
-          href="/builder"
-          className={cn(buttonVariants({ size: 'lg' }), 'h-10 gap-2 px-4')}
-        >
-          Open builder <ArrowRight className="size-4" />
-        </Link>
-      </header>
 
-      {/* Hero */}
-      <section className="relative z-10 mx-auto max-w-3xl px-6 pb-14 pt-16 text-center sm:pt-24">
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-secondary/40 px-3 py-1 text-xs text-muted-foreground">
-          <Sparkles className="size-3.5 text-primary" />
-          AI resume builder · ATS score · Cover letters
-        </span>
-        <h1 className="mt-6 text-balance text-4xl font-bold leading-tight tracking-tight sm:text-6xl">
-          Craft a standout resume in{' '}
-          <span className="text-primary">minutes</span>
-        </h1>
-        <p className="mx-auto mt-5 max-w-xl text-pretty text-base leading-relaxed text-muted-foreground sm:text-lg">
-          Fill in a few fields, watch a beautiful resume build itself in real
-          time, beat the ATS bots, and export a polished PDF.{' '}
-          {TEMPLATES.length} premium templates and real AI writing help — free.
-        </p>
-        <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+        <div className="flex items-center gap-3">
           <Link
             href="/builder"
             className={cn(
               buttonVariants({ size: 'lg' }),
-              'h-12 gap-2 px-6 text-base',
+              'h-10 gap-2 px-5 font-semibold shadow-sm',
             )}
           >
-            Start building <ArrowRight className="size-4" />
-          </Link>
-          <Link
-            href="/templates"
-            className={cn(
-              buttonVariants({ variant: 'outline', size: 'lg' }),
-              'h-12 gap-2 px-6 text-base',
-            )}
-          >
-            Browse templates
+            Open Studio <ArrowRight className="size-4" />
           </Link>
         </div>
-        <p className="mt-4 text-sm text-muted-foreground">
-          No sign-up · Saved in your browser · Free forever
-        </p>
-      </section>
+      </header>
 
-      {/* Template showcase */}
-      <section className="relative z-10 mx-auto max-w-6xl px-6 pb-20">
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
+      {/* Interactive Hero with Live Studio Canvas */}
+      <InteractiveHero />
+
+      {/* Bento Grid Feature Studio */}
+      <BentoGrid />
+
+      {/* Handcrafted Template Showcase */}
+      <section className="relative z-10 mx-auto max-w-7xl px-6 py-20">
+        <div className="text-center max-w-2xl mx-auto mb-14">
+          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">
+            Curated Executive Layouts
+          </h2>
+          <p className="mt-3 text-muted-foreground">
+            Engineered for high readability, crisp typography, and ATS compliance.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 gap-8 sm:grid-cols-3">
           {SHOWCASE.map((id, i) => {
             const tpl = TEMPLATES.find((t) => t.id === id)!
             return (
               <Link
                 key={id}
-                href="/templates"
+                href={`/builder?template=${id}`}
                 className={cn(
-                  'group relative overflow-hidden rounded-xl border border-border bg-white shadow-2xl transition-all hover:-translate-y-1 hover:border-primary/50',
-                  i === 1 && 'sm:-mt-6',
+                  'group relative overflow-hidden rounded-2xl border border-border bg-white shadow-2xl transition-all duration-300 hover:-translate-y-2 hover:border-primary/50',
+                  i === 1 && 'sm:-mt-4',
                 )}
               >
-                <div className="pointer-events-none h-0 w-full pb-[132%]" />
+                <div className="pointer-events-none h-0 w-full pb-[135%]" />
                 <div className="absolute inset-0 overflow-hidden">
                   <div className="w-[794px] origin-top-left scale-[0.40] sm:scale-[0.44]">
                     <div style={{ width: 794, minHeight: 1123 }} className="bg-white">
@@ -221,94 +148,51 @@ export default function Page() {
                     </div>
                   </div>
                 </div>
-                <div className="absolute inset-x-0 bottom-0 flex items-center justify-between bg-gradient-to-t from-black/70 to-transparent p-4 pt-10">
-                  <span className="text-sm font-semibold text-white">
-                    {tpl.name}
-                  </span>
-                  <span className="flex items-center gap-1 text-xs text-white/80 opacity-0 transition-opacity group-hover:opacity-100">
-                    See all <ArrowRight className="size-3.5" />
+                <div className="absolute inset-x-0 bottom-0 flex items-center justify-between bg-gradient-to-t from-black/80 via-black/40 to-transparent p-5 pt-12">
+                  <div>
+                    <span className="text-base font-semibold text-white">
+                      {tpl.name}
+                    </span>
+                    <p className="text-xs text-white/70">{tpl.category}</p>
+                  </div>
+                  <span className="flex items-center gap-1 rounded-lg bg-white/20 backdrop-blur px-2.5 py-1 text-xs font-medium text-white opacity-0 transition-opacity group-hover:opacity-100">
+                    Use Layout <ArrowRight className="size-3.5" />
                   </span>
                 </div>
               </Link>
             )
           })}
         </div>
-        <div className="mt-8 text-center">
+
+        <div className="mt-12 text-center">
           <Link
             href="/templates"
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-primary transition-colors hover:text-primary/80"
+            className="inline-flex items-center gap-2 rounded-xl border border-border bg-secondary/30 px-6 py-3 text-sm font-semibold text-foreground hover:bg-secondary/60 transition-colors"
           >
-            View all {TEMPLATES.length} templates <ArrowRight className="size-4" />
+            <LayoutTemplate className="size-4 text-primary" />
+            Explore all {TEMPLATES.length} Crafted Templates
           </Link>
         </div>
       </section>
 
-      {/* Features */}
-      <section className="relative z-10 mx-auto max-w-6xl px-6 pb-20">
-        <h2 className="mb-3 text-center text-3xl font-bold sm:text-4xl">
-          Everything a modern resume needs
+      {/* FAQs Section */}
+      <section className="relative z-10 mx-auto max-w-3xl px-6 py-20">
+        <h2 className="mb-3 text-center text-3xl font-bold tracking-tight sm:text-4xl">
+          Frequently Asked Questions
         </h2>
-        <p className="mx-auto mb-10 max-w-lg text-center text-muted-foreground">
-          Built like the paid tools — templates, AI, ATS scoring, cover letters —
-          without the paywall.
+        <p className="mx-auto mb-10 max-w-md text-center text-muted-foreground">
+          Everything you need to know about ATS compliance, templates, and privacy.
         </p>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {FEATURES.map((f) => {
-            const Icon = f.icon
-            return (
-              <div
-                key={f.title}
-                className="glass rounded-2xl border border-border p-6 transition-colors hover:border-primary/40"
-              >
-                <span className="flex size-11 items-center justify-center rounded-xl bg-primary/15 text-primary">
-                  <Icon className="size-5" />
-                </span>
-                <h3 className="mt-4 text-base font-semibold">{f.title}</h3>
-                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
-                  {f.text}
-                </p>
-              </div>
-            )
-          })}
-        </div>
-      </section>
-
-      {/* How it works */}
-      <section className="relative z-10 mx-auto max-w-6xl px-6 pb-20">
-        <h2 className="mb-10 text-center text-3xl font-bold sm:text-4xl">
-          Three steps to hired
-        </h2>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          {STEPS.map((s) => (
-            <div
-              key={s.n}
-              className="rounded-2xl border border-border bg-secondary/20 p-6"
-            >
-              <span className="text-3xl font-bold text-primary/60">{s.n}</span>
-              <h3 className="mt-3 text-lg font-semibold">{s.title}</h3>
-              <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
-                {s.text}
-              </p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* FAQ */}
-      <section className="relative z-10 mx-auto max-w-3xl px-6 pb-20">
-        <h2 className="mb-8 text-center text-3xl font-bold sm:text-4xl">
-          Frequently asked
-        </h2>
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-3.5">
           {FAQS.map((f) => (
             <details
               key={f.q}
-              className="group rounded-xl border border-border bg-secondary/20 px-5 py-4 transition-colors hover:border-primary/30 open:border-primary/40"
+              className="group rounded-2xl border border-border/80 bg-popover/40 p-5 transition-colors open:bg-popover/80"
             >
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-semibold [&::-webkit-details-marker]:hidden">
+              <summary className="flex cursor-pointer list-none items-center justify-between font-semibold text-foreground">
                 {f.q}
-                <span className="text-muted-foreground transition-transform group-open:rotate-90">
-                  <ArrowRight className="size-4" />
+                <span className="text-muted-foreground text-xl transition-transform group-open:rotate-45">
+                  +
                 </span>
               </summary>
               <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
@@ -319,42 +203,48 @@ export default function Page() {
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="relative z-10 mx-auto max-w-6xl px-6 pb-24">
-        <div className="flex flex-col items-center gap-4 rounded-3xl border border-border bg-secondary/20 px-8 py-12 text-center">
-          <h2 className="text-balance text-2xl font-semibold sm:text-3xl">
-            Ready to build your best resume?
+      {/* Studio CTA Bar */}
+      <section className="relative z-10 mx-auto max-w-5xl px-6 pb-24 text-center">
+        <div className="rounded-3xl border border-border/80 bg-popover/60 p-10 sm:p-16 glow-border backdrop-blur-2xl">
+          <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3.5 py-1 text-xs font-semibold text-emerald-400 mb-6">
+            <span className="size-2 rounded-full bg-emerald-400" />
+            <span>Ready in under 5 minutes</span>
+          </div>
+          <h2 className="text-balance text-3xl sm:text-5xl font-bold tracking-tight text-foreground">
+            Craft your standout resume today.
           </h2>
-          <p className="max-w-md text-pretty text-muted-foreground">
-            Jump straight into the editor — everything saves automatically.
+          <p className="mx-auto mb-8 mt-4 max-w-lg text-muted-foreground leading-relaxed">
+            No credit card, no registration, no tracking. Jump straight into the editor, select a bespoke theme, and download your recruiter-ready PDF.
           </p>
           <Link
             href="/builder"
             className={cn(
               buttonVariants({ size: 'lg' }),
-              'mt-2 h-12 gap-2 px-6 text-base',
+              'h-13 px-8 text-base font-semibold shadow-lg shadow-primary/25 rounded-xl gap-2 hover:scale-[1.02] transition-transform',
             )}
           >
-            Open the builder <ArrowRight className="size-4" />
+            Launch Studio <ArrowRight className="size-4" />
           </Link>
         </div>
       </section>
 
-      <footer className="relative z-10 border-t border-border py-8">
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 text-sm text-muted-foreground sm:flex-row">
-          <div className="flex items-center gap-2">
+      {/* Studio Footer */}
+      <footer className="relative z-10 border-t border-border py-10 bg-secondary/10">
+        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 px-6 text-sm text-muted-foreground sm:flex-row">
+          <div className="flex items-center gap-2.5">
             <FileText className="size-4 text-primary" />
-            ResumeAI — free AI resume builder
+            <span className="font-semibold text-foreground">ResumePro</span>
+            <span className="text-xs text-muted-foreground">— Bespoke Client-Side Resume Studio</span>
           </div>
-          <nav className="flex gap-5">
+          <nav className="flex items-center gap-6">
             <Link href="/builder" className="transition-colors hover:text-foreground">
-              Builder
+              Studio Builder
             </Link>
             <Link href="/templates" className="transition-colors hover:text-foreground">
-              Templates
+              26 Layouts
             </Link>
             <Link href="/cover-letter" className="transition-colors hover:text-foreground">
-              Cover letter
+              Cover Letter
             </Link>
           </nav>
         </div>

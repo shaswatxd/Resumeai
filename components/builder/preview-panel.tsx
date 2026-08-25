@@ -1,3 +1,5 @@
+'use client'
+
 import { useMemo, useState } from 'react'
 import { ResumeDocument } from '@/components/resume/resume-document'
 import { PrintSheet } from '@/components/print-sheet'
@@ -11,7 +13,17 @@ import {
   type TemplateId,
   type ThemeId,
 } from '@/lib/resume-types'
-import { Gauge } from 'lucide-react'
+import {
+  Gauge,
+  ZoomIn,
+  ZoomOut,
+  Maximize2,
+  Minimize2,
+  FileCheck,
+  AlertTriangle,
+  Sliders,
+  Sparkles,
+} from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 type Props = {
@@ -20,11 +32,11 @@ type Props = {
   theme: ThemeId
   design: DesignSettings
   onChange: (updater: ResumeData | ((prev: ResumeData) => ResumeData)) => void
+  onDesignChange?: (patch: Partial<DesignSettings>) => void
   onTemplate?: (id: TemplateId) => void
   onOpenAts?: () => void
 }
 
-/* Calculate real-time live ATS readiness score */
 function calculateAtsScore(d: ResumeData): number {
   let score = 0
   if (d.fullName?.trim()) score += 15
@@ -37,7 +49,20 @@ function calculateAtsScore(d: ResumeData): number {
   return Math.min(100, score)
 }
 
-/* If everything is empty, show the sample so the preview is never blank */
+function countWords(d: ResumeData): number {
+  const parts = [
+    d.fullName,
+    d.role,
+    d.summary,
+    ...d.experience.flatMap((e) => [e.role, e.company, ...e.bullets]),
+    ...d.education.map((e) => `${e.degree} ${e.school} ${e.detail}`),
+    ...d.skills,
+    ...d.projects.map((p) => `${p.name} ${p.tech} ${p.description}`),
+    ...d.achievements,
+  ]
+  return parts.join(' ').split(/\s+/).filter(Boolean).length
+}
+
 function isEmpty(d: ResumeData) {
   return (
     !d.fullName &&
@@ -56,40 +81,117 @@ export function PreviewPanel({
   theme,
   design,
   onChange,
+  onDesignChange,
   onTemplate,
   onOpenAts,
 }: Props) {
-  const accent = useMemo(() => THEMES.find((t) => t.id === theme) ?? THEMES[0], [theme])
+  const [zoom, setZoom] = useState<number>(100)
   const [photoEditorOpen, setPhotoEditorOpen] = useState(false)
   const showSample = isEmpty(data)
   const rendered = showSample ? SAMPLE_DATA : data
   const atsScore = calculateAtsScore(rendered)
+  const totalWords = countWords(rendered)
+
+  const isOnePageOptimal = totalWords >= 250 && totalWords <= 580
+  const isTooLong = totalWords > 580
+
+  const handleAutoFitSpacing = () => {
+    if (!onDesignChange) return
+    onDesignChange({
+      sectionGap: 'compact',
+      lineHeight: 'tight',
+      margin: 'compact',
+      fontSize: 'sm',
+    })
+  }
+
+  const handleZoom = (delta: number) => {
+    setZoom((prev) => Math.min(130, Math.max(70, prev + delta)))
+  }
 
   return (
     <div className="flex h-full flex-col">
-      <div className="no-print flex flex-wrap items-center justify-between gap-2 border-b border-border bg-popover/60 px-4 py-2.5 backdrop-blur">
+      {/* Top Preview Control Bar */}
+      <div className="no-print flex flex-wrap items-center justify-between gap-2 border-b border-border bg-popover/80 px-4 py-2.5 backdrop-blur">
         <div className="flex items-center gap-3">
-          <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-            Live Preview
-          </span>
           <button
             onClick={onOpenAts}
             className={cn(
-              'flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-transform hover:scale-105',
+              'flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-all hover:scale-105',
               atsScore >= 80
                 ? 'border-emerald-500/40 bg-emerald-500/15 text-emerald-400'
                 : atsScore >= 50
                 ? 'border-amber-500/40 bg-amber-500/15 text-amber-400'
                 : 'border-rose-500/40 bg-rose-500/15 text-rose-400',
             )}
-            title="Click to open detailed ATS Analyzer"
+            title="Click to open ATS Auditor"
           >
             <Gauge className="size-3.5" />
             <span>{atsScore}% ATS Score</span>
           </button>
+
+          {/* Word count & Page fit indicator */}
+          <div className="hidden sm:flex items-center gap-1.5 text-xs text-muted-foreground">
+            {isTooLong ? (
+              <span className="flex items-center gap-1 text-amber-400 font-medium">
+                <AlertTriangle className="size-3.5" />
+                ~2 Pages ({totalWords} words)
+              </span>
+            ) : (
+              <span className="flex items-center gap-1 text-emerald-400 font-medium">
+                <FileCheck className="size-3.5" />
+                1 Page ({totalWords} words)
+              </span>
+            )}
+            {isTooLong && onDesignChange && (
+              <button
+                type="button"
+                onClick={handleAutoFitSpacing}
+                className="ml-1 rounded bg-amber-400/15 px-1.5 py-0.5 text-[11px] font-semibold text-amber-300 hover:bg-amber-400/25"
+                title="Slightly tighten spacing and margins to keep resume on 1 page"
+              >
+                Auto-Fit 1-Page
+              </button>
+            )}
+          </div>
         </div>
 
-        <div className="flex items-center gap-3 text-xs text-muted-foreground">
+        {/* Right side controls: Zoom & Template picker */}
+        <div className="flex items-center gap-2">
+          {/* Zoom controls */}
+          <div className="flex items-center rounded-lg border border-border bg-secondary/30 p-0.5 text-xs">
+            <button
+              type="button"
+              onClick={() => handleZoom(-10)}
+              disabled={zoom <= 70}
+              className="rounded p-1 text-muted-foreground hover:text-foreground disabled:opacity-30"
+              title="Zoom out"
+            >
+              <ZoomOut className="size-3.5" />
+            </button>
+            <span className="w-10 text-center font-mono text-[11px] font-medium text-foreground">
+              {zoom}%
+            </span>
+            <button
+              type="button"
+              onClick={() => handleZoom(10)}
+              disabled={zoom >= 130}
+              className="rounded p-1 text-muted-foreground hover:text-foreground disabled:opacity-30"
+              title="Zoom in"
+            >
+              <ZoomIn className="size-3.5" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setZoom(100)}
+              className="ml-0.5 rounded px-1.5 py-0.5 text-[10px] text-muted-foreground hover:text-foreground"
+              title="Reset Zoom"
+            >
+              100%
+            </button>
+          </div>
+
+          {/* Quick template switcher */}
           {onTemplate && (
             <select
               value={template}
@@ -107,39 +209,46 @@ export function PreviewPanel({
               ))}
             </select>
           )}
-          <span className="hidden rounded bg-secondary/80 px-2 py-0.5 text-[11px] font-medium uppercase tracking-wider sm:inline">
-            {design.pageSize}
-          </span>
         </div>
       </div>
 
-      <div className="scroll-thin flex-1 overflow-auto p-4 sm:p-8">
-        <div className="mx-auto w-full max-w-[820px]">
+      {/* Sheet Preview Body */}
+      <div className="scroll-thin flex-1 overflow-auto p-4 sm:p-8 flex justify-center items-start">
+        <div
+          style={{
+            transform: zoom !== 100 ? `scale(${zoom / 100})` : undefined,
+            transformOrigin: 'top center',
+            transition: 'transform 0.15s ease-out',
+          }}
+          className="w-full max-w-[820px]"
+        >
           <div className="overflow-hidden rounded-xl bg-white shadow-2xl ring-1 ring-black/5">
             <ResumeDocument
               data={rendered}
               template={template}
-              theme={accent}
+              theme={THEMES.find((t) => t.id === theme) ?? THEMES[0]}
               design={design}
-              isEditable={!showSample}
-              onChange={onChange}
-              openPhotoEditor={() => setPhotoEditorOpen(true)}
+              isInteractive={true}
+              onUpdate={onChange}
+              onOpenPhotoEditor={() => setPhotoEditorOpen(true)}
             />
           </div>
         </div>
       </div>
 
-      {/* body-level copy that is the only thing visible when printing */}
-      <PrintSheet>
-        <ResumeDocument data={rendered} template={template} theme={accent} design={design} />
-      </PrintSheet>
+      {/* Hidden print renderer for pixel-perfect standard A4/Letter prints */}
+      <PrintSheet
+        data={rendered}
+        template={template}
+        theme={THEMES.find((t) => t.id === theme) ?? THEMES[0]}
+        design={design}
+      />
 
       <PhotoEditor
         open={photoEditorOpen}
         onClose={() => setPhotoEditorOpen(false)}
-        photo={data.photo}
-        onSave={(photo) => onChange((d) => ({ ...d, photo }))}
-        onRemove={() => onChange((d) => ({ ...d, photo: '' }))}
+        currentPhoto={data.photo}
+        onSave={(newPhoto) => onChange((prev) => ({ ...prev, photo: newPhoto }))}
       />
     </div>
   )
