@@ -13,6 +13,7 @@ import {
   ExternalLink,
   Trash2,
   Edit2,
+  X,
   CheckCircle2,
   Clock,
   Send,
@@ -28,6 +29,7 @@ import {
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Input, Label, Textarea } from '@/components/ui/field'
 import { cn } from '@/lib/utils'
+import { useToast } from '@/components/ui/toast'
 
 export type JobStatus = 'wishlist' | 'applied' | 'interviewing' | 'offer' | 'rejected'
 
@@ -100,6 +102,8 @@ export default function JobTrackerPage() {
   const [editingJob, setEditingJob] = useState<JobApplication | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
+  const toast = useToast()
 
   // Form State
   const [company, setCompany] = useState('')
@@ -200,9 +204,9 @@ export default function JobTrackerPage() {
   }
 
   const handleDeleteJob = (id: string) => {
-    if (confirm('Delete this job entry?')) {
-      setJobs((prev) => prev.filter((j) => j.id !== id))
-    }
+    setJobs((prev) => prev.filter((j) => j.id !== id))
+    setConfirmDeleteId(null)
+    toast('Application removed from pipeline.', 'info')
   }
 
   const handleMoveStatus = (id: string, newStatus: JobStatus) => {
@@ -410,14 +414,33 @@ export default function JobTrackerPage() {
                             >
                               <Edit2 className="size-3.5" />
                             </button>
-                            <button
-                              type="button"
-                              onClick={() => handleDeleteJob(job.id)}
-                              className="p-1 rounded text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                              title="Delete"
-                            >
-                              <Trash2 className="size-3.5" />
-                            </button>
+                            {confirmDeleteId === job.id ? (
+                              <span className="flex items-center gap-1">
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeleteJob(job.id)}
+                                  className="rounded bg-destructive/15 px-1.5 py-0.5 text-[10px] font-semibold text-destructive hover:bg-destructive/30"
+                                >
+                                  Confirm
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setConfirmDeleteId(null)}
+                                  className="p-1 rounded text-muted-foreground hover:text-foreground"
+                                >
+                                  <X className="size-3" />
+                                </button>
+                              </span>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() => setConfirmDeleteId(job.id)}
+                                className="p-1 rounded text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                                title="Delete"
+                              >
+                                <Trash2 className="size-3.5" />
+                              </button>
+                            )}
                           </div>
                         </div>
 

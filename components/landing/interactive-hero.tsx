@@ -23,6 +23,7 @@ import {
   SAMPLE_DATA,
   TEMPLATES,
   THEMES,
+  DEFAULT_DESIGN_SETTINGS,
   type TemplateId,
   type ThemeId,
 } from '@/lib/resume-types'
@@ -30,7 +31,7 @@ import { cn } from '@/lib/utils'
 
 export function InteractiveHero() {
   const [selectedTemplate, setSelectedTemplate] = useState<TemplateId>('luxury')
-  const [selectedTheme, setSelectedTheme] = useState<ThemeId>('gold')
+  const [selectedTheme, setSelectedTheme] = useState<ThemeId>('orange')
   const [zoom, setZoom] = useState(false)
 
   const activeTheme = THEMES.find((t) => t.id === selectedTheme) ?? THEMES[0]
@@ -151,7 +152,7 @@ export function InteractiveHero() {
                       ? 'scale-125 border-white ring-2 ring-primary'
                       : 'border-transparent opacity-70 hover:opacity-100',
                   )}
-                  style={{ backgroundColor: thm.primary }}
+                  style={{ backgroundColor: thm.accent }}
                   title={thm.name}
                 />
               ))}
@@ -173,39 +174,7 @@ export function InteractiveHero() {
               data={SAMPLE_DATA}
               template={selectedTemplate}
               theme={activeTheme}
-              design={{
-                fontFamily: 'inter',
-                fontSize: 'base',
-                lineHeight: 'normal',
-                margin: 'normal',
-                sectionGap: 'normal',
-                pageSize: 'A4',
-                showPageNumbers: false,
-                accentHeaderStyle: 'clean',
-                sectionDivider: 'none',
-                headerAlignment: 'left',
-                skillsLayout: 'pills',
-                showSkillLevel: false,
-                iconStyle: 'subtle',
-                compactHeader: false,
-                datePosition: 'right',
-                uppercaseHeaders: true,
-                photoShape: 'circle',
-                photoSize: 'md',
-                sectionOrder: ['summary', 'experience', 'education', 'skills', 'projects'],
-                sectionVisibility: {
-                  summary: true,
-                  experience: true,
-                  education: true,
-                  skills: true,
-                  projects: true,
-                  certifications: true,
-                  languages: true,
-                  achievements: true,
-                  interests: false,
-                  references: false,
-                },
-              }}
+              design={DEFAULT_DESIGN_SETTINGS}
             />
           </div>
         </div>

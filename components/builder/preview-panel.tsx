@@ -98,9 +98,9 @@ export function PreviewPanel({
   const handleAutoFitSpacing = () => {
     if (!onDesignChange) return
     onDesignChange({
-      sectionGap: 'compact',
-      lineHeight: 'tight',
-      margin: 'compact',
+      sectionSpacing: 'compact',
+      lineHeight: 'compact',
+      pageMargin: 'narrow',
       fontSize: 'sm',
     })
   }
@@ -228,21 +228,23 @@ export function PreviewPanel({
               template={template}
               theme={THEMES.find((t) => t.id === theme) ?? THEMES[0]}
               design={design}
-              isInteractive={true}
-              onUpdate={onChange}
-              onOpenPhotoEditor={() => setPhotoEditorOpen(true)}
+              isEditable={true}
+              onChange={onChange}
+              openPhotoEditor={() => setPhotoEditorOpen(true)}
             />
           </div>
         </div>
       </div>
 
       {/* Hidden print renderer for pixel-perfect standard A4/Letter prints */}
-      <PrintSheet
-        data={rendered}
-        template={template}
-        theme={THEMES.find((t) => t.id === theme) ?? THEMES[0]}
-        design={design}
-      />
+      <PrintSheet>
+        <ResumeDocument
+          data={rendered}
+          template={template}
+          theme={THEMES.find((t) => t.id === theme) ?? THEMES[0]}
+          design={design}
+        />
+      </PrintSheet>
 
       <PhotoEditor
         open={photoEditorOpen}

@@ -1,4 +1,5 @@
 import { Analytics } from '@vercel/analytics/next'
+import { ToastProvider } from '@/components/ui/toast'
 import type { Metadata, Viewport } from 'next'
 import {
   Geist,
@@ -128,8 +129,10 @@ export default function RootLayout({
       className={`dark bg-background ${geistSans.variable} ${geistMono.variable} ${fraunces.variable} ${resumeFontVars}`}
     >
       <body className="font-sans antialiased">
-        {children}
-        {process.env.NODE_ENV === 'production' && <Analytics />}
+        <ToastProvider>
+          {children}
+          {process.env.NODE_ENV === 'production' && <Analytics />}
+        </ToastProvider>
       </body>
     </html>
   )

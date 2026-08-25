@@ -2,6 +2,7 @@
 
 import { useRef, useState } from 'react'
 import Link from 'next/link'
+import { useToast } from '@/components/ui/toast'
 import {
   LayoutTemplate,
   Sparkles,
@@ -57,7 +58,9 @@ export function BuilderShell() {
   const [paletteOpen, setPaletteOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [mobileView, setMobileView] = useState<'edit' | 'preview'>('edit')
+  const [confirmReset, setConfirmReset] = useState(false)
   const importRef = useRef<HTMLInputElement>(null)
+  const toast = useToast()
 
   // Calculate quick ATS readiness score for the header badge
   const quickAtsScore = (() => {
@@ -71,11 +74,15 @@ export function BuilderShell() {
   })()
 
   const handleReset = () => {
-    if (confirm('Clear all resume fields? This cannot be undone.')) {
-      setData(EMPTY_DATA)
-      reset()
-    }
+    setConfirmReset(true)
     setMenuOpen(false)
+  }
+
+  const doReset = () => {
+    setData(EMPTY_DATA)
+    reset()
+    setConfirmReset(false)
+    toast('Resume cleared. You can Undo if needed.', 'info')
   }
 
   const handleFillSample = () => {
@@ -97,7 +104,7 @@ export function BuilderShell() {
     ].filter(Boolean).join('\n')
 
     await navigator.clipboard.writeText(text)
-    alert('Resume plain text copied to clipboard!')
+    toast('Resume plain text copied to clipboard!', 'success')
     setMenuOpen(false)
   }
 
@@ -135,7 +142,7 @@ export function BuilderShell() {
         if (parsed.template) setTemplate(parsed.template)
         if (parsed.theme) setTheme(parsed.theme)
       } catch {
-        alert('Invalid file — expected a ResumePro JSON export.')
+        toast('Invalid file — expected a ResumePro JSON export.', 'error')
       }
     }
     reader.readAsText(file)
@@ -407,6 +414,33 @@ export function BuilderShell() {
         onApplyData={setData}
         onReset={() => setData(EMPTY_DATA)}
       />
+
+      {/* Reset Confirmation Modal */}
+      {confirmReset && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-background/70 backdrop-blur-sm p-4">
+          <div className="w-full max-w-sm rounded-2xl border border-border bg-popover p-6 shadow-2xl">
+            <div className="flex size-11 items-center justify-center rounded-xl bg-destructive/15 text-destructive mb-4">
+              <RotateCcw className="size-5" />
+            </div>
+            <h3 className="text-base font-bold text-foreground">Clear all resume data?</h3>
+            <p className="mt-1.5 text-sm text-muted-foreground">
+              This will erase all fields. You can still press <kbd className="rounded bg-secondary px-1 py-0.5 text-xs font-mono font-semibold">Ctrl+Z</kbd> to undo afterwards.
+            </p>
+            <div className="mt-5 flex items-center justify-end gap-3">
+              <Button variant="ghost" size="sm" onClick={() => setConfirmReset(false)}>
+                Cancel
+              </Button>
+              <Button
+                size="sm"
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                onClick={doReset}
+              >
+                <RotateCcw className="size-3.5" /> Yes, Clear Resume
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
