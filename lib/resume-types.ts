@@ -277,7 +277,7 @@ export const SAMPLE_DATA: ResumeData = {
   linkedin: 'linkedin.com/in/digvijaysingh',
   github: 'github.com/digvijaysingh',
   website: 'digvijay.dev',
-  photo: '',
+  photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&auto=format&fit=crop&q=80',
   summary:
     'Full-stack developer with 6+ years of experience building scalable web products for fintech and SaaS companies. Led a 5-engineer team that shipped a payments platform processing 2M+ transactions daily. Passionate about clean architecture, developer experience, and measurable business impact.',
   experience: [

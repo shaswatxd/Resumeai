@@ -24,6 +24,7 @@ import { Input, Label, Textarea } from '@/components/ui/field'
 import { cn } from '@/lib/utils'
 import { uid, type ResumeData } from '@/lib/resume-types'
 import { ROLE_CATEGORIES } from '@/lib/bullet-library'
+import { PhotoEditor } from '@/components/builder/photo-editor'
 
 type TabId =
   | 'personal'
@@ -104,8 +105,8 @@ export function EditorPanel({ data, onChange, onOpenLibrary }: Props) {
 
       {/* Scrollable body */}
       <div className="scroll-thin flex-1 overflow-y-auto px-5 py-6">
-        {tab === 'personal' && <PersonalTab data={data} set={set} />}
-        {tab === 'experience' && <ExperienceTab data={data} onChange={onChange} />}
+        {tab === 'personal' && <PersonalTab data={data} set={set} onOpenLibrary={onOpenLibrary} />}
+        {tab === 'experience' && <ExperienceTab data={data} onChange={onChange} onOpenLibrary={onOpenLibrary} />}
         {tab === 'education' && <EducationTab data={data} onChange={onChange} />}
         {tab === 'skills' && <SkillsTab data={data} set={set} />}
         {tab === 'projects' && <ProjectsTab data={data} onChange={onChange} />}
@@ -149,19 +150,18 @@ function PersonalTab({
   set: <K extends keyof ResumeData>(k: K, v: ResumeData[K]) => void
   onOpenLibrary?: () => void
 }) {
-  const onPhoto = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    const reader = new FileReader()
-    reader.onload = () => set('photo', String(reader.result))
-    reader.readAsDataURL(file)
-  }
+  const [photoModalOpen, setPhotoModalOpen] = useState(false)
 
   return (
     <div className="flex flex-col gap-4">
       {/* Photo row */}
       <div className="flex items-center gap-4 rounded-xl border border-border bg-secondary/20 p-4">
-        <div className="relative flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-border bg-secondary">
+        <button
+          type="button"
+          onClick={() => setPhotoModalOpen(true)}
+          className="group relative flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-border bg-secondary transition-all hover:scale-105 hover:border-primary"
+          title="Click to edit or change photo"
+        >
           {data.photo ? (
             <img
               src={data.photo}
@@ -171,11 +171,14 @@ function PersonalTab({
           ) : (
             <User className="size-7 text-muted-foreground" />
           )}
-        </div>
+          <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
+            <Upload className="size-4 text-white" />
+          </div>
+        </button>
         <div className="flex-1">
           <p className="text-sm font-medium">Profile photo</p>
           <p className="text-xs text-muted-foreground">
-            Optional — JPG, PNG or WebP
+            Optional — JPG, PNG, WebP or sample headshot
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -189,18 +192,24 @@ function PersonalTab({
               <Trash2 className="size-4 text-destructive" />
             </Button>
           )}
-          <label className={cn(buttonVariants({ variant: 'outline', size: 'sm' }), 'cursor-pointer')}>
-            <Upload className="size-4" />
-            <span className="hidden sm:inline">{data.photo ? 'Change' : 'Upload'}</span>
-            <input
-              type="file"
-              accept="image/*"
-              className="sr-only"
-              onChange={onPhoto}
-            />
-          </label>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setPhotoModalOpen(true)}
+          >
+            <Upload className="size-3.5" />
+            <span>{data.photo ? 'Crop / Change' : 'Upload Photo'}</span>
+          </Button>
         </div>
       </div>
+
+      <PhotoEditor
+        open={photoModalOpen}
+        onClose={() => setPhotoModalOpen(false)}
+        photo={data.photo}
+        onSave={(newPhoto) => set('photo', newPhoto)}
+        onRemove={() => set('photo', '')}
+      />
 
       {/* Inputs */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">

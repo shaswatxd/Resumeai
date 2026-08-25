@@ -247,8 +247,9 @@ export function PreviewPanel({
       <PhotoEditor
         open={photoEditorOpen}
         onClose={() => setPhotoEditorOpen(false)}
-        currentPhoto={data.photo}
+        photo={data.photo}
         onSave={(newPhoto) => onChange((prev) => ({ ...prev, photo: newPhoto }))}
+        onRemove={() => onChange((prev) => ({ ...prev, photo: '' }))}
       />
     </div>
   )

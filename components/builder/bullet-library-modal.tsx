@@ -35,10 +35,17 @@ export function BulletLibraryModal({ open, onClose, onApplyData }: Props) {
   const [selectedCategory, setSelectedCategory] = useState<string>(ROLE_CATEGORIES[0].id)
   const [searchQuery, setSearchQuery] = useState('')
   const [copiedText, setCopiedText] = useState<string | null>(null)
+  const [toastMessage, setToastMessage] = useState<string | null>(null)
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg)
+    setTimeout(() => setToastMessage(null), 2500)
+  }
 
   const handleCopy = async (text: string) => {
     await navigator.clipboard.writeText(text)
     setCopiedText(text)
+    showToast('Copied to clipboard!')
     setTimeout(() => setCopiedText(null), 2000)
   }
 
@@ -71,6 +78,7 @@ export function BulletLibraryModal({ open, onClose, onApplyData }: Props) {
       }
     })
     handleCopy(bullet)
+    showToast('Added bullet to your resume!')
   }
 
   const handleApplyRoleComplete = (role: { title: string; summary: string; bullets: string[]; skills: string[] }) => {
@@ -84,7 +92,7 @@ export function BulletLibraryModal({ open, onClose, onApplyData }: Props) {
         {
           id: uid('exp'),
           role: role.title,
-          company: 'Leading Tech Company',
+          company: 'Leading Enterprise Inc.',
           start: '2022',
           end: 'Present',
           bullets: role.bullets,
@@ -92,7 +100,7 @@ export function BulletLibraryModal({ open, onClose, onApplyData }: Props) {
         ...prev.experience,
       ],
     }))
-    alert(`Applied "${role.title}" template with bullets, summary, and skills!`)
+    showToast(`Loaded "${role.title}" preset & bullets!`)
   }
 
   const filteredCategories = useMemo(() => {
@@ -163,42 +171,49 @@ export function BulletLibraryModal({ open, onClose, onApplyData }: Props) {
             type="button"
             onClick={() => setActiveTab('roles')}
             className={cn(
-              'flex flex-1 items-center justify-center gap-1.5 rounded-lg py-1.5 text-xs font-medium transition-all',
+              'flex-1 rounded-lg py-1.5 text-xs font-semibold transition-all',
               activeTab === 'roles'
-                ? 'bg-background text-foreground shadow-sm'
+                ? 'bg-primary text-primary-foreground shadow-sm'
                 : 'text-muted-foreground hover:text-foreground',
             )}
           >
-            <Layers className="size-3.5" />
             Role Bullets
           </button>
           <button
             type="button"
             onClick={() => setActiveTab('verbs')}
             className={cn(
-              'flex flex-1 items-center justify-center gap-1.5 rounded-lg py-1.5 text-xs font-medium transition-all',
+              'flex-1 rounded-lg py-1.5 text-xs font-semibold transition-all',
               activeTab === 'verbs'
-                ? 'bg-background text-foreground shadow-sm'
+                ? 'bg-primary text-primary-foreground shadow-sm'
                 : 'text-muted-foreground hover:text-foreground',
             )}
           >
-            <Flame className="size-3.5 text-amber-500" />
-            Action Verbs
+            Power Action Verbs
           </button>
           <button
             type="button"
             onClick={() => setActiveTab('metrics')}
             className={cn(
-              'flex flex-1 items-center justify-center gap-1.5 rounded-lg py-1.5 text-xs font-medium transition-all',
+              'flex-1 rounded-lg py-1.5 text-xs font-semibold transition-all',
               activeTab === 'metrics'
-                ? 'bg-background text-foreground shadow-sm'
+                ? 'bg-primary text-primary-foreground shadow-sm'
                 : 'text-muted-foreground hover:text-foreground',
             )}
           >
-            <Zap className="size-3.5 text-primary" />
-            XYZ Formulas
+            Google XYZ Formula
           </button>
         </div>
+
+        {/* Toast alert */}
+        {toastMessage && (
+          <div className="mx-4 mt-2 flex items-center justify-between rounded-lg bg-emerald-500/15 border border-emerald-500/30 px-3 py-1.5 text-xs font-semibold text-emerald-400 animate-in fade-in slide-in-from-top-1">
+            <span className="flex items-center gap-1.5">
+              <Check className="size-3.5" />
+              {toastMessage}
+            </span>
+          </div>
+        )}
 
         {/* Content area */}
         <div className="scroll-thin flex-1 overflow-y-auto p-5">
