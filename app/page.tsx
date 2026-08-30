@@ -18,7 +18,7 @@ import { cn } from '@/lib/utils'
 
 const FAQS = [
   {
-    q: 'Is ResumePro really 100% free with no paywalls?',
+    q: 'Is ResumeAI really 100% free with no paywalls?',
     a: 'Yes. All 26 templates, vector PDF export, the 50+ pro bullet library, and real-time ATS auditing are completely free with zero hidden subscriptions.',
   },
   {
@@ -71,7 +71,7 @@ export default function Page() {
             <FileText className="size-5" />
           </span>
           <div className="flex items-center gap-2">
-            <span className="text-lg font-bold tracking-tight">ResumePro</span>
+            <span className="text-lg font-bold tracking-tight">ResumeAI</span>
             <span className="rounded-full bg-secondary/80 px-2 py-0.5 text-[10px] font-mono font-medium text-muted-foreground">
               v2.0
             </span>
@@ -239,7 +239,7 @@ export default function Page() {
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 px-6 text-sm text-muted-foreground sm:flex-row">
           <div className="flex items-center gap-2.5">
             <FileText className="size-4 text-primary" />
-            <span className="font-semibold text-foreground">ResumePro</span>
+            <span className="font-semibold text-foreground">ResumeAI</span>
             <span className="text-xs text-muted-foreground">— Bespoke Client-Side Resume Studio</span>
           </div>
           <nav className="flex items-center gap-6">

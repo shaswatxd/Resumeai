@@ -46,7 +46,7 @@ export type JobApplication = {
   resumeVersion?: string
 }
 
-const STORAGE_KEY = 'resumepro:job_tracker:v1'
+const STORAGE_KEY = 'ResumeAI:job_tracker:v1'
 
 const STATUS_COLUMNS: { id: JobStatus; label: string; color: string; bg: string }[] = [
   { id: 'wishlist', label: 'Wishlist', color: 'text-sky-400', bg: 'bg-sky-400/10 border-sky-400/30' },
@@ -259,7 +259,7 @@ export default function JobTrackerPage() {
             <span className="flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm">
               <FileText className="size-5" />
             </span>
-            <span className="text-lg font-bold">ResumePro</span>
+            <span className="text-lg font-bold">ResumeAI</span>
           </Link>
           <span className="hidden sm:inline-block text-muted-foreground">/</span>
           <span className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">

@@ -55,7 +55,7 @@ export default function TemplatesPage() {
           <span className="flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
             <FileText className="size-5" />
           </span>
-          <span className="text-lg font-semibold">ResumePro</span>
+          <span className="text-lg font-semibold">ResumeAI</span>
         </Link>
         <Link
           href="/builder"

@@ -70,7 +70,7 @@ export default function InterviewPrepPage() {
     }
 
     try {
-      const savedNotes = localStorage.getItem('resumepro:interview_notes:v1')
+      const savedNotes = localStorage.getItem('ResumeAI:interview_notes:v1')
       if (savedNotes) {
         setUserNotes(JSON.parse(savedNotes))
       }
@@ -85,7 +85,7 @@ export default function InterviewPrepPage() {
     const next = { ...userNotes, [id]: text }
     setUserNotes(next)
     try {
-      localStorage.setItem('resumepro:interview_notes:v1', JSON.stringify(next))
+      localStorage.setItem('ResumeAI:interview_notes:v1', JSON.stringify(next))
     } catch {
       /* ignore */
     }
@@ -224,7 +224,7 @@ export default function InterviewPrepPage() {
             <span className="flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm">
               <FileText className="size-5" />
             </span>
-            <span className="text-lg font-bold">ResumePro</span>
+            <span className="text-lg font-bold">ResumeAI</span>
           </Link>
           <span className="hidden sm:inline-block text-muted-foreground">/</span>
           <span className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-indigo-500/30 bg-indigo-500/10 px-2.5 py-0.5 text-xs font-semibold text-indigo-400">

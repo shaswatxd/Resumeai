@@ -65,8 +65,8 @@ const SITE_URL = 'https://resumeaihai.vercel.app'
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: 'ResumePro — Free Professional Resume Builder with ATS Auditor',
-    template: '%s · ResumePro',
+    default: 'ResumeAI — Free Professional Resume Builder with ATS Auditor',
+    template: '%s · ResumeAI',
   },
   description:
     'Build a standout resume in minutes: 26 premium templates, pro bullet & phrase library, ATS score with job-description matching, smart cover letters, and one-click PDF export. Free, no sign-up.',
@@ -81,24 +81,32 @@ export const metadata: Metadata = {
     'PDF resume export',
     'FAANG resume',
   ],
-  authors: [{ name: 'ResumePro' }],
-  creator: 'ResumePro',
+  authors: [{ name: 'ResumeAI' }],
+  creator: 'ResumeAI',
   openGraph: {
     type: 'website',
     locale: 'en_US',
     url: SITE_URL,
-    title: 'ResumePro — Free Professional Resume Builder with ATS Auditor',
+    title: 'ResumeAI — Free Professional Resume Builder with ATS Auditor',
     description:
       '26 premium templates, pro bullet library, ATS scoring, cover letters and one-click PDF. Free, no sign-up.',
-    siteName: 'ResumePro',
-    images: [{ url: '/og.png', width: 1200, height: 630, alt: 'ResumePro' }],
+    siteName: 'ResumeAI',
+    images: [{ url: '/og.png', width: 1200, height: 630, alt: 'ResumeAI' }],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'ResumePro — Free Professional Resume Builder',
+    title: 'ResumeAI — Free Professional Resume Builder',
     description:
       '26 templates · Pro bullet library · ATS score · Cover letters · Free PDF export',
     images: ['/og.png'],
+  },
+  icons: {
+    icon: [
+      { url: '/icon.svg', type: 'image/svg+xml' },
+      { url: '/icon-light-32x32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/icon-dark-32x32.png', sizes: '32x32', type: 'image/png' },
+    ],
+    apple: [{ url: '/apple-icon.png', sizes: '180x180', type: 'image/png' }],
   },
   robots: {
     index: true,

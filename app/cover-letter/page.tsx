@@ -130,7 +130,7 @@ ${candidateName}`
     const prev = document.title
     document.title = data.fullName
       ? `${data.fullName} - Cover Letter`
-      : 'Cover Letter - ResumePro'
+      : 'Cover Letter - ResumeAI'
     window.print()
     document.title = prev
   }
@@ -146,7 +146,7 @@ ${candidateName}`
           <span className="flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
             <FileText className="size-5" />
           </span>
-          <span className="text-lg font-semibold">ResumePro</span>
+          <span className="text-lg font-semibold">ResumeAI</span>
         </Link>
         <Link
           href="/builder"

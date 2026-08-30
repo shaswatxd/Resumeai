@@ -112,7 +112,7 @@ export function BuilderShell() {
     const prev = document.title
     document.title = data.fullName
       ? `${data.fullName} - Resume`
-      : 'Resume - ResumePro'
+      : 'Resume - ResumeAI'
     window.print()
     document.title = prev
   }
@@ -124,7 +124,7 @@ export function BuilderShell() {
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `${(data.fullName || 'resume').replace(/\s+/g, '-').toLowerCase()}-resumepro.json`
+    a.download = `${(data.fullName || 'resume').replace(/\s+/g, '-').toLowerCase()}-resumeai.json`
     a.click()
     URL.revokeObjectURL(url)
     setMenuOpen(false)
@@ -142,7 +142,7 @@ export function BuilderShell() {
         if (parsed.template) setTemplate(parsed.template)
         if (parsed.theme) setTheme(parsed.theme)
       } catch {
-        toast('Invalid file — expected a ResumePro JSON export.', 'error')
+        toast('Invalid file — expected a ResumeAI JSON export.', 'error')
       }
     }
     reader.readAsText(file)
@@ -158,12 +158,12 @@ export function BuilderShell() {
           <Link
             href="/"
             className="group relative flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground"
-            aria-label="ResumePro home"
+            aria-label="ResumeAI home"
           >
             <FileText className="size-5 transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110" />
           </Link>
           <div className="hidden sm:block">
-            <p className="text-sm font-semibold leading-none">ResumePro</p>
+            <p className="text-sm font-semibold leading-none">ResumeAI</p>
             <p className="text-[11px] text-muted-foreground">
               {hydrated ? 'Saved locally' : 'Loading…'}
             </p>
