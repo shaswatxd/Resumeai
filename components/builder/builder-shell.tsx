@@ -151,10 +151,10 @@ export function BuilderShell() {
   }
 
   return (
-    <div className="flex h-dvh flex-col overflow-hidden print:h-auto print:overflow-visible">
-      {/* Top bar */}
-      <header className="no-print z-30 flex h-16 shrink-0 items-center justify-between gap-3 border-b border-border bg-popover/80 px-4 backdrop-blur">
-        <div className="flex items-center gap-2">
+    <div className="flex h-dvh w-full max-w-[100vw] flex-col overflow-hidden overflow-x-hidden print:h-auto print:overflow-visible">
+      {/* Top bar — Android fix: prevent horizontal overflow, allow horizontal swipe, hide scrollbar */}
+      <header className="no-print z-30 flex h-14 sm:h-16 w-full max-w-full shrink-0 items-center justify-between gap-2 border-b border-border bg-popover/80 px-2 sm:px-4 backdrop-blur overflow-x-auto overflow-y-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div className="flex shrink-0 items-center gap-1 sm:gap-2">
           <Link
             href="/"
             className="group relative flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground"
@@ -170,7 +170,7 @@ export function BuilderShell() {
           </div>
 
           {/* Undo / Redo */}
-          <div className="ml-2 flex items-center gap-0.5 rounded-lg border border-border/80 bg-secondary/30 p-0.5">
+          <div className="ml-1 sm:ml-2 flex shrink-0 items-center gap-0.5 rounded-lg border border-border/80 bg-secondary/30 p-0.5">
             <Button
               variant="ghost"
               size="icon"
@@ -196,7 +196,7 @@ export function BuilderShell() {
           <Button
             variant="outline"
             size="lg"
-            className="ml-1 h-10"
+            className="ml-1 h-8 sm:h-10 px-2 sm:px-3 text-xs sm:text-sm"
             onClick={() => setDrawerOpen(true)}
           >
             <LayoutTemplate className="size-4" />
@@ -206,11 +206,11 @@ export function BuilderShell() {
           <Button
             variant="outline"
             size="lg"
-            className="h-10 gap-2"
+            className="h-8 sm:h-10 gap-1 sm:gap-2 px-2 sm:px-3 text-xs sm:text-sm"
             onClick={() => setAtsOpen(true)}
           >
             <Gauge className="size-4" />
-            <span className="hidden sm:inline">ATS Score</span>
+            <span className="hidden lg:inline">ATS Score</span>
             <span
               className={cn(
                 'rounded-full px-2 py-0.5 text-xs font-bold tabular-nums',
@@ -226,12 +226,12 @@ export function BuilderShell() {
           </Button>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-1 sm:gap-2">
           <div className="relative">
             <Button
               variant="ghost"
               size="lg"
-              className="h-10 px-3"
+              className="h-8 sm:h-10 px-2 sm:px-3"
               onClick={() => setMenuOpen((v) => !v)}
               aria-label="More options"
             >
@@ -289,7 +289,7 @@ export function BuilderShell() {
           <Button
             variant="ghost"
             size="lg"
-            className="h-10 px-3 text-destructive hover:bg-destructive/10 hover:text-destructive"
+            className="h-8 sm:h-10 px-2 sm:px-3 text-xs sm:text-sm text-destructive hover:bg-destructive/10 hover:text-destructive"
             onClick={handleReset}
             aria-label="Reset everything"
           >
@@ -299,25 +299,25 @@ export function BuilderShell() {
           <Button
             variant="outline"
             size="lg"
-            className="h-10 border-border bg-secondary/30 text-foreground hover:bg-secondary/60 gap-1.5"
+            className="hidden md:inline-flex h-8 sm:h-10 border-border bg-secondary/30 text-foreground hover:bg-secondary/60 gap-1.5 px-2 sm:px-3"
             onClick={() => setPaletteOpen(true)}
             title="Command Palette (Ctrl + K)"
           >
-            <span className="hidden sm:inline text-xs font-medium">Search / Jump</span>
-            <kbd className="rounded bg-background/80 px-1.5 py-0.5 text-[10px] font-mono font-semibold text-muted-foreground border border-border">
+            <span className="hidden lg:inline text-xs font-medium">Search / Jump</span>
+            <kbd className="hidden lg:inline rounded bg-background/80 px-1.5 py-0.5 text-[10px] font-mono font-semibold text-muted-foreground border border-border">
               ⌘K
             </kbd>
           </Button>
           <Button
             variant="outline"
             size="lg"
-            className="h-10 border-primary/40 bg-primary/10 text-primary hover:bg-primary/20"
+            className="hidden md:inline-flex h-8 sm:h-10 border-primary/40 bg-primary/10 text-primary hover:bg-primary/20 px-2 sm:px-3"
             onClick={() => setLibraryOpen(true)}
           >
             <BookOpen className="size-4" />
-            <span className="hidden sm:inline">Bullet Library</span>
+            <span className="hidden lg:inline">Bullet Library</span>
           </Button>
-          <Button size="lg" className="h-10" onClick={handlePrint}>
+          <Button size="lg" className="h-8 sm:h-10 px-2 sm:px-3 text-xs sm:text-sm" onClick={handlePrint}>
             <Download className="size-4" />
             PDF
           </Button>
@@ -341,11 +341,11 @@ export function BuilderShell() {
       </div>
 
       {/* Split workspace */}
-      <div className="flex min-h-0 flex-1">
+      <div className="flex min-h-0 w-full max-w-full flex-1 overflow-hidden">
         {/* Editor */}
         <section
           className={cn(
-            'w-full flex-col border-r border-border bg-popover/40 md:flex md:w-[46%] md:max-w-[560px] lg:w-[42%]',
+            'w-full max-w-full min-w-0 flex-col border-r border-border bg-popover/40 md:flex md:w-[46%] md:max-w-[560px] lg:w-[42%]',
             mobileView === 'edit' ? 'flex' : 'hidden',
           )}
         >
@@ -361,7 +361,7 @@ export function BuilderShell() {
         <section
           id="preview-section"
           className={cn(
-            'w-full flex-1 bg-background md:block',
+            'w-full max-w-full min-w-0 flex-1 bg-background md:block overflow-hidden',
             mobileView === 'preview' ? 'block' : 'hidden md:block',
           )}
         >

@@ -114,6 +114,10 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  viewportFit: 'cover',
   colorScheme: 'dark',
   themeColor: '#1a1526',
 }
@@ -128,7 +132,7 @@ export default function RootLayout({
       lang="en"
       className={`dark bg-background ${geistSans.variable} ${geistMono.variable} ${fraunces.variable} ${resumeFontVars}`}
     >
-      <body className="font-sans antialiased">
+      <body className="font-sans antialiased overflow-x-hidden max-w-[100vw]">
         <ToastProvider>
           {children}
           {process.env.NODE_ENV === 'production' && <Analytics />}
