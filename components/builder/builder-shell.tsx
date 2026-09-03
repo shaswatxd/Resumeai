@@ -59,6 +59,7 @@ export function BuilderShell() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [mobileView, setMobileView] = useState<'edit' | 'preview'>('edit')
   const [confirmReset, setConfirmReset] = useState(false)
+  const [zenMode, setZenMode] = useState(false)
   const importRef = useRef<HTMLInputElement>(null)
   const toast = useToast()
 
@@ -162,11 +163,17 @@ export function BuilderShell() {
           >
             <FileText className="size-5 transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110" />
           </Link>
-          <div className="hidden sm:block">
-            <p className="text-sm font-semibold leading-none">ResumeAI</p>
-            <p className="text-[11px] text-muted-foreground">
-              {hydrated ? 'Saved locally' : 'Loading…'}
-            </p>
+          <div className="hidden sm:flex flex-col justify-center">
+            <div className="flex items-center gap-1.5">
+              <p className="text-sm font-bold leading-none tracking-tight">ResumeAI</p>
+              <span className="rounded bg-primary/15 px-1.5 py-0.5 text-[9.5px] font-mono font-semibold text-primary uppercase">
+                Studio
+              </span>
+            </div>
+            <div className="mt-0.5 flex items-center gap-1 text-[11px] text-muted-foreground">
+              <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span>{hydrated ? 'Saved locally' : 'Syncing…'}</span>
+            </div>
           </div>
 
           {/* Undo / Redo */}
@@ -347,6 +354,7 @@ export function BuilderShell() {
           className={cn(
             'w-full max-w-full min-w-0 flex-col border-r border-border bg-popover/40 md:flex md:w-[46%] md:max-w-[560px] lg:w-[42%]',
             mobileView === 'edit' ? 'flex' : 'hidden',
+            zenMode && 'hidden md:hidden',
           )}
         >
           <EditorPanel
@@ -374,6 +382,8 @@ export function BuilderShell() {
             onDesignChange={setDesign}
             onTemplate={setTemplate}
             onOpenAts={() => setAtsOpen(true)}
+            zenMode={zenMode}
+            onToggleZen={() => setZenMode((v) => !v)}
           />
         </section>
       </div>

@@ -7,12 +7,7 @@ import { MinimalTemplate } from './minimal'
 import { ElegantTemplate } from './elegant'
 import { DesignerTemplate } from './designer'
 import { DeveloperTemplate } from './developer'
-import { StudentTemplate } from './student'
-import { BusinessTemplate } from './business'
-import { MarketingTemplate } from './marketing'
-import { DarkThemeTemplate } from './dark-theme'
 import { LuxuryTemplate } from './luxury'
-import { ClassicTemplate } from './classic'
 import { CanvaEmeraldTemplate } from './canva-emerald'
 import { CanvaCreativeTemplate } from './canva-creative'
 import { CanvaExecutiveTemplate } from './canva-executive'
@@ -29,12 +24,7 @@ export const TEMPLATE_REGISTRY: Record<TemplateId, (p: TP) => React.ReactNode> =
   elegant: ElegantTemplate,
   designer: DesignerTemplate,
   developer: DeveloperTemplate,
-  student: StudentTemplate,
-  business: BusinessTemplate,
-  marketing: MarketingTemplate,
-  'dark-theme': DarkThemeTemplate,
   luxury: LuxuryTemplate,
-  classic: ClassicTemplate,
   'canva-emerald': CanvaEmeraldTemplate,
   'canva-creative': CanvaCreativeTemplate,
   'canva-executive': CanvaExecutiveTemplate,

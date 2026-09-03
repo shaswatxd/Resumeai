@@ -283,7 +283,7 @@ export async function POST(req: Request) {
       }
       const templateId = TEMPLATES.some((t) => t.id === parsed.templateId)
         ? parsed.templateId
-        : 'classic'
+        : 'modern'
       return Response.json({
         templateId,
         templateReason: parsed.templateReason ?? '',

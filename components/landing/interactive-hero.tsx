@@ -42,7 +42,7 @@ export function InteractiveHero() {
       <div className="flex flex-col items-center text-center">
         <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3.5 py-1.5 text-xs font-medium text-primary shadow-sm">
           <span className="flex size-2 rounded-full bg-emerald-400 animate-pulse" />
-          <span>Bespoke Resume Studio • 26 Crafted Layouts • Zero-Sign In</span>
+          <span>Bespoke Resume Studio • 15 Curated Pro Layouts • Zero Sign-In</span>
         </div>
 
         <h1 className="mt-8 max-w-4xl text-balance text-4xl sm:text-6xl md:text-7xl font-bold tracking-tight text-foreground">
@@ -76,7 +76,7 @@ export function InteractiveHero() {
             )}
           >
             <LayoutTemplate className="size-4 text-muted-foreground" />
-            Explore 26 Layouts
+            Explore 15 Pro Layouts
           </Link>
         </div>
 

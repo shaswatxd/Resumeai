@@ -35,6 +35,8 @@ type Props = {
   onDesignChange?: (patch: Partial<DesignSettings>) => void
   onTemplate?: (id: TemplateId) => void
   onOpenAts?: () => void
+  zenMode?: boolean
+  onToggleZen?: () => void
 }
 
 function calculateAtsScore(d: ResumeData): number {
@@ -84,8 +86,11 @@ export function PreviewPanel({
   onDesignChange,
   onTemplate,
   onOpenAts,
+  zenMode = false,
+  onToggleZen,
 }: Props) {
   const [zoom, setZoom] = useState<number>(100)
+  const [showPageBreak, setShowPageBreak] = useState(true)
   const [photoEditorOpen, setPhotoEditorOpen] = useState(false)
   const showSample = isEmpty(data)
   const rendered = showSample ? SAMPLE_DATA : data
@@ -113,7 +118,7 @@ export function PreviewPanel({
     <div className="flex h-full flex-col">
       {/* Top Preview Control Bar */}
       <div className="no-print flex flex-wrap items-center justify-between gap-2 border-b border-border bg-popover/80 px-4 py-2.5 backdrop-blur">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5">
           <button
             onClick={onOpenAts}
             className={cn(
@@ -156,8 +161,23 @@ export function PreviewPanel({
           </div>
         </div>
 
-        {/* Right side controls: Zoom & Template picker */}
+        {/* Right side controls: Page Break Guide, Zoom, Template picker, Zen Mode */}
         <div className="flex items-center gap-2">
+          {/* Page Guide Toggle */}
+          <button
+            type="button"
+            onClick={() => setShowPageBreak((v) => !v)}
+            className={cn(
+              'hidden sm:inline-flex items-center gap-1 rounded-lg border px-2 py-1 text-xs font-medium transition-colors',
+              showPageBreak
+                ? 'border-primary/40 bg-primary/10 text-primary'
+                : 'border-border bg-secondary/30 text-muted-foreground hover:text-foreground',
+            )}
+            title="Toggle print page break markers"
+          >
+            Page Guide
+          </button>
+
           {/* Zoom controls */}
           <div className="flex items-center rounded-lg border border-border bg-secondary/30 p-0.5 text-xs">
             <button
@@ -209,6 +229,23 @@ export function PreviewPanel({
               ))}
             </select>
           )}
+
+          {/* Zen / Focus Mode Toggle */}
+          {onToggleZen && (
+            <button
+              type="button"
+              onClick={onToggleZen}
+              className={cn(
+                'flex items-center gap-1 rounded-lg border border-border p-1.5 text-xs transition-colors',
+                zenMode
+                  ? 'bg-primary text-primary-foreground border-primary'
+                  : 'bg-secondary/30 text-muted-foreground hover:text-foreground hover:bg-secondary/60',
+              )}
+              title={zenMode ? 'Exit Zen Mode (Show Editor)' : 'Enter Zen Mode (Fullscreen Preview)'}
+            >
+              {zenMode ? <Minimize2 className="size-3.5" /> : <Maximize2 className="size-3.5" />}
+            </button>
+          )}
         </div>
       </div>
 
@@ -222,7 +259,37 @@ export function PreviewPanel({
           }}
           className="w-full max-w-[820px]"
         >
-          <div className="overflow-hidden rounded-xl bg-white shadow-2xl ring-1 ring-black/5">
+          <div className="relative overflow-hidden rounded-xl bg-white shadow-2xl ring-1 ring-black/5">
+            {/* Page 1 Break Indicator (A4 Height = 1123px) */}
+            {showPageBreak && (
+              <div
+                className="pointer-events-none absolute left-0 right-0 z-30 flex items-center justify-between border-b-2 border-dashed border-rose-500/70 px-4 select-none opacity-85"
+                style={{ top: 1123 }}
+              >
+                <span className="rounded-b bg-rose-600 px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-wider text-white shadow-md">
+                  --- Page 1 End ---
+                </span>
+                <span className="rounded-b bg-rose-600 px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-wider text-white shadow-md">
+                  --- Page 2 Start ---
+                </span>
+              </div>
+            )}
+
+            {/* Page 2 Break Indicator (Height = 2246px) */}
+            {showPageBreak && (
+              <div
+                className="pointer-events-none absolute left-0 right-0 z-30 flex items-center justify-between border-b-2 border-dashed border-rose-500/70 px-4 select-none opacity-85"
+                style={{ top: 2246 }}
+              >
+                <span className="rounded-b bg-rose-600 px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-wider text-white shadow-md">
+                  --- Page 2 End ---
+                </span>
+                <span className="rounded-b bg-rose-600 px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-wider text-white shadow-md">
+                  --- Page 3 Start ---
+                </span>
+              </div>
+            )}
+
             <ResumeDocument
               data={rendered}
               template={template}

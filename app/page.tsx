@@ -14,12 +14,13 @@ import { ResumeDocument } from '@/components/resume/resume-document'
 import { SAMPLE_DATA, TEMPLATES, THEMES } from '@/lib/resume-types'
 import { InteractiveHero } from '@/components/landing/interactive-hero'
 import { BentoGrid } from '@/components/landing/bento-grid'
+import { ComparisonSlider } from '@/components/landing/comparison-slider'
 import { cn } from '@/lib/utils'
 
 const FAQS = [
   {
     q: 'Is ResumeAI really 100% free with no paywalls?',
-    a: 'Yes. All 26 templates, vector PDF export, the 50+ pro bullet library, and real-time ATS auditing are completely free with zero hidden subscriptions.',
+    a: 'Yes. All 15 pro templates, vector PDF export, the 50+ pro bullet library, and real-time ATS auditing are completely free with zero hidden subscriptions.',
   },
   {
     q: 'How is my privacy protected?',
@@ -80,7 +81,7 @@ export default function Page() {
 
         <nav className="hidden items-center gap-6 text-sm font-medium text-muted-foreground sm:flex">
           <Link href="/templates" className="transition-colors hover:text-foreground">
-            26 Layouts
+            15 Pro Layouts
           </Link>
           <Link href="/cover-letter" className="transition-colors hover:text-foreground">
             Cover Letter
@@ -115,6 +116,32 @@ export default function Page() {
 
       {/* Interactive Hero with Live Studio Canvas */}
       <InteractiveHero />
+
+      {/* ATS Recruiter Ticker */}
+      <section className="relative z-10 mx-auto max-w-6xl px-6 py-4 rounded-2xl border border-border/60 bg-secondary/20 backdrop-blur my-6">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
+          <span className="font-semibold uppercase tracking-widest text-[10.5px] text-foreground/80 flex items-center gap-2">
+            <span className="size-2 rounded-full bg-emerald-400 animate-pulse" />
+            Validated Against Enterprise ATS Parsers
+          </span>
+          <div className="flex flex-wrap items-center justify-center gap-5 sm:gap-7 font-mono text-xs font-semibold text-foreground/70">
+            <span className="hover:text-primary transition-colors">Workday</span>
+            <span className="text-border">•</span>
+            <span className="hover:text-primary transition-colors">Greenhouse</span>
+            <span className="text-border">•</span>
+            <span className="hover:text-primary transition-colors">Lever</span>
+            <span className="text-border">•</span>
+            <span className="hover:text-primary transition-colors">Taleo</span>
+            <span className="text-border">•</span>
+            <span className="hover:text-primary transition-colors">iCIMS</span>
+            <span className="text-border">•</span>
+            <span className="hover:text-primary transition-colors">Ashby</span>
+          </div>
+        </div>
+      </section>
+
+      {/* Interactive Before vs After Transformation */}
+      <ComparisonSlider />
 
       {/* Bento Grid Feature Studio */}
       <BentoGrid />
@@ -247,7 +274,7 @@ export default function Page() {
               Studio Builder
             </Link>
             <Link href="/templates" className="transition-colors hover:text-foreground">
-              26 Layouts
+              15 Pro Layouts
             </Link>
             <Link href="/cover-letter" className="transition-colors hover:text-foreground">
               Cover Letter

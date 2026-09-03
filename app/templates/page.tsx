@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, ArrowRight, FileText, Check, Search } from 'lucide-react'
+import { ArrowLeft, ArrowRight, FileText, Check, Search, Sparkles } from 'lucide-react'
 import { TemplateThumbnail } from '@/components/builder/template-thumbnail'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -72,25 +72,30 @@ export default function TemplatesPage() {
         >
           <ArrowLeft className="size-4" /> Home
         </Link>
-        <h1 className="text-3xl font-bold sm:text-4xl">{TEMPLATES.length} premium templates</h1>
-        <p className="mt-2 max-w-xl text-muted-foreground">
-          Every template is original, print-perfect, and fully editable — colors, fonts, section
-          order and photo all switch instantly, and your content carries over.
+        <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary mb-3">
+          <Sparkles className="size-3.5" />
+          <span>Curated Collection • 15 Elite Designs</span>
+        </div>
+        <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">
+          Crafted for maximum interview conversion
+        </h1>
+        <p className="mt-3 max-w-2xl text-muted-foreground text-base leading-relaxed">
+          Every template is engineered from the ground up for crisp vector typography, ATS compliance, and high visual hierarchy. Colors, fonts, and order switch seamlessly without losing your data.
         </p>
 
-        <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="relative w-full sm:max-w-xs">
             <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search templates…"
-              className="w-full rounded-lg border border-border bg-secondary/30 py-2.5 pl-9 pr-3 text-sm outline-none placeholder:text-muted-foreground focus:border-primary/50"
+              placeholder="Search by role, style, tag…"
+              className="w-full rounded-xl border border-border bg-secondary/30 py-2.5 pl-9 pr-3 text-sm outline-none placeholder:text-muted-foreground focus:border-primary/50 transition-colors"
             />
           </div>
           <div className="flex items-center gap-2">
             <span className="mr-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Accent
+              Palette
             </span>
             {THEMES.map((th) => (
               <button
@@ -100,55 +105,77 @@ export default function TemplatesPage() {
                 aria-label={`${th.name} accent`}
                 className={cn(
                   'relative flex size-8 items-center justify-center rounded-full border transition-all',
-                  th.id === themeId ? 'border-primary ring-2 ring-primary/40' : 'border-border hover:border-primary/50',
+                  th.id === themeId ? 'border-primary ring-2 ring-primary/40 scale-110' : 'border-border hover:border-primary/50',
                 )}
               >
-                <span className="size-5 rounded-full" style={{ background: th.accent }} />
-                {th.id === themeId && <Check className="absolute size-3 text-white" />}
+                <span className="size-5 rounded-full shadow-inner" style={{ background: th.accent }} />
+                {th.id === themeId && <Check className="absolute size-3 text-white stroke-[3]" />}
               </button>
             ))}
           </div>
         </div>
 
-        <div className="scroll-thin mt-5 flex gap-1.5 overflow-x-auto pb-1">
-          {['All', ...TEMPLATE_CATEGORIES].map((c) => (
-            <button
-              key={c}
-              onClick={() => setCategory(c)}
-              className={cn(
-                'shrink-0 rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors',
-                category === c
-                  ? 'border-primary bg-primary text-primary-foreground'
-                  : 'border-border text-muted-foreground hover:border-primary/50 hover:text-foreground',
-              )}
-            >
-              {c}
-            </button>
-          ))}
+        <div className="scroll-thin mt-6 flex gap-2 overflow-x-auto pb-1">
+          {['All', ...TEMPLATE_CATEGORIES].map((c) => {
+            const count = c === 'All' ? TEMPLATES.length : TEMPLATES.filter((t) => t.category === c).length
+            return (
+              <button
+                key={c}
+                onClick={() => setCategory(c)}
+                className={cn(
+                  'shrink-0 flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-xs font-semibold transition-all',
+                  category === c
+                    ? 'border-primary bg-primary text-primary-foreground shadow-sm shadow-primary/20'
+                    : 'border-border text-muted-foreground hover:border-primary/40 hover:text-foreground bg-secondary/20',
+                )}
+              >
+                <span>{c}</span>
+                <span
+                  className={cn(
+                    'rounded-full px-1.5 py-0.2 text-[10px] font-mono',
+                    category === c ? 'bg-primary-foreground/20 text-primary-foreground' : 'bg-secondary text-muted-foreground',
+                  )}
+                >
+                  {count}
+                </span>
+              </button>
+            )
+          })}
         </div>
       </div>
 
-      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-8 px-6 pb-20 pt-6 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-8 px-6 pb-24 pt-6 sm:grid-cols-2 lg:grid-cols-3">
         {filtered.map((t) => (
           <div key={t.id} className="group flex flex-col">
-            <div className="relative flex items-center justify-center overflow-hidden rounded-2xl border border-border bg-slate-100 shadow-xl transition-all group-hover:-translate-y-1 group-hover:border-primary/50 group-hover:shadow-2xl">
+            <div className="relative flex items-center justify-center overflow-hidden rounded-2xl border border-border/80 bg-slate-100 shadow-xl transition-all duration-300 group-hover:-translate-y-1.5 group-hover:border-primary/50 group-hover:shadow-2xl">
               <TemplateThumbnail template={t.id} theme={theme} scale={0.44} className="rounded-xl shadow-lg" />
               {/* hover overlay */}
-              <div className="absolute inset-0 flex items-end justify-center bg-gradient-to-t from-black/60 via-transparent to-transparent p-5 opacity-0 transition-opacity group-hover:opacity-100">
-                <Button size="lg" className="h-11" onClick={() => applyTemplate(t.id)}>
-                  Use this template <ArrowRight className="size-4" />
+              <div className="absolute inset-0 flex items-end justify-center bg-gradient-to-t from-black/80 via-black/30 to-transparent p-5 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                <Button size="lg" className="h-11 shadow-xl font-semibold gap-2" onClick={() => applyTemplate(t.id)}>
+                  Open in Studio <ArrowRight className="size-4" />
                 </Button>
               </div>
             </div>
-            <div className="mt-3 flex items-center gap-2">
-              <p className="font-semibold">{t.name}</p>
-              {t.tag && (
-                <span className="rounded bg-primary/15 px-1.5 py-px text-[10px] font-semibold uppercase tracking-wide text-primary">
-                  {t.tag}
-                </span>
-              )}
+            <div className="mt-3.5 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <p className="font-bold text-foreground text-base tracking-tight">{t.name}</p>
+                {t.tag && (
+                  <span
+                    className={cn(
+                      'rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider',
+                      t.tag === 'Featured' && 'bg-amber-500/15 border border-amber-500/30 text-amber-400',
+                      t.tag === 'ATS' && 'bg-emerald-500/15 border border-emerald-500/30 text-emerald-400',
+                      t.tag === 'Pro' && 'bg-purple-500/15 border border-purple-500/30 text-purple-400',
+                      t.tag === 'Dev' && 'bg-cyan-500/15 border border-cyan-500/30 text-cyan-400',
+                    )}
+                  >
+                    {t.tag}
+                  </span>
+                )}
+              </div>
+              <span className="text-xs text-muted-foreground font-medium">{t.category}</span>
             </div>
-            <p className="text-sm text-muted-foreground">{t.description}</p>
+            <p className="mt-1 text-xs text-muted-foreground leading-relaxed">{t.description}</p>
           </div>
         ))}
         {filtered.length === 0 && (

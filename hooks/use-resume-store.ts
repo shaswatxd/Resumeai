@@ -22,7 +22,7 @@ type StoredState = {
 
 const DEFAULT_STATE: StoredState = {
   data: EMPTY_DATA,
-  template: 'classic',
+  template: 'modern',
   theme: 'blue',
   design: DEFAULT_DESIGN_SETTINGS,
 }
@@ -42,7 +42,7 @@ export function useResumeStore() {
         const parsed = JSON.parse(raw) as Partial<StoredState>
         const loadedState: StoredState = {
           data: { ...EMPTY_DATA, ...parsed.data, customSections: parsed.data?.customSections ?? [] },
-          template: parsed.template ?? 'classic',
+          template: parsed.template ?? 'modern',
           theme: parsed.theme ?? 'blue',
           design: {
             ...DEFAULT_DESIGN_SETTINGS,

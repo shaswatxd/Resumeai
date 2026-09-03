@@ -92,12 +92,7 @@ export type TemplateId =
   | 'elegant'
   | 'designer'
   | 'developer'
-  | 'student'
-  | 'business'
-  | 'marketing'
-  | 'dark-theme'
   | 'luxury'
-  | 'classic'
   | 'canva-emerald'
   | 'canva-creative'
   | 'canva-executive'
@@ -120,7 +115,7 @@ export const TEMPLATES: Template[] = [
   { id: 'canva-emerald', name: 'Emerald Suite', category: 'Creative', description: 'Emerald gradient sidebar, rounded avatars & pill tags', tag: 'Featured', hasPhoto: true },
   { id: 'canva-coral', name: 'Coral Luxe', category: 'Modern', description: 'Warm coral/rose rounded card containers & modern icons', tag: 'Featured', hasPhoto: true },
   { id: 'ats-pro', name: 'ATS Pro', category: 'ATS Professional', description: 'Pure single-column, parser-safe, zero graphics', tag: 'ATS', hasPhoto: false },
-  { id: 'modern', name: 'Modern Edge', category: 'Modern', description: 'Crisp geometric header with accent underline', hasPhoto: true },
+  { id: 'modern', name: 'Modern Edge', category: 'Modern', description: 'Crisp geometric header with accent underline', tag: 'Featured', hasPhoto: true },
   { id: 'corporate', name: 'Corporate Suite', category: 'Corporate', description: 'Structured two-tone header, boardroom-ready', hasPhoto: false },
   { id: 'minimal', name: 'Pure Minimal', category: 'Minimal', description: 'Generous whitespace, quiet typography', tag: 'ATS', hasPhoto: false },
   { id: 'elegant', name: 'Elegant Serif', category: 'Elegant', description: 'Centered serif name, thin hairline rules', hasPhoto: false },
@@ -128,11 +123,6 @@ export const TEMPLATES: Template[] = [
   { id: 'canva-creative', name: 'Vibrant Studio', category: 'Creative', description: 'Vibrant color block layout with floating avatar card', tag: 'Pro', hasPhoto: true },
   { id: 'designer', name: 'Designer Grid', category: 'Designer', description: 'Portfolio-style grid with photo showcase', hasPhoto: true },
   { id: 'developer', name: 'Dev Terminal', category: 'Developer', description: 'Monospace, terminal-inspired dev layout', tag: 'Dev', hasPhoto: false },
-  { id: 'student', name: 'Student Rise', category: 'Student', description: 'Education-first layout for students', hasPhoto: true },
-  { id: 'business', name: 'Business Slate', category: 'Business', description: 'Slate sidebar, confident business tone', hasPhoto: true },
-  { id: 'marketing', name: 'Marketing Pulse', category: 'Marketing', description: 'Punchy stats-forward marketing layout', hasPhoto: true },
-  { id: 'dark-theme', name: 'Midnight Pro', category: 'Dark Theme', description: 'Deep dark paper with glowing accent', tag: 'New', hasPhoto: true },
-  { id: 'classic', name: 'Classic Heritage', category: 'Classic', description: 'Timeless serif, ATS-friendly', tag: 'ATS', hasPhoto: false },
   { id: 'canva-gradient', name: 'Gradient Edge', category: 'Modern', description: 'Dynamic gradient header banner with experience timeline dots', tag: 'Pro', hasPhoto: true },
   { id: 'canva-obsidian', name: 'Obsidian Dark', category: 'Dark Theme', description: 'Charcoal paper background with neon accent text & glassy cards', tag: 'Pro', hasPhoto: true },
   { id: 'canva-infographic', name: 'Infographic Spark', category: 'Infographic', description: 'Visual stat cards, highlighted strength badges & progress bars', tag: 'Pro', hasPhoto: true },

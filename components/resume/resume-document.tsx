@@ -44,7 +44,7 @@ export function ResumeDocument({
 }: Props) {
   const accent = design.accentColor || theme.accent
   const background = design.colorMode === 'dark' ? design.backgroundColor || '#0f172a' : design.backgroundColor || '#ffffff'
-  const Template = TEMPLATE_REGISTRY[template] ?? TEMPLATE_REGISTRY['classic']
+  const Template = TEMPLATE_REGISTRY[template] ?? TEMPLATE_REGISTRY['modern']
 
   const vars: React.CSSProperties = {
     ['--doc-accent' as string]: accent,
