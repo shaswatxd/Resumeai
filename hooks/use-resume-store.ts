@@ -47,7 +47,10 @@ export function useResumeStore() {
           design: {
             ...DEFAULT_DESIGN_SETTINGS,
             ...parsed.design,
-            sectionVisibility: { ...parsed.design?.sectionVisibility },
+            sectionVisibility: {
+              ...DEFAULT_DESIGN_SETTINGS.sectionVisibility,
+              ...parsed.design?.sectionVisibility,
+            },
             sectionOrder: parsed.design?.sectionOrder ?? DEFAULT_DESIGN_SETTINGS.sectionOrder,
           },
         }

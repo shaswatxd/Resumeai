@@ -31,7 +31,7 @@ import { AtsPanel } from '@/components/builder/ats-panel'
 import { BulletLibraryModal } from '@/components/builder/bullet-library-modal'
 import { CommandPalette } from '@/components/builder/command-palette'
 import { useResumeStore } from '@/hooks/use-resume-store'
-import { EMPTY_DATA, SAMPLE_DATA, type ResumeData } from '@/lib/resume-types'
+import { EMPTY_DATA, SAMPLE_DATA, calculateAtsScore, type ResumeData } from '@/lib/resume-types'
 import { cn } from '@/lib/utils'
 
 export function BuilderShell() {
@@ -63,16 +63,8 @@ export function BuilderShell() {
   const importRef = useRef<HTMLInputElement>(null)
   const toast = useToast()
 
-  // Calculate quick ATS readiness score for the header badge
-  const quickAtsScore = (() => {
-    let pts = 0
-    if (data.fullName && data.email && data.phone) pts += 25
-    if (data.summary && data.summary.length >= 80) pts += 20
-    if (data.experience.length > 0 && data.experience.some((e) => e.bullets.length > 0)) pts += 25
-    if (data.skills.length >= 4) pts += 15
-    if (data.education.length > 0) pts += 15
-    return Math.min(100, pts)
-  })()
+  // Synchronized ATS score
+  const quickAtsScore = calculateAtsScore(data.fullName ? data : SAMPLE_DATA)
 
   const handleReset = () => {
     setConfirmReset(true)

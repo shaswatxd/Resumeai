@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useRef, useEffect } from 'react'
 import { ResumeDocument } from '@/components/resume/resume-document'
 import { PrintSheet } from '@/components/print-sheet'
 import { PhotoEditor } from '@/components/builder/photo-editor'
@@ -8,6 +8,7 @@ import {
   SAMPLE_DATA,
   TEMPLATES,
   THEMES,
+  calculateAtsScore,
   type DesignSettings,
   type ResumeData,
   type TemplateId,
@@ -37,18 +38,6 @@ type Props = {
   onOpenAts?: () => void
   zenMode?: boolean
   onToggleZen?: () => void
-}
-
-function calculateAtsScore(d: ResumeData): number {
-  let score = 0
-  if (d.fullName?.trim()) score += 15
-  if (d.role?.trim()) score += 15
-  if (d.email?.trim() && d.phone?.trim()) score += 15
-  if (d.summary && d.summary.length > 30) score += 15
-  if (d.experience && d.experience.length >= 1 && d.experience.some((e) => e.bullets?.length)) score += 20
-  if (d.education && d.education.length >= 1) score += 10
-  if (d.skills && d.skills.length >= 4) score += 10
-  return Math.min(100, score)
 }
 
 function countWords(d: ResumeData): number {
@@ -92,13 +81,28 @@ export function PreviewPanel({
   const [zoom, setZoom] = useState<number>(100)
   const [showPageBreak, setShowPageBreak] = useState(true)
   const [photoEditorOpen, setPhotoEditorOpen] = useState(false)
+  const docRef = useRef<HTMLDivElement>(null)
+  const [docHeight, setDocHeight] = useState(1000)
+
   const showSample = isEmpty(data)
   const rendered = showSample ? SAMPLE_DATA : data
   const atsScore = calculateAtsScore(rendered)
   const totalWords = countWords(rendered)
 
-  const isOnePageOptimal = totalWords >= 250 && totalWords <= 580
-  const isTooLong = totalWords > 580
+  useEffect(() => {
+    if (!docRef.current) return
+    const update = () => {
+      if (docRef.current) {
+        setDocHeight(docRef.current.scrollHeight)
+      }
+    }
+    update()
+    const ro = new ResizeObserver(update)
+    ro.observe(docRef.current)
+    return () => ro.disconnect()
+  }, [rendered, template, theme, design])
+
+  const isMultiPage = docHeight > 1135
 
   const handleAutoFitSpacing = () => {
     if (!onDesignChange) return
@@ -136,26 +140,26 @@ export function PreviewPanel({
           </button>
 
           {/* Word count & Page fit indicator */}
-          <div className="hidden sm:flex items-center gap-1.5 text-xs text-muted-foreground">
-            {isTooLong ? (
-              <span className="flex items-center gap-1 text-amber-400 font-medium">
+          <div className="hidden sm:flex items-center gap-1.5 text-xs">
+            {isMultiPage ? (
+              <span className="flex items-center gap-1 text-amber-400 font-semibold bg-amber-400/10 border border-amber-400/30 px-2 py-0.5 rounded-full">
                 <AlertTriangle className="size-3.5" />
                 ~2 Pages ({totalWords} words)
               </span>
             ) : (
-              <span className="flex items-center gap-1 text-emerald-400 font-medium">
+              <span className="flex items-center gap-1 text-emerald-400 font-semibold bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded-full">
                 <FileCheck className="size-3.5" />
-                1 Page ({totalWords} words)
+                ✓ 1 Page ({totalWords} words)
               </span>
             )}
-            {isTooLong && onDesignChange && (
+            {isMultiPage && onDesignChange && (
               <button
                 type="button"
                 onClick={handleAutoFitSpacing}
-                className="ml-1 rounded bg-amber-400/15 px-1.5 py-0.5 text-[11px] font-semibold text-amber-300 hover:bg-amber-400/25"
+                className="ml-1 rounded-md bg-amber-400/20 border border-amber-400/40 px-2 py-0.5 text-[11px] font-bold text-amber-300 hover:bg-amber-400/30 transition-colors shadow-sm"
                 title="Slightly tighten spacing and margins to keep resume on 1 page"
               >
-                Auto-Fit 1-Page
+                ⚡ Auto-Fit 1-Page
               </button>
             )}
           </div>
@@ -259,26 +263,44 @@ export function PreviewPanel({
           }}
           className="w-full max-w-[820px]"
         >
-          <div className="relative overflow-hidden rounded-xl bg-white shadow-2xl ring-1 ring-black/5">
-            {/* Page 1 Break Indicator (A4 Height = 1123px) */}
-            {showPageBreak && (
+          <div
+            ref={docRef}
+            className="relative overflow-hidden rounded-xl bg-white shadow-2xl ring-1 ring-black/5 min-h-[1123px]"
+          >
+            {/* Page 1 Cutoff Warning (ONLY when content overflows Page 1) */}
+            {showPageBreak && isMultiPage && (
               <div
-                className="pointer-events-none absolute left-0 right-0 z-30 flex items-center justify-between border-b-2 border-dashed border-rose-500/70 px-4 select-none opacity-85"
+                className="no-print pointer-events-none absolute left-0 right-0 z-30 flex items-center justify-between border-b-2 border-dashed border-rose-500/80 px-4 select-none opacity-90 shadow-sm"
                 style={{ top: 1123 }}
               >
                 <span className="rounded-b bg-rose-600 px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-wider text-white shadow-md">
-                  --- Page 1 End ---
+                  ⚠ Page 1 Cutoff
                 </span>
                 <span className="rounded-b bg-rose-600 px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-wider text-white shadow-md">
-                  --- Page 2 Start ---
+                  Page 2 Starts Below
+                </span>
+              </div>
+            )}
+
+            {/* Page 1 Safe Boundary (when content cleanly fits on Page 1) */}
+            {showPageBreak && !isMultiPage && (
+              <div
+                className="no-print pointer-events-none absolute left-0 right-0 z-30 flex items-center justify-between border-b border-dashed border-emerald-500/40 px-4 select-none opacity-60"
+                style={{ top: 1123 }}
+              >
+                <span className="rounded-b bg-emerald-700/80 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-white">
+                  ✓ Page 1 Safe Boundary
+                </span>
+                <span className="rounded-b bg-emerald-700/80 px-2 py-0.5 text-[9px] font-medium text-white">
+                  Fits on 1 Page
                 </span>
               </div>
             )}
 
             {/* Page 2 Break Indicator (Height = 2246px) */}
-            {showPageBreak && (
+            {showPageBreak && isMultiPage && docHeight > 2246 && (
               <div
-                className="pointer-events-none absolute left-0 right-0 z-30 flex items-center justify-between border-b-2 border-dashed border-rose-500/70 px-4 select-none opacity-85"
+                className="no-print pointer-events-none absolute left-0 right-0 z-30 flex items-center justify-between border-b-2 border-dashed border-rose-500/70 px-4 select-none opacity-85"
                 style={{ top: 2246 }}
               >
                 <span className="rounded-b bg-rose-600 px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-wider text-white shadow-md">

@@ -241,21 +241,36 @@ export type DesignSettings = {
 
 export const DEFAULT_DESIGN_SETTINGS: DesignSettings = {
   fontFamily: 'inter',
-  fontSize: 'md',
+  fontSize: 'sm',
   headingScale: 'md',
   accentColor: THEMES[0].accent,
   backgroundColor: '#ffffff',
-  sectionSpacing: 'normal',
-  lineHeight: 'normal',
-  pageMargin: 'normal',
+  sectionSpacing: 'compact',
+  lineHeight: 'compact',
+  pageMargin: 'narrow',
   borderRadius: 'soft',
   photoShape: 'circle',
   iconStyle: 'outline',
   dividerStyle: 'line',
-  sectionVisibility: {},
+  sectionVisibility: {
+    references: false,
+    interests: false,
+  },
   sectionOrder: DEFAULT_SECTION_ORDER,
   pageSize: 'a4',
   colorMode: 'light',
+}
+
+export function calculateAtsScore(d: ResumeData): number {
+  let score = 0
+  if (d.fullName?.trim()) score += 15
+  if (d.role?.trim()) score += 15
+  if (d.email?.trim() && d.phone?.trim()) score += 15
+  if (d.summary && d.summary.length > 30) score += 15
+  if (d.experience && d.experience.length >= 1 && d.experience.some((e) => e.bullets?.length)) score += 20
+  if (d.education && d.education.length >= 1) score += 10
+  if (d.skills && d.skills.length >= 4) score += 10
+  return Math.min(100, score)
 }
 
 export function isSectionVisible(design: DesignSettings, id: SectionId) {
