@@ -316,9 +316,14 @@ export function BuilderShell() {
             <BookOpen className="size-4" />
             <span className="hidden lg:inline">Bullet Library</span>
           </Button>
-          <Button size="lg" className="h-8 sm:h-10 px-2 sm:px-3 text-xs sm:text-sm" onClick={handlePrint}>
+          <Button
+            size="lg"
+            className="h-8 sm:h-10 px-3 sm:px-4 text-xs sm:text-sm font-bold bg-primary text-primary-foreground shadow-md shadow-primary/25 hover:bg-primary/90 gap-1.5 transition-all hover:scale-[1.02]"
+            onClick={handlePrint}
+            title="Download your ATS-optimized resume as PDF"
+          >
             <Download className="size-4" />
-            PDF
+            <span>Download PDF</span>
           </Button>
         </div>
       </header>
@@ -354,6 +359,7 @@ export function BuilderShell() {
             template={template}
             onChange={(u) => setData(u)}
             onOpenLibrary={() => setLibraryOpen(true)}
+            onDownload={handlePrint}
           />
         </section>
 

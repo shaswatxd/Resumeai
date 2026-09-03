@@ -18,6 +18,7 @@ import {
   Loader2,
   Wand2,
   BookOpen,
+  Download,
 } from 'lucide-react'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Input, Label, Textarea } from '@/components/ui/field'
@@ -48,9 +49,10 @@ type Props = {
   template?: TemplateId
   onChange: (updater: (prev: ResumeData) => ResumeData) => void
   onOpenLibrary?: () => void
+  onDownload?: () => void
 }
 
-export function EditorPanel({ data, template, onChange, onOpenLibrary }: Props) {
+export function EditorPanel({ data, template, onChange, onOpenLibrary, onDownload }: Props) {
   const [tab, setTab] = useState<TabId>('personal')
 
   const set = <K extends keyof ResumeData>(key: K, value: ResumeData[K]) =>
@@ -78,8 +80,8 @@ export function EditorPanel({ data, template, onChange, onOpenLibrary }: Props) 
         )}
       </div>
 
-      {/* Tabs */}
-      <div className="scroll-thin flex w-full max-w-full gap-1 overflow-x-auto border-b border-border px-2 sm:px-4 pt-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      {/* Tabs with permanent clear labels */}
+      <div className="scroll-thin flex w-full max-w-full gap-1 overflow-x-auto border-b border-border px-2 sm:px-3 pt-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {TABS.map((t) => {
           const active = t.id === tab
           const Icon = t.icon
@@ -88,14 +90,14 @@ export function EditorPanel({ data, template, onChange, onOpenLibrary }: Props) 
               key={t.id}
               onClick={() => setTab(t.id)}
               className={cn(
-                'relative flex shrink-0 items-center gap-1.5 px-3 py-3 text-sm font-medium transition-colors',
+                'relative flex shrink-0 items-center gap-1.5 px-2.5 sm:px-3 py-2.5 text-xs sm:text-sm font-medium transition-colors',
                 active
-                  ? 'text-foreground'
+                  ? 'text-foreground font-semibold'
                   : 'text-muted-foreground hover:text-foreground',
               )}
             >
               <Icon className="size-4" />
-              <span className="hidden lg:inline">{t.label}</span>
+              <span>{t.label}</span>
               {active && (
                 <span className="absolute inset-x-2 -bottom-px h-0.5 rounded-full bg-primary" />
               )}
@@ -121,7 +123,7 @@ export function EditorPanel({ data, template, onChange, onOpenLibrary }: Props) 
         {tab === 'more' && <MoreTab data={data} onChange={onChange} set={set} />}
       </div>
 
-      {/* Footer nav */}
+      {/* Footer nav with intuitive Next/Finish button */}
       <div className="flex items-center justify-between gap-3 border-t border-border p-4">
         <Button
           variant="ghost"
@@ -132,17 +134,26 @@ export function EditorPanel({ data, template, onChange, onOpenLibrary }: Props) 
         >
           <ArrowLeft className="size-4" /> Back
         </Button>
-        <Button
-          size="lg"
-          className="h-11 flex-1 px-4"
-          disabled={tabIndex === 0 ? false : tabIndex === TABS.length - 1}
-          onClick={() =>
-            setTab(TABS[Math.min(TABS.length - 1, tabIndex + 1)].id)
-          }
-        >
-          Next: {TABS[Math.min(TABS.length - 1, tabIndex + 1)].label}
-          <ArrowRight className="size-4" />
-        </Button>
+        {tabIndex === TABS.length - 1 ? (
+          <Button
+            size="lg"
+            className="h-11 flex-1 px-4 font-bold gap-2 bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-600/25 transition-all hover:scale-[1.01]"
+            onClick={onDownload}
+          >
+            <Download className="size-4" /> Finish & Download PDF
+          </Button>
+        ) : (
+          <Button
+            size="lg"
+            className="h-11 flex-1 px-4 font-semibold gap-2"
+            onClick={() =>
+              setTab(TABS[Math.min(TABS.length - 1, tabIndex + 1)].id)
+            }
+          >
+            Next: {TABS[Math.min(TABS.length - 1, tabIndex + 1)].label}
+            <ArrowRight className="size-4" />
+          </Button>
+        )}
       </div>
     </div>
   )
