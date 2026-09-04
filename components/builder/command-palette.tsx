@@ -42,6 +42,7 @@ type Props = {
   onOpenLibrary: () => void
   onOpenDesign: () => void
   onOpenAts: () => void
+  onOpenAi?: () => void
   onPrintPdf: () => void
   onApplyData: (updater: (prev: ResumeData) => ResumeData) => void
   onReset: () => void
@@ -55,6 +56,7 @@ export function CommandPalette({
   onOpenLibrary,
   onOpenDesign,
   onOpenAts,
+  onOpenAi,
   onPrintPdf,
   onApplyData,
   onReset,
@@ -99,6 +101,17 @@ export function CommandPalette({
         action: () => {
           onClose()
           onPrintPdf()
+        },
+      },
+      {
+        category: 'Quick Actions',
+        id: 'ai-copilot',
+        title: 'Open AI Assistant Copilot',
+        subtitle: 'Build entire resume, rewrite bullets with Google XYZ formula',
+        icon: Sparkles,
+        action: () => {
+          onClose()
+          onOpenAi?.()
         },
       },
       {

@@ -31,6 +31,7 @@ import { EditorPanel } from '@/components/builder/editor-panel'
 import { PreviewPanel } from '@/components/builder/preview-panel'
 import { DesignPanel } from '@/components/builder/design-panel'
 import { AtsPanel } from '@/components/builder/ats-panel'
+import { AiPanel } from '@/components/builder/ai-panel'
 import { BulletLibraryModal } from '@/components/builder/bullet-library-modal'
 import { CommandPalette } from '@/components/builder/command-palette'
 import { useResumeStore } from '@/hooks/use-resume-store'
@@ -59,6 +60,7 @@ export function BuilderShell() {
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [libraryOpen, setLibraryOpen] = useState(false)
   const [atsOpen, setAtsOpen] = useState(false)
+  const [aiOpen, setAiOpen] = useState(false)
   const [paletteOpen, setPaletteOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [roleModalOpen, setRoleModalOpen] = useState(false)
@@ -284,6 +286,16 @@ export function BuilderShell() {
           <Button
             variant="outline"
             size="lg"
+            className="h-8 sm:h-10 gap-1 sm:gap-2 px-2 sm:px-3 text-xs sm:text-sm border-purple-500/40 bg-purple-500/10 text-purple-400 hover:bg-purple-500/20 shadow-xs"
+            onClick={() => setAiOpen(true)}
+            title="Open AI Resume Assistant & Copilot"
+          >
+            <Sparkles className="size-4 text-purple-400 animate-pulse" />
+            <span className="hidden sm:inline font-semibold">AI Copilot</span>
+          </Button>
+          <Button
+            variant="outline"
+            size="lg"
             className="h-8 sm:h-10 gap-1 sm:gap-2 px-2 sm:px-3 text-xs sm:text-sm border-primary/40 bg-primary/10 text-primary hover:bg-primary/20"
             onClick={() => setRoleModalOpen(true)}
           >
@@ -436,6 +448,7 @@ export function BuilderShell() {
             template={template}
             onChange={(u) => setData(u)}
             onOpenLibrary={() => setLibraryOpen(true)}
+            onOpenAi={() => setAiOpen(true)}
             onDownload={handlePrint}
           />
         </section>
@@ -495,9 +508,17 @@ export function BuilderShell() {
         onOpenLibrary={() => setLibraryOpen(true)}
         onOpenDesign={() => setDrawerOpen(true)}
         onOpenAts={() => setAtsOpen(true)}
+        onOpenAi={() => setAiOpen(true)}
         onPrintPdf={handlePrint}
         onApplyData={setData}
         onReset={() => setData(EMPTY_DATA)}
+      />
+      <AiPanel
+        open={aiOpen}
+        onClose={() => setAiOpen(false)}
+        resume={data}
+        onApplyData={setData}
+        onApplyTemplate={setTemplate}
       />
 
       {/* 1-Click Role Presets Modal */}

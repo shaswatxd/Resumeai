@@ -22,6 +22,7 @@ import {
 } from 'lucide-react'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Input, Label, Textarea } from '@/components/ui/field'
+import { useToast } from '@/components/ui/toast'
 import { cn } from '@/lib/utils'
 import { uid, type ResumeData, type TemplateId, TEMPLATES, templateSupportsPhoto } from '@/lib/resume-types'
 import { ROLE_CATEGORIES } from '@/lib/bullet-library'
@@ -49,10 +50,11 @@ type Props = {
   template?: TemplateId
   onChange: (updater: (prev: ResumeData) => ResumeData) => void
   onOpenLibrary?: () => void
+  onOpenAi?: () => void
   onDownload?: () => void
 }
 
-export function EditorPanel({ data, template, onChange, onOpenLibrary, onDownload }: Props) {
+export function EditorPanel({ data, template, onChange, onOpenLibrary, onOpenAi, onDownload }: Props) {
   const [tab, setTab] = useState<TabId>('personal')
 
   const set = <K extends keyof ResumeData>(key: K, value: ResumeData[K]) =>
@@ -114,11 +116,19 @@ export function EditorPanel({ data, template, onChange, onOpenLibrary, onDownloa
             template={template}
             set={set}
             onOpenLibrary={onOpenLibrary}
+            onOpenAi={onOpenAi}
           />
         )}
-        {tab === 'experience' && <ExperienceTab data={data} onChange={onChange} onOpenLibrary={onOpenLibrary} />}
+        {tab === 'experience' && (
+          <ExperienceTab
+            data={data}
+            onChange={onChange}
+            onOpenLibrary={onOpenLibrary}
+            onOpenAi={onOpenAi}
+          />
+        )}
         {tab === 'education' && <EducationTab data={data} onChange={onChange} />}
-        {tab === 'skills' && <SkillsTab data={data} set={set} />}
+        {tab === 'skills' && <SkillsTab data={data} set={set} onOpenAi={onOpenAi} />}
         {tab === 'projects' && <ProjectsTab data={data} onChange={onChange} />}
         {tab === 'more' && <MoreTab data={data} onChange={onChange} set={set} />}
       </div>
@@ -165,15 +175,53 @@ function PersonalTab({
   template,
   set,
   onOpenLibrary,
+  onOpenAi,
 }: {
   data: ResumeData
   template?: TemplateId
   set: <K extends keyof ResumeData>(k: K, v: ResumeData[K]) => void
   onOpenLibrary?: () => void
+  onOpenAi?: () => void
 }) {
   const [photoModalOpen, setPhotoModalOpen] = useState(false)
+  const [loadingAiSummary, setLoadingAiSummary] = useState(false)
+  const toast = useToast()
   const supportsPhoto = template ? templateSupportsPhoto(template) : true
   const currentTemplate = template ? TEMPLATES.find((t) => t.id === template) : null
+
+  const handleAiSummary = async () => {
+    setLoadingAiSummary(true)
+    try {
+      const res = await fetch('/api/ai', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'summary',
+          context: {
+            name: data.fullName,
+            role: data.role,
+            skills: data.skills,
+            experience: data.experience.map((e) => ({
+              role: e.role,
+              company: e.company,
+              bullets: e.bullets,
+            })),
+          },
+        }),
+      })
+      const result = await res.json()
+      if (result.text) {
+        set('summary', result.text)
+        toast('AI created an executive ATS summary for your profile!', 'success')
+      } else if (result.error) {
+        toast(result.error, 'error')
+      }
+    } catch {
+      toast('Could not generate summary. Please check your network.', 'error')
+    } finally {
+      setLoadingAiSummary(false)
+    }
+  }
 
   return (
     <div className="flex flex-col gap-4">
@@ -347,15 +395,35 @@ function PersonalTab({
       <div>
         <div className="mb-1.5 flex items-center justify-between">
           <Label className="mb-0">Professional summary</Label>
-          {onOpenLibrary && (
+          <div className="flex items-center gap-1.5">
             <button
               type="button"
-              onClick={onOpenLibrary}
-              className="inline-flex items-center gap-1 rounded-md border border-primary/40 bg-primary/10 px-2 py-1 text-xs font-medium text-primary transition-colors hover:bg-primary/20"
+              onClick={handleAiSummary}
+              disabled={loadingAiSummary}
+              className="inline-flex items-center gap-1 rounded-md border border-purple-500/40 bg-purple-500/10 px-2 py-1 text-xs font-semibold text-purple-400 transition-colors hover:bg-purple-500/20 disabled:opacity-50 shadow-2xs"
             >
-              <BookOpen className="size-3" /> Browse Library
+              {loadingAiSummary ? (
+                <>
+                  <Loader2 className="size-3 animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="size-3 text-purple-400" />
+                  AI Generate
+                </>
+              )}
             </button>
-          )}
+            {onOpenLibrary && (
+              <button
+                type="button"
+                onClick={onOpenLibrary}
+                className="inline-flex items-center gap-1 rounded-md border border-primary/40 bg-primary/10 px-2 py-1 text-xs font-medium text-primary transition-colors hover:bg-primary/20"
+              >
+                <BookOpen className="size-3" /> Browse Library
+              </button>
+            )}
+          </div>
         </div>
         <Textarea
           className="min-h-[120px]"
@@ -376,11 +444,17 @@ function ExperienceTab({
   data,
   onChange,
   onOpenLibrary,
+  onOpenAi,
 }: {
   data: ResumeData
   onChange: (u: (p: ResumeData) => ResumeData) => void
   onOpenLibrary?: () => void
+  onOpenAi?: () => void
 }) {
+  const [polishingId, setPolishingId] = useState<string | null>(null)
+  const [polishingAll, setPolishingAll] = useState(false)
+  const toast = useToast()
+
   const add = () =>
     onChange((p) => ({
       ...p,
@@ -406,8 +480,101 @@ function ExperienceTab({
   const remove = (id: string) =>
     onChange((p) => ({ ...p, experience: p.experience.filter((e) => e.id !== id) }))
 
+  const handlePolishRole = async (expId: string) => {
+    const roleItem = data.experience.find((e) => e.id === expId)
+    if (!roleItem) return
+    setPolishingId(expId)
+    try {
+      const res = await fetch('/api/ai', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'bullets',
+          context: {
+            role: roleItem.role || data.role,
+            company: roleItem.company,
+            bullets: roleItem.bullets.filter(Boolean),
+            skills: data.skills,
+          },
+        }),
+      })
+      const result = await res.json()
+      if (result.bullets && Array.isArray(result.bullets) && result.bullets.length > 0) {
+        update(expId, { bullets: result.bullets })
+        toast(`Polished bullets using Google XYZ achievement formula!`, 'success')
+      } else if (result.error) {
+        toast(result.error, 'error')
+      }
+    } catch {
+      toast('Failed to polish bullets. Please check your network.', 'error')
+    } finally {
+      setPolishingId(null)
+    }
+  }
+
+  const handlePolishAll = async () => {
+    if (data.experience.length === 0) return
+    setPolishingAll(true)
+    try {
+      const res = await fetch('/api/ai', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'enhance-all',
+          context: {
+            role: data.role,
+            skills: data.skills,
+            experience: data.experience.map((e) => ({
+              id: e.id,
+              role: e.role,
+              company: e.company,
+              bullets: e.bullets,
+            })),
+          },
+        }),
+      })
+      const result = await res.json()
+      if (result.experience && Array.isArray(result.experience)) {
+        onChange((p) => ({
+          ...p,
+          summary: result.summary || p.summary,
+          experience: p.experience.map((e) => {
+            const match = result.experience?.find((re: any) => re.id === e.id)
+            return match && match.bullets?.length ? { ...e, bullets: match.bullets } : e
+          }),
+        }))
+        toast('Auto-enhanced all experience bullets with Google XYZ formula & impact metrics!', 'success')
+      } else if (result.error) {
+        toast(result.error, 'error')
+      }
+    } catch {
+      toast('Auto-enhance failed. Please try again.', 'error')
+    } finally {
+      setPolishingAll(false)
+    }
+  }
+
   return (
     <div className="flex flex-col gap-4">
+      {data.experience.length > 0 && (
+        <div className="flex items-center justify-between rounded-xl border border-purple-500/30 bg-purple-500/10 p-3 shadow-2xs">
+          <div className="flex items-center gap-2 text-xs font-medium text-purple-400">
+            <Sparkles className="size-4 shrink-0 text-purple-400" />
+            <span>AI Bullet Optimizer (Google XYZ Formula)</span>
+          </div>
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={polishingAll}
+            className="h-7 text-xs gap-1 border-purple-500/40 bg-background text-purple-400 hover:bg-purple-500/20"
+            onClick={handlePolishAll}
+          >
+            {polishingAll ? <Loader2 className="size-3 animate-spin" /> : <Wand2 className="size-3" />}
+            {polishingAll ? 'Enhancing...' : 'Enhance All'}
+          </Button>
+        </div>
+      )}
+
       {data.experience.length === 0 && (
         <EmptyState
           icon={Briefcase}
@@ -471,15 +638,36 @@ function ExperienceTab({
           <div className="mt-3">
             <div className="mb-1.5 flex items-center justify-between">
               <Label className="mb-0">Achievement Bullets</Label>
-              {onOpenLibrary && (
+              <div className="flex items-center gap-1.5">
                 <button
                   type="button"
-                  onClick={onOpenLibrary}
-                  className="inline-flex items-center gap-1 rounded-md border border-primary/40 bg-primary/10 px-2 py-1 text-xs font-medium text-primary transition-colors hover:bg-primary/20"
+                  onClick={() => handlePolishRole(exp.id)}
+                  disabled={polishingId === exp.id}
+                  className="inline-flex items-center gap-1 rounded-md border border-purple-500/40 bg-purple-500/10 px-2 py-1 text-xs font-semibold text-purple-400 transition-colors hover:bg-purple-500/20 disabled:opacity-50 shadow-2xs"
+                  title="Polish bullets with Google XYZ achievement formula"
                 >
-                  <BookOpen className="size-3" /> Browse Phrases
+                  {polishingId === exp.id ? (
+                    <>
+                      <Loader2 className="size-3 animate-spin" />
+                      Polishing...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="size-3 text-purple-400" />
+                      AI Polish (XYZ)
+                    </>
+                  )}
                 </button>
-              )}
+                {onOpenLibrary && (
+                  <button
+                    type="button"
+                    onClick={onOpenLibrary}
+                    className="inline-flex items-center gap-1 rounded-md border border-primary/40 bg-primary/10 px-2 py-1 text-xs font-medium text-primary transition-colors hover:bg-primary/20"
+                  >
+                    <BookOpen className="size-3" /> Browse Phrases
+                  </button>
+                )}
+              </div>
             </div>
             <BulletEditor
               bullets={exp.bullets}
@@ -687,12 +875,16 @@ function EducationTab({
 function SkillsTab({
   data,
   set,
+  onOpenAi,
 }: {
   data: ResumeData
   set: <K extends keyof ResumeData>(k: K, v: ResumeData[K]) => void
+  onOpenAi?: () => void
 }) {
   const [draft, setDraft] = useState('')
   const [suggestions, setSuggestions] = useState<string[]>([])
+  const [loadingSkills, setLoadingSkills] = useState(false)
+  const toast = useToast()
 
   const addSkill = (value: string) => {
     const v = value.trim()
@@ -700,7 +892,38 @@ function SkillsTab({
     if (!data.skills.includes(v)) set('skills', [...data.skills, v])
   }
 
-  const suggestSkills = () => {
+  const suggestSkills = async () => {
+    setLoadingSkills(true)
+    try {
+      const res = await fetch('/api/ai', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'skills',
+          context: {
+            role: data.role,
+            skills: data.skills,
+            experience: data.experience.map((e) => ({
+              role: e.role,
+              company: e.company,
+              bullets: e.bullets,
+            })),
+          },
+        }),
+      })
+      const result = await res.json()
+      if (result.skills && Array.isArray(result.skills) && result.skills.length > 0) {
+        const available = result.skills.filter((s: string) => !data.skills.includes(s))
+        setSuggestions(available)
+        toast('Loaded AI skill recommendations for your profile!', 'success')
+        return
+      }
+    } catch {
+      // Fallback to local catalog
+    } finally {
+      setLoadingSkills(false)
+    }
+
     const roleLow = (data.role || '').toLowerCase()
     let pool: string[] = []
 
@@ -759,10 +982,20 @@ function SkillsTab({
         <button
           type="button"
           onClick={suggestSkills}
-          className="inline-flex items-center gap-1 rounded-md border border-primary/40 bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary transition-colors hover:bg-primary/20"
+          disabled={loadingSkills}
+          className="inline-flex items-center gap-1 rounded-md border border-purple-500/40 bg-purple-500/10 px-2.5 py-1 text-xs font-semibold text-purple-400 transition-colors hover:bg-purple-500/20 disabled:opacity-50 shadow-2xs"
         >
-          <Sparkles className="size-3.5" />
-          Recommended Skills
+          {loadingSkills ? (
+            <>
+              <Loader2 className="size-3.5 animate-spin" />
+              <span>Analyzing Role...</span>
+            </>
+          ) : (
+            <>
+              <Sparkles className="size-3.5 text-purple-400" />
+              <span>AI Recommend Skills</span>
+            </>
+          )}
         </button>
       </div>
 
