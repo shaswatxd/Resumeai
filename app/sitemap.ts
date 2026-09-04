@@ -8,5 +8,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE}/builder`, changeFrequency: 'weekly', priority: 0.9 },
     { url: `${BASE}/templates`, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${BASE}/cover-letter`, changeFrequency: 'weekly', priority: 0.7 },
+    { url: `${BASE}/shaadi-biodata`, changeFrequency: 'weekly', priority: 0.8 },
   ]
 }

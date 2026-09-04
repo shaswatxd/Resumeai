@@ -92,6 +92,9 @@ export default function Page() {
           <Link href="/interview" className="transition-colors hover:text-foreground">
             Interview Prep
           </Link>
+          <Link href="/shaadi-biodata" className="text-rose-400 font-semibold transition-colors hover:text-rose-300">
+            Shaadi Biodata
+          </Link>
           <Link
             href="/builder"
             className="flex items-center gap-1.5 transition-colors hover:text-foreground font-semibold text-foreground"
@@ -284,6 +287,9 @@ export default function Page() {
             </Link>
             <Link href="/interview" className="transition-colors hover:text-foreground">
               Interview Prep
+            </Link>
+            <Link href="/shaadi-biodata" className="transition-colors hover:text-foreground">
+              Shaadi Biodata
             </Link>
           </nav>
         </div>

@@ -15,6 +15,9 @@ import {
   Playfair_Display,
   Merriweather,
   Raleway,
+  Noto_Sans_Devanagari,
+  Martel,
+  Cinzel,
 } from 'next/font/google'
 import './globals.css'
 
@@ -45,6 +48,23 @@ const resumePlayfair = Playfair_Display({ subsets: ['latin'], variable: '--font-
 const resumeMerriweather = Merriweather({ subsets: ['latin'], variable: '--font-resume-merriweather', weight: ['400', '700'] })
 const resumeRaleway = Raleway({ subsets: ['latin'], variable: '--font-resume-raleway', weight: ['400', '500', '600', '700'] })
 
+/* Matrimonial Biodata Devanagari & Royal Fonts */
+const devanagariSans = Noto_Sans_Devanagari({
+  subsets: ['devanagari', 'latin'],
+  variable: '--font-devanagari-sans',
+  weight: ['400', '500', '600', '700'],
+})
+const devanagariSerif = Martel({
+  subsets: ['devanagari', 'latin'],
+  variable: '--font-devanagari-serif',
+  weight: ['400', '700', '800'],
+})
+const cinzel = Cinzel({
+  subsets: ['latin'],
+  variable: '--font-cinzel',
+  weight: ['600', '700', '800'],
+})
+
 const resumeFontVars = [
   resumeInter,
   resumePoppins,
@@ -56,6 +76,9 @@ const resumeFontVars = [
   resumePlayfair,
   resumeMerriweather,
   resumeRaleway,
+  devanagariSans,
+  devanagariSerif,
+  cinzel,
 ]
   .map((f) => f.variable)
   .join(' ')

@@ -70,13 +70,37 @@ const RESUME_JSON_SHAPE = `{
 }`
 
 type Body = {
-  action: 'chat' | 'summary' | 'bullets' | 'skills' | 'ats' | 'cover' | 'tailor' | 'build' | 'enhance-all' | 'xyz-polish' | 'interview-prep'
+  action:
+    | 'chat'
+    | 'summary'
+    | 'bullets'
+    | 'skills'
+    | 'ats'
+    | 'cover'
+    | 'tailor'
+    | 'build'
+    | 'enhance-all'
+    | 'xyz-polish'
+    | 'interview-prep'
+    | 'biodata-about'
   prompt?: string
   history?: { role: 'user' | 'ai'; text: string }[]
   jobDescription?: string
   company?: string
   hiringManager?: string
   tone?: string
+  biodataContext?: {
+    name?: string
+    gender?: string
+    education?: string
+    occupation?: string
+    company?: string
+    familyType?: string
+    nativePlace?: string
+    hobbies?: string
+    tone?: 'traditional' | 'balanced' | 'modern'
+    language?: 'hi' | 'en' | 'hinglish'
+  }
   context?: {
     name?: string
     role?: string
@@ -128,7 +152,7 @@ export async function POST(req: Request) {
     return Response.json({ error: 'Invalid request' }, { status: 400 })
   }
 
-  const { action, prompt, history, context, jobDescription } = body
+  const { action, prompt, history, context, jobDescription, biodataContext } = body
 
   try {
     if (action === 'summary') {
@@ -288,6 +312,65 @@ export async function POST(req: Request) {
         templateId,
         templateReason: parsed.templateReason ?? '',
         resume: parsed.resume,
+      })
+    }
+
+    if (action === 'biodata-about') {
+      const b = biodataContext ?? {}
+      const lang = b.language || 'en'
+      const tone = b.tone || 'balanced'
+
+      const toneGuidance =
+        tone === 'traditional'
+          ? 'Emphasize deep respect for cultural roots, elders, family harmony, and grounded values.'
+          : tone === 'modern'
+            ? 'Emphasize progressive mindset, mutual career support, individuality, companionship, and open communication.'
+            : 'Strike a balanced chord between modern professional ambitions and warm family traditions.'
+
+      const langGuidance =
+        lang === 'hi'
+          ? 'Write in fluent, dignified, formal Hindi using Devanagari script (हिंदी).'
+          : lang === 'hinglish'
+            ? 'Write in natural Indian English with warm cultural phrases.'
+            : 'Write in elegant, articulate British/Indian English.'
+
+      const system = `You are a premier matrimonial biodata consultant for Indian families.
+Your task is to write a warm, respectful, and appealing matrimonial summary for a marriage biodata.
+Tone guidance: ${toneGuidance}
+Language guidance: ${langGuidance}
+
+Candidate Details:
+- Name: ${b.name || 'Candidate'}
+- Gender: ${b.gender || 'Not specified'}
+- Education: ${b.education || 'Well-educated'}
+- Occupation: ${b.occupation || 'Professional'} ${b.company ? `at ${b.company}` : ''}
+- Family Background: ${b.familyType ? `${b.familyType} family` : ''} ${b.nativePlace ? `from ${b.nativePlace}` : ''}
+- Hobbies/Interests: ${b.hobbies || 'Reading, travel, family time'}
+
+Output EXACT valid JSON with this shape (no markdown fences, no explanation):
+{
+  "aboutMe": "A warm 3-4 sentence paragraph describing the candidate's character, lifestyle, values, and interests.",
+  "partnerExpectations": "A respectful 2-3 sentence paragraph describing expected companion qualities, mutual respect, and family orientation."
+}`
+
+      const text = await generate({
+        system,
+        prompt: `Generate the matrimonial summary now for ${b.name || 'the candidate'}.`,
+      })
+
+      let parsed: { aboutMe?: string; partnerExpectations?: string } = {}
+      try {
+        parsed = extractJson(text) as typeof parsed
+      } catch {
+        parsed = {
+          aboutMe: text.trim(),
+          partnerExpectations: '',
+        }
+      }
+
+      return Response.json({
+        aboutMe: parsed.aboutMe || text.trim(),
+        partnerExpectations: parsed.partnerExpectations || '',
       })
     }
 
