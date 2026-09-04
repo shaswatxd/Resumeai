@@ -22,6 +22,9 @@ import {
   BookOpen,
   Briefcase,
   HelpCircle,
+  Maximize2,
+  X,
+  Check,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { EditorPanel } from '@/components/builder/editor-panel'
@@ -32,6 +35,7 @@ import { BulletLibraryModal } from '@/components/builder/bullet-library-modal'
 import { CommandPalette } from '@/components/builder/command-palette'
 import { useResumeStore } from '@/hooks/use-resume-store'
 import { EMPTY_DATA, SAMPLE_DATA, calculateAtsScore, type ResumeData } from '@/lib/resume-types'
+import { ROLE_PRESETS, type RolePreset } from '@/lib/role-presets'
 import { cn } from '@/lib/utils'
 
 export function BuilderShell() {
@@ -57,6 +61,7 @@ export function BuilderShell() {
   const [atsOpen, setAtsOpen] = useState(false)
   const [paletteOpen, setPaletteOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [roleModalOpen, setRoleModalOpen] = useState(false)
   const [mobileView, setMobileView] = useState<'edit' | 'preview'>('edit')
   const [confirmReset, setConfirmReset] = useState(false)
   const [zenMode, setZenMode] = useState(false)
@@ -65,6 +70,59 @@ export function BuilderShell() {
 
   // Synchronized ATS score
   const quickAtsScore = calculateAtsScore(data.fullName ? data : SAMPLE_DATA)
+
+  const handleFitToOnePage = () => {
+    setDesign({
+      ...design,
+      fontSize: 'sm',
+      sectionSpacing: 'compact',
+      lineHeight: 'compact',
+      pageMargin: 'narrow',
+    })
+    toast('Smart Fit applied: optimized spacing to fit neatly on 1 page!', 'success')
+    setMenuOpen(false)
+  }
+
+  const handleDownloadTxt = () => {
+    const text = [
+      data.fullName,
+      data.role,
+      [data.email, data.phone, data.location, data.linkedin, data.github, data.website].filter(Boolean).join(' | '),
+      '',
+      data.summary ? `PROFESSIONAL SUMMARY\n${data.summary}\n` : '',
+      data.skills.length ? `SKILLS\n${data.skills.join(', ')}\n` : '',
+      data.experience.length
+        ? `WORK EXPERIENCE\n${data.experience
+            .map(
+              (e) =>
+                `${e.role} — ${e.company} (${e.start} - ${e.end})\n${e.bullets.map((b) => `• ${b}`).join('\n')}`,
+            )
+            .join('\n\n')}\n`
+        : '',
+      data.education.length
+        ? `EDUCATION\n${data.education
+            .map((e) => `${e.degree}, ${e.school} (${e.start} - ${e.end})\n${e.detail}`)
+            .join('\n')}\n`
+        : '',
+      data.projects.length
+        ? `PROJECTS\n${data.projects
+            .map((p) => `${p.name} (${p.tech})\n${p.description}`)
+            .join('\n\n')}\n`
+        : '',
+    ]
+      .filter(Boolean)
+      .join('\n')
+
+    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${(data.fullName || 'resume').replace(/\s+/g, '-').toLowerCase()}-ats.txt`
+    a.click()
+    URL.revokeObjectURL(url)
+    toast('Downloaded ATS-friendly plain-text resume (.txt)!', 'success')
+    setMenuOpen(false)
+  }
 
   const handleReset = () => {
     setConfirmReset(true)
@@ -223,6 +281,15 @@ export function BuilderShell() {
               {quickAtsScore}%
             </span>
           </Button>
+          <Button
+            variant="outline"
+            size="lg"
+            className="h-8 sm:h-10 gap-1 sm:gap-2 px-2 sm:px-3 text-xs sm:text-sm border-primary/40 bg-primary/10 text-primary hover:bg-primary/20"
+            onClick={() => setRoleModalOpen(true)}
+          >
+            <Briefcase className="size-4" />
+            <span className="hidden sm:inline">Role Presets</span>
+          </Button>
         </div>
 
         <div className="flex shrink-0 items-center gap-1 sm:gap-2">
@@ -243,11 +310,16 @@ export function BuilderShell() {
                   onClick={() => setMenuOpen(false)}
                   aria-hidden
                 />
-                <div className="absolute right-0 top-11 z-50 w-56 overflow-hidden rounded-xl border border-border bg-popover p-1 shadow-2xl">
+                <div className="absolute right-0 top-11 z-50 w-60 overflow-hidden rounded-xl border border-border bg-popover p-1 shadow-2xl">
                   <MenuItem
                     icon={Wand2}
                     label="Fill Sample Data"
                     onClick={handleFillSample}
+                  />
+                  <MenuItem
+                    icon={Maximize2}
+                    label="Smart Fit to 1 Page"
+                    onClick={handleFitToOnePage}
                   />
                   <MenuItem
                     icon={Briefcase}
@@ -263,6 +335,11 @@ export function BuilderShell() {
                     icon={Copy}
                     label="Copy ATS Plain Text"
                     onClick={handleCopyPlainText}
+                  />
+                  <MenuItem
+                    icon={FileDown}
+                    label="Download ATS TXT (.txt)"
+                    onClick={handleDownloadTxt}
                   />
                   <MenuItem
                     icon={FileDown}
@@ -422,6 +499,89 @@ export function BuilderShell() {
         onApplyData={setData}
         onReset={() => setData(EMPTY_DATA)}
       />
+
+      {/* 1-Click Role Presets Modal */}
+      {roleModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-background/80 backdrop-blur-sm p-4">
+          <div className="relative w-full max-w-3xl rounded-2xl border border-border bg-popover p-6 shadow-2xl space-y-4 max-h-[85vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between pb-3 border-b border-border">
+              <div className="flex items-center gap-2.5">
+                <div className="flex size-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                  <Briefcase className="size-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-foreground">
+                    1-Click Role Presets
+                  </h3>
+                  <p className="text-xs text-muted-foreground">
+                    Pre-filled with battle-tested XYZ-formula bullets & high-impact skills
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setRoleModalOpen(false)}
+                className="rounded-full p-1 text-muted-foreground hover:bg-muted"
+              >
+                <X className="size-5" />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+              {ROLE_PRESETS.map((preset) => (
+                <div
+                  key={preset.id}
+                  className="rounded-xl border border-border p-4 bg-card/60 hover:bg-card hover:border-primary/50 transition-all flex flex-col justify-between space-y-3 shadow-2xs"
+                >
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider bg-primary/10 text-primary">
+                        {preset.category}
+                      </span>
+                    </div>
+                    <h4 className="text-sm font-bold text-foreground">
+                      {preset.title}
+                    </h4>
+                    <p className="text-xs text-muted-foreground line-clamp-2">
+                      {preset.summary}
+                    </p>
+                    <div className="flex flex-wrap gap-1 pt-1">
+                      {preset.data.skills?.slice(0, 4).map((sk) => (
+                        <span
+                          key={sk}
+                          className="text-[10px] px-1.5 py-0.5 rounded bg-secondary text-secondary-foreground"
+                        >
+                          {sk}
+                        </span>
+                      ))}
+                      {(preset.data.skills?.length || 0) > 4 && (
+                        <span className="text-[10px] px-1 py-0.5 text-muted-foreground">
+                          +{(preset.data.skills?.length || 0) - 4} more
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <Button
+                    size="sm"
+                    className="w-full h-8 text-xs font-semibold gap-1.5"
+                    onClick={() => {
+                      setData({
+                        ...EMPTY_DATA,
+                        ...preset.data,
+                      } as ResumeData)
+                      setRoleModalOpen(false)
+                      toast(`Loaded preset for ${preset.title}!`, 'success')
+                    }}
+                  >
+                    <Check className="size-3.5" />
+                    Load Role Template
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Reset Confirmation Modal */}
       {confirmReset && (

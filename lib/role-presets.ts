@@ -1,0 +1,378 @@
+import type { ResumeData } from './resume-types'
+
+export interface RolePreset {
+  id: string
+  title: string
+  category: string
+  iconName: string
+  summary: string
+  data: Partial<ResumeData>
+}
+
+export const ROLE_PRESETS: RolePreset[] = [
+  {
+    id: 'swe-fullstack',
+    title: 'Senior Full Stack Software Engineer',
+    category: 'Engineering',
+    iconName: 'Code',
+    summary: 'High-scale distributed systems, Next.js, Node.js, AWS microservices',
+    data: {
+      fullName: 'Alex Morgan',
+      role: 'Senior Full Stack Engineer',
+      email: 'alex.morgan.dev@gmail.com',
+      phone: '+1 (555) 234-5678',
+      location: 'San Francisco, CA',
+      linkedin: 'linkedin.com/in/alexmorgan-dev',
+      github: 'github.com/alexmorgan',
+      website: 'alexmorgan.io',
+      summary:
+        'Results-driven Senior Full Stack Engineer with 6+ years designing mission-critical distributed systems. Architected microservices supporting 10M+ MAU with 99.99% uptime, reduced API p99 latency by 42%, and mentored 8 junior and mid-level engineers.',
+      skills: [
+        'TypeScript',
+        'Next.js',
+        'React',
+        'Node.js',
+        'Go',
+        'PostgreSQL',
+        'Redis',
+        'GraphQL',
+        'AWS (ECS, Lambda, S3)',
+        'Docker',
+        'Kubernetes',
+        'CI/CD Pipelines',
+        'System Architecture',
+        'Microservices',
+      ],
+      experience: [
+        {
+          id: 'exp-1',
+          role: 'Senior Full Stack Engineer',
+          company: 'CloudScale Technologies',
+          start: '2022',
+          end: 'Present',
+          bullets: [
+            'Architected real-time streaming analytics pipeline using Next.js 14, Node.js, and Redis, slashing data latency from 3.2s to 210ms.',
+            'Refactored legacy monolith into event-driven AWS microservices, improving platform throughput by 65% and saving $140K in annual compute costs.',
+            'Engineered automated zero-downtime deployment pipelines with GitHub Actions and Docker, accelerating release frequency from bi-weekly to daily.',
+          ],
+        },
+        {
+          id: 'exp-2',
+          role: 'Full Stack Engineer',
+          company: 'Nexus Software Labs',
+          start: '2019',
+          end: '2022',
+          bullets: [
+            'Spearheaded development of flagship customer dashboard in React and TypeScript, adopted by 85,000+ business users globally.',
+            'Optimized PostgreSQL queries, index strategies, and Redis caching layers, achieving a 40% reduction in database CPU utilization during peak load.',
+            'Collaborated with product and UX design teams to launch 12 enterprise features, boosting user retention by 28%.',
+          ],
+        },
+      ],
+      education: [
+        {
+          id: 'edu-1',
+          degree: 'B.S. in Computer Science',
+          school: 'University of California, Berkeley',
+          start: '2015',
+          end: '2019',
+          detail: 'Magna Cum Laude • Dean’s Honor List • Focus in Distributed Systems',
+        },
+      ],
+      projects: [
+        {
+          id: 'proj-1',
+          name: 'Distributed Cache Engine',
+          link: 'github.com/alexmorgan/cache-engine',
+          tech: 'Go, Raft Consensus, Redis Protocol',
+          description:
+            'Lightweight in-memory cache engine with Raft consensus achieving 120,000 QPS with sub-millisecond p95 latency.',
+        },
+      ],
+    },
+  },
+  {
+    id: 'product-manager',
+    title: 'Senior Product Manager',
+    category: 'Product',
+    iconName: 'Compass',
+    summary: 'B2B SaaS, PLG product strategy, OKR execution, cross-functional leadership',
+    data: {
+      fullName: 'Sarah Jenkins',
+      role: 'Senior Product Manager',
+      email: 'sarah.jenkins.pm@gmail.com',
+      phone: '+1 (555) 345-6789',
+      location: 'New York, NY',
+      linkedin: 'linkedin.com/in/sarahjenkins-pm',
+      github: '',
+      website: 'sarahjenkins.co',
+      summary:
+        'Strategic Senior Product Manager with 7+ years steering high-growth B2B SaaS platforms. Spearheaded 0-to-1 product launches driving $18M in net new ARR, led cross-functional squads of 16+ engineers and designers, and elevated user trial conversion from 4.2% to 9.1%.',
+      skills: [
+        'Product Strategy',
+        'Product-Led Growth (PLG)',
+        'Roadmap Prioritization',
+        'User Research & Discovery',
+        'A/B Testing & Experimentation',
+        'SQL & Amplitude Analytics',
+        'Agile & Scrum Leadership',
+        'Go-to-Market (GTM)',
+        'Enterprise SaaS',
+        'Pricing & Packaging',
+      ],
+      experience: [
+        {
+          id: 'exp-1',
+          role: 'Senior Product Manager',
+          company: 'Vanguard SaaS Solutions',
+          start: '2021',
+          end: 'Present',
+          bullets: [
+            'Defined roadmap and led execution for core collaboration platform, generating $14.2M ARR across 220+ enterprise clients in year one.',
+            'Instituted data-informed PLG onboarding experiment framework in Mixpanel, lifting 30-day user activation rates by 34%.',
+            'Managed a cross-functional team of 14 engineers, 2 UX designers, and dedicated PMM to deliver 4 major quarterly releases on time.',
+          ],
+        },
+        {
+          id: 'exp-2',
+          role: 'Product Manager',
+          company: 'Elevate Digital',
+          start: '2018',
+          end: '2021',
+          bullets: [
+            'Orchestrated self-serve checkout redesign that reduced transaction drop-off by 22% and added $3.8M in annualized recurring revenue.',
+            'Conducted 60+ customer discovery interviews with enterprise VP buyers to identify unmet workflow automations and prioritize 2020 roadmap.',
+          ],
+        },
+      ],
+      education: [
+        {
+          id: 'edu-1',
+          degree: 'B.A. in Economics & Information Systems',
+          school: 'Columbia University',
+          start: '2014',
+          end: '2018',
+          detail: 'Summa Cum Laude • President of Columbia Entrepreneurship Organization',
+        },
+      ],
+      projects: [],
+    },
+  },
+  {
+    id: 'data-scientist',
+    title: 'Lead Data Scientist & ML Engineer',
+    category: 'AI & Data',
+    iconName: 'Cpu',
+    summary: 'LLMs, PyTorch, predictive modeling, MLOps pipelines, deep learning',
+    data: {
+      fullName: 'Dr. Vikram Patel',
+      role: 'Lead Data Scientist',
+      email: 'vikram.patel.ai@gmail.com',
+      phone: '+1 (555) 456-7890',
+      location: 'Seattle, WA',
+      linkedin: 'linkedin.com/in/vikrampatel-ai',
+      github: 'github.com/vikrampatel-ai',
+      website: '',
+      summary:
+        'Lead Data Scientist and ML Engineer with 6+ years commercializing state-of-the-art predictive and generative AI models. Deployed production recommendation systems powering $40M+ in annual transactions, fine-tuned domain-specific LLMs with 94.2% accuracy, and authored 4 peer-reviewed ML papers.',
+      skills: [
+        'Python',
+        'PyTorch',
+        'TensorFlow',
+        'LLMs (Fine-Tuning, LoRA, RAG)',
+        'MLOps (Kubeflow, MLflow)',
+        'SQL / BigQuery',
+        'Apache Spark',
+        'Feature Engineering',
+        'Vector Databases (Pinecone, Qdrant)',
+        'Docker & Kubernetes',
+      ],
+      experience: [
+        {
+          id: 'exp-1',
+          role: 'Lead Data Scientist',
+          company: 'Cognitive Intelligence Labs',
+          start: '2022',
+          end: 'Present',
+          bullets: [
+            'Spearheaded enterprise RAG retrieval pipeline using LangChain and Qdrant, improving internal documentation answer relevancy from 71% to 94.5%.',
+            'Engineered real-time fraud detection ML model processing 45,000 TPS with 99.8% precision, cutting fraudulent transactions by $2.4M per quarter.',
+            'Designed MLOps continuous model evaluation pipeline with automated drift detection and re-training in Kubeflow.',
+          ],
+        },
+      ],
+      education: [
+        {
+          id: 'edu-1',
+          degree: 'M.S. & Ph.D. in Computer Science (Machine Learning)',
+          school: 'Stanford University',
+          start: '2016',
+          end: '2020',
+          detail: 'Graduate Research Fellow • Published in NeurIPS & ICML',
+        },
+      ],
+      projects: [],
+    },
+  },
+  {
+    id: 'ui-ux-designer',
+    title: 'Senior Product (UI/UX) Designer',
+    category: 'Design',
+    iconName: 'Palette',
+    summary: 'Figma design systems, accessibility WCAG, mobile app design, usability testing',
+    data: {
+      fullName: 'Maya Lin',
+      role: 'Senior Product Designer',
+      email: 'maya.lin.design@gmail.com',
+      phone: '+1 (555) 567-8901',
+      location: 'San Francisco, CA',
+      linkedin: 'linkedin.com/in/mayalin-design',
+      github: '',
+      website: 'mayalindesign.com',
+      summary:
+        'Senior Product Designer with 6+ years creating intuitive, accessible digital experiences across web and mobile. Built scalable Figma design systems used by 120+ designers/engineers, improved end-to-end task completion rates by 44%, and championed WCAG AAA accessibility standards.',
+      skills: [
+        'Figma Design Systems',
+        'UI/UX Prototyping',
+        'User Research & Usability Testing',
+        'Information Architecture',
+        'Wireframing & Storyboarding',
+        'Design Tokens',
+        'Accessibility (WCAG 2.1 AAA)',
+        'Motion Design & Micro-interactions',
+      ],
+      experience: [
+        {
+          id: 'exp-1',
+          role: 'Senior Product Designer',
+          company: 'Aura Cloud Platforms',
+          start: '2021',
+          end: 'Present',
+          bullets: [
+            'Architected unified multi-brand design system in Figma comprising 200+ modular components, reducing front-end sprint delivery time by 35%.',
+            'Led complete overhaul of merchant payment onboarding flow, driving a 26% lift in completion rate on mobile web.',
+            'Facilitated 40+ moderated user testing sessions, transforming qualitative pain points into actionable UI improvements.',
+          ],
+        },
+      ],
+      education: [
+        {
+          id: 'edu-1',
+          degree: 'B.F.A. in Interaction Design',
+          school: 'Rhode Island School of Design (RISD)',
+          start: '2015',
+          end: '2019',
+          detail: 'Honors Graduate • IDSA Student Merit Award Finalist',
+        },
+      ],
+      projects: [],
+    },
+  },
+  {
+    id: 'finance-analyst',
+    title: 'Senior Financial & Investment Analyst',
+    category: 'Finance',
+    iconName: 'DollarSign',
+    summary: 'DCF & LBO financial modeling, M&A due diligence, variance analysis, FP&A',
+    data: {
+      fullName: 'David K. Reynolds',
+      role: 'Senior Financial Analyst',
+      email: 'david.reynolds.cfa@gmail.com',
+      phone: '+1 (555) 678-9012',
+      location: 'Chicago, IL',
+      linkedin: 'linkedin.com/in/david-reynolds-cfa',
+      github: '',
+      website: '',
+      summary:
+        'CFA Charterholder with 5+ years building institutional-grade three-statement financial models, valuation analyses, and corporate FP&A forecasts. Advised on $450M+ in completed M&A transactions and automated reporting workflows reducing monthly close cycles by 4 business days.',
+      skills: [
+        'Financial Modeling (DCF, LBO, M&A)',
+        'Three-Statement Forecasting',
+        'Corporate FP&A',
+        'Budgeting & Variance Analysis',
+        'Advanced Excel & VBA',
+        'Bloomberg Terminal & CapIQ',
+        'Power BI & Tableau',
+        'GAAP & IFRS Accounting',
+      ],
+      experience: [
+        {
+          id: 'exp-1',
+          role: 'Senior Financial Analyst',
+          company: 'Sterling Capital Advisors',
+          start: '2021',
+          end: 'Present',
+          bullets: [
+            'Constructed complex discounted cash flow (DCF) and leveraged buyout (LBO) models evaluating 14 acquisition targets totaling $380M in aggregate value.',
+            'Streamlined quarterly financial forecasting process across 6 operational subsidiaries, improving variance accuracy to within 1.8% of actuals.',
+            'Authored executive investment memorandums presented directly to the Board of Directors and institutional investment committees.',
+          ],
+        },
+      ],
+      education: [
+        {
+          id: 'edu-1',
+          degree: 'B.S. in Finance & Accounting',
+          school: 'University of Chicago',
+          start: '2015',
+          end: '2019',
+          detail: 'Magna Cum Laude • CFA Charterholder',
+        },
+      ],
+      projects: [],
+    },
+  },
+  {
+    id: 'growth-marketing',
+    title: 'Growth Marketing & Performance Lead',
+    category: 'Marketing',
+    iconName: 'TrendingUp',
+    summary: 'CAC/LTV optimization, Paid Ads (Meta, Google), SEO organic growth, funnel analytics',
+    data: {
+      fullName: 'Chloe Vance',
+      role: 'Growth Marketing Manager',
+      email: 'chloe.vance.growth@gmail.com',
+      phone: '+1 (555) 789-0123',
+      location: 'Austin, TX',
+      linkedin: 'linkedin.com/in/chloevance-growth',
+      github: '',
+      website: 'chloegrowth.com',
+      summary:
+        'Performance-driven Growth Marketing Manager with 6+ years scaling multi-channel acquisition funnels. Managed $6M+ annual digital ad spend across Meta and Google with a blended 3.8x ROAS, decreased Blended CAC by 28%, and grew organic search traffic by 240,000 monthly visits.',
+      skills: [
+        'Performance Marketing (Meta Ads, Google Ads)',
+        'SEO & Content Strategy',
+        'Conversion Rate Optimization (CRO)',
+        'Attribution Modeling & Google Analytics 4',
+        'Email & Lifecycle Marketing (Klaviyo)',
+        'A/B Testing (Optimizely)',
+        'Budget Management & ROAS Tracking',
+      ],
+      experience: [
+        {
+          id: 'exp-1',
+          role: 'Growth Marketing Manager',
+          company: 'Apex Consumer Brands',
+          start: '2021',
+          end: 'Present',
+          bullets: [
+            'Managed $4.5M annual performance marketing budget across Google Search, Performance Max, and Meta, scaling monthly revenue from $420K to $1.1M.',
+            'Conducted rigorous landing page A/B tests with multivariate copy and layout optimizations, boosting visitor-to-lead conversion from 3.1% to 6.4%.',
+            'Implemented automated lifecycle email journeys in Klaviyo, generating $1.8M in attributed repeat customer revenue.',
+          ],
+        },
+      ],
+      education: [
+        {
+          id: 'edu-1',
+          degree: 'B.A. in Marketing & Communications',
+          school: 'University of Texas at Austin',
+          start: '2015',
+          end: '2019',
+          detail: 'Dean’s Distinguished Graduate • AMA Member',
+        },
+      ],
+      projects: [],
+    },
+  },
+]
