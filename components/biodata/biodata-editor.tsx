@@ -21,6 +21,9 @@ import {
   Scroll,
   Plus,
   Layers,
+  ChevronDown,
+  ChevronUp,
+  Settings2,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { AiBiodataModal } from './ai-biodata-modal'
@@ -36,6 +39,7 @@ export function BiodataEditor({ data, onChange, t }: BiodataEditorProps) {
     'personal' | 'religion' | 'family' | 'horoscope' | 'about' | 'custom' | 'contact'
   >('personal')
   const [isAiModalOpen, setIsAiModalOpen] = useState(false)
+  const [isTopControlsExpanded, setIsTopControlsExpanded] = useState(true)
 
   // Calculate age from DOB
   const handleDobChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -181,238 +185,260 @@ export function BiodataEditor({ data, onChange, t }: BiodataEditorProps) {
   return (
     <div className="flex flex-col h-full bg-card border-r border-border overflow-y-auto">
       {/* Top Controls: Language & Auspicious Header */}
-      <div className="p-4 border-b border-border space-y-4 bg-muted/20">
-        <div className="flex flex-wrap items-center justify-between gap-2">
+      <div className="shrink-0 p-3 sm:p-4 border-b border-border space-y-3 bg-muted/20">
+        <div className="flex items-center justify-between gap-2">
           <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
             {t('languageToggle')}
           </label>
-          <div className="inline-flex rounded-lg border border-border p-0.5 bg-background shadow-2xs">
-            {(['hi', 'en', 'hinglish'] as LanguageMode[]).map((mode) => (
-              <button
-                key={mode}
-                type="button"
-                onClick={() => {
-                  onChange((prev) => ({
-                    ...prev,
-                    language: mode,
-                  }))
-                }}
-                className={`px-2.5 py-1 text-xs font-semibold rounded-md transition-all ${
-                  data.language === mode
-                    ? 'bg-primary text-primary-foreground shadow-xs'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                {mode === 'hi' ? 'हिंदी' : mode === 'en' ? 'English' : 'Hinglish'}
-              </button>
-            ))}
-          </div>
-        </div>
 
-        {/* Symbol & Header Title Selector */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <label className="block text-xs font-medium text-muted-foreground mb-1">
-              {t('selectSymbol')}
-            </label>
-            <select
-              value={data.headerSymbol}
-              onChange={(e) =>
-                onChange((prev) => ({
-                  ...prev,
-                  headerSymbol: e.target.value as HeaderSymbol,
-                }))
-              }
-              className="w-full text-xs h-9 rounded-md border border-border bg-background px-2.5 text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-            >
-              {symbols.map((s) => (
-                <option key={s.id} value={s.id}>
-                  [{s.group}] {s.label}
-                </option>
+          <div className="flex items-center gap-2">
+            <div className="inline-flex rounded-lg border border-border p-0.5 bg-background shadow-2xs">
+              {(['hi', 'en', 'hinglish'] as LanguageMode[]).map((mode) => (
+                <button
+                  key={mode}
+                  type="button"
+                  onClick={() => {
+                    onChange((prev) => ({
+                      ...prev,
+                      language: mode,
+                    }))
+                  }}
+                  className={`px-2.5 py-1 text-xs font-semibold rounded-md transition-all ${
+                    data.language === mode
+                      ? 'bg-primary text-primary-foreground shadow-xs font-bold'
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  {mode === 'hi' ? 'हिंदी' : mode === 'en' ? 'English' : 'Hinglish'}
+                </button>
               ))}
-            </select>
-          </div>
+            </div>
 
-          <div>
-            <label className="block text-xs font-medium text-muted-foreground mb-1">
-              Header Heading
-            </label>
-            <input
-              type="text"
-              value={data.headerTitle}
-              onChange={(e) =>
-                onChange((prev) => ({ ...prev, headerTitle: e.target.value }))
-              }
-              placeholder="e.g. || श्री गणेशाय नमः || or بِسْمِ اللَّهِ"
-              className="w-full text-xs h-9 rounded-md border border-border bg-background px-2.5 text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-            />
+            <button
+              type="button"
+              onClick={() => setIsTopControlsExpanded((prev) => !prev)}
+              className="inline-flex items-center gap-1 rounded-md border border-border bg-background px-2 py-1 text-[11px] font-medium text-muted-foreground hover:text-foreground transition-colors"
+              title={isTopControlsExpanded ? 'Hide Header & Photo Setup' : 'Show Header & Photo Setup'}
+            >
+              <Settings2 className="size-3 text-amber-500 shrink-0" />
+              <span className="hidden xs:inline">Header & Photo</span>
+              {isTopControlsExpanded ? (
+                <ChevronUp className="size-3 shrink-0" />
+              ) : (
+                <ChevronDown className="size-3 shrink-0" />
+              )}
+            </button>
           </div>
         </div>
 
-        {/* Photo Upload & Frame Shape */}
-        <div className="p-3 rounded-lg border border-border bg-background/80 space-y-2.5">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="relative size-11 rounded-md overflow-hidden bg-muted flex items-center justify-center border border-border">
-                {data.photo ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={data.photo}
-                    alt="Candidate"
-                    className="size-full object-cover"
-                  />
-                ) : (
-                  <Camera className="size-5 text-muted-foreground" />
-                )}
-              </div>
+        {isTopControlsExpanded && (
+          <div className="space-y-3 pt-1 animate-in fade-in duration-150">
+            {/* Symbol & Header Title Selector */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
               <div>
-                <p className="text-xs font-semibold text-foreground">
-                  {t('photoUpload')}
-                </p>
-                <p className="text-[11px] text-muted-foreground">
-                  {data.photo ? 'Photo active' : 'Optional (PNG/JPG)'}
-                </p>
+                <label className="block text-xs font-medium text-muted-foreground mb-1">
+                  {t('selectSymbol')}
+                </label>
+                <select
+                  value={data.headerSymbol}
+                  onChange={(e) =>
+                    onChange((prev) => ({
+                      ...prev,
+                      headerSymbol: e.target.value as HeaderSymbol,
+                    }))
+                  }
+                  className="w-full text-xs h-8.5 rounded-md border border-border bg-background px-2.5 text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                >
+                  {symbols.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      [{s.group}] {s.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-muted-foreground mb-1">
+                  Header Heading
+                </label>
+                <input
+                  type="text"
+                  value={data.headerTitle}
+                  onChange={(e) =>
+                    onChange((prev) => ({ ...prev, headerTitle: e.target.value }))
+                  }
+                  placeholder="e.g. || श्री गणेशाय नमः ||"
+                  className="w-full text-xs h-8.5 rounded-md border border-border bg-background px-2.5 text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                />
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              <label className="cursor-pointer inline-flex items-center justify-center h-8 px-3 rounded-md text-xs font-medium bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-colors">
-                <span>{data.photo ? 'Change' : 'Upload'}</span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handlePhotoUpload}
-                  className="hidden"
-                />
-              </label>
+            {/* Photo Upload & Frame Shape */}
+            <div className="p-2.5 sm:p-3 rounded-lg border border-border bg-background/80 space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <div className="relative size-10 rounded-md overflow-hidden bg-muted flex items-center justify-center border border-border shrink-0">
+                    {data.photo ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={data.photo}
+                        alt="Candidate"
+                        className="size-full object-cover"
+                      />
+                    ) : (
+                      <Camera className="size-4 text-muted-foreground" />
+                    )}
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold text-foreground">
+                      {t('photoUpload')}
+                    </p>
+                    <p className="text-[10.5px] text-muted-foreground">
+                      {data.photo ? 'Photo active' : 'Optional (PNG/JPG)'}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-1.5">
+                  <label className="cursor-pointer inline-flex items-center justify-center h-7.5 px-2.5 rounded-md text-xs font-medium bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-colors">
+                    <span>{data.photo ? 'Change' : 'Upload'}</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handlePhotoUpload}
+                      className="hidden"
+                    />
+                  </label>
+                  {data.photo && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-7.5 px-2 text-destructive hover:bg-destructive/10"
+                      onClick={handleRemovePhoto}
+                    >
+                      <Trash2 className="size-3.5" />
+                    </Button>
+                  )}
+                </div>
+              </div>
+
+              {/* Photo Frame Shape Selector */}
               {data.photo && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-8 px-2 text-destructive hover:bg-destructive/10"
-                  onClick={handleRemovePhoto}
-                >
-                  <Trash2 className="size-3.5" />
-                </Button>
+                <div className="flex items-center justify-between pt-1 border-t border-border/50 text-xs">
+                  <span className="text-muted-foreground font-medium">Frame Shape:</span>
+                  <div className="inline-flex rounded-md border border-border p-0.5 bg-muted/40">
+                    {(['rectangle', 'circle', 'ornate'] as PhotoFrame[]).map((f) => (
+                      <button
+                        key={f}
+                        type="button"
+                        onClick={() => onChange((prev) => ({ ...prev, photoFrame: f }))}
+                        className={`px-2 py-0.5 text-[11px] font-medium rounded capitalize ${
+                          data.photoFrame === f
+                            ? 'bg-background text-foreground shadow-2xs font-bold'
+                            : 'text-muted-foreground'
+                        }`}
+                      >
+                        {f}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               )}
             </div>
           </div>
-
-          {/* Photo Frame Shape Selector */}
-          {data.photo && (
-            <div className="flex items-center justify-between pt-1 border-t border-border/50 text-xs">
-              <span className="text-muted-foreground font-medium">Frame Shape:</span>
-              <div className="inline-flex rounded-md border border-border p-0.5 bg-muted/40">
-                {(['rectangle', 'circle', 'ornate'] as PhotoFrame[]).map((f) => (
-                  <button
-                    key={f}
-                    type="button"
-                    onClick={() => onChange((prev) => ({ ...prev, photoFrame: f }))}
-                    className={`px-2 py-0.5 text-[11px] font-medium rounded capitalize ${
-                      data.photoFrame === f
-                        ? 'bg-background text-foreground shadow-2xs font-bold'
-                        : 'text-muted-foreground'
-                    }`}
-                  >
-                    {f}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
+        )}
       </div>
 
-      {/* Navigation Sections / Tabs */}
-      <div className="flex border-b border-border bg-muted/40 p-1 gap-1 overflow-x-auto text-xs">
+      {/* Navigation Sections / Tabs (Sticky, Never Squashed, Guaranteed Height) */}
+      <div className="sticky top-0 z-20 shrink-0 flex items-center min-h-[46px] border-b border-border bg-card/95 backdrop-blur-md px-2 py-1.5 gap-1.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden text-xs shadow-xs">
         <button
           type="button"
           onClick={() => setActiveSection('personal')}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md font-medium whitespace-nowrap transition-colors ${
+          className={`flex shrink-0 items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all select-none ${
             activeSection === 'personal'
-              ? 'bg-background text-foreground shadow-2xs font-bold'
-              : 'text-muted-foreground hover:text-foreground'
+              ? 'bg-primary text-primary-foreground shadow-xs font-bold'
+              : 'text-muted-foreground hover:text-foreground hover:bg-muted/70'
           }`}
         >
-          <User className="size-3.5" />
+          <User className="size-3.5 shrink-0" />
           <span>{t('personalDetails')}</span>
         </button>
         <button
           type="button"
           onClick={() => setActiveSection('religion')}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md font-medium whitespace-nowrap transition-colors ${
+          className={`flex shrink-0 items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all select-none ${
             activeSection === 'religion'
-              ? 'bg-background text-foreground shadow-2xs font-bold'
-              : 'text-muted-foreground hover:text-foreground'
+              ? 'bg-primary text-primary-foreground shadow-xs font-bold'
+              : 'text-muted-foreground hover:text-foreground hover:bg-muted/70'
           }`}
         >
-          <Scroll className="size-3.5 text-amber-500" />
-          <span>Cultural & Faith</span>
+          <Scroll className="size-3.5 shrink-0 text-amber-500" />
+          <span>{data.language === 'hi' ? 'धर्म एवं संस्कृति' : 'Cultural & Faith'}</span>
         </button>
         <button
           type="button"
           onClick={() => setActiveSection('family')}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md font-medium whitespace-nowrap transition-colors ${
+          className={`flex shrink-0 items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all select-none ${
             activeSection === 'family'
-              ? 'bg-background text-foreground shadow-2xs font-bold'
-              : 'text-muted-foreground hover:text-foreground'
+              ? 'bg-primary text-primary-foreground shadow-xs font-bold'
+              : 'text-muted-foreground hover:text-foreground hover:bg-muted/70'
           }`}
         >
-          <Users className="size-3.5" />
+          <Users className="size-3.5 shrink-0" />
           <span>{t('familyDetails')}</span>
         </button>
         <button
           type="button"
           onClick={() => setActiveSection('horoscope')}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md font-medium whitespace-nowrap transition-colors ${
+          className={`flex shrink-0 items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all select-none ${
             activeSection === 'horoscope'
-              ? 'bg-background text-foreground shadow-2xs font-bold'
-              : 'text-muted-foreground hover:text-foreground'
+              ? 'bg-primary text-primary-foreground shadow-xs font-bold'
+              : 'text-muted-foreground hover:text-foreground hover:bg-muted/70'
           }`}
         >
-          <Compass className="size-3.5" />
-          <span>Kundali</span>
+          <Compass className="size-3.5 shrink-0" />
+          <span>{data.language === 'hi' ? 'कुंडली विवरण' : 'Kundali / Horoscope'}</span>
         </button>
         <button
           type="button"
           onClick={() => setActiveSection('custom')}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md font-medium whitespace-nowrap transition-colors ${
+          className={`flex shrink-0 items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all select-none ${
             activeSection === 'custom'
-              ? 'bg-background text-foreground shadow-2xs font-bold'
-              : 'text-muted-foreground hover:text-foreground'
+              ? 'bg-primary text-primary-foreground shadow-xs font-bold'
+              : 'text-muted-foreground hover:text-foreground hover:bg-muted/70'
           }`}
         >
-          <Layers className="size-3.5" />
-          <span>Custom</span>
+          <Layers className="size-3.5 shrink-0" />
+          <span>{data.language === 'hi' ? 'अतिरिक्त विवरण' : 'Custom Details'}</span>
         </button>
         <button
           type="button"
           onClick={() => setActiveSection('about')}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md font-medium whitespace-nowrap transition-colors ${
+          className={`flex shrink-0 items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all select-none ${
             activeSection === 'about'
-              ? 'bg-background text-foreground shadow-2xs font-bold'
-              : 'text-muted-foreground hover:text-foreground'
+              ? 'bg-primary text-primary-foreground shadow-xs font-bold'
+              : 'text-muted-foreground hover:text-foreground hover:bg-muted/70'
           }`}
         >
-          <Sparkles className="size-3.5 text-amber-500" />
-          <span>About / AI</span>
+          <Sparkles className="size-3.5 shrink-0 text-amber-500" />
+          <span>{data.language === 'hi' ? 'परिचय (Bio)' : 'About / AI'}</span>
         </button>
         <button
           type="button"
           onClick={() => setActiveSection('contact')}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md font-medium whitespace-nowrap transition-colors ${
+          className={`flex shrink-0 items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all select-none ${
             activeSection === 'contact'
-              ? 'bg-background text-foreground shadow-2xs font-bold'
-              : 'text-muted-foreground hover:text-foreground'
+              ? 'bg-primary text-primary-foreground shadow-xs font-bold'
+              : 'text-muted-foreground hover:text-foreground hover:bg-muted/70'
           }`}
         >
-          <Phone className="size-3.5" />
+          <Phone className="size-3.5 shrink-0" />
           <span>{t('contactDetails')}</span>
         </button>
       </div>
 
       {/* Form Content Body */}
-      <div className="p-4 space-y-4 flex-1">
+      <div className="p-3 sm:p-4 space-y-4 pb-28">
         {/* 1. PERSONAL DETAILS */}
         {activeSection === 'personal' && (
           <div className="space-y-3 animate-in fade-in duration-150">
