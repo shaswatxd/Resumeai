@@ -83,7 +83,14 @@ export function EditorPanel({ data, template, onChange, onOpenLibrary, onOpenAi,
       </div>
 
       {/* Tabs with permanent clear labels */}
-      <div className="scroll-thin flex w-full max-w-full gap-1 overflow-x-auto border-b border-border px-2 sm:px-3 pt-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div
+        onWheel={(e) => {
+          if (e.deltaY !== 0) {
+            e.currentTarget.scrollLeft += e.deltaY
+          }
+        }}
+        className="scroll-thin flex w-full max-w-full gap-1 overflow-x-auto border-b border-border px-2 sm:px-3 pt-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden scroll-smooth"
+      >
         {TABS.map((t) => {
           const active = t.id === tab
           const Icon = t.icon

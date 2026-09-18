@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useRef, useEffect, useCallback } from 'react'
 import type {
   BiodataData,
   HeaderSymbol,
@@ -21,6 +21,8 @@ import {
   Scroll,
   Plus,
   Layers,
+  ChevronLeft,
+  ChevronRight,
   ChevronDown,
   ChevronUp,
   Settings2,
@@ -40,6 +42,70 @@ export function BiodataEditor({ data, onChange, t }: BiodataEditorProps) {
   >('personal')
   const [isAiModalOpen, setIsAiModalOpen] = useState(false)
   const [isTopControlsExpanded, setIsTopControlsExpanded] = useState(true)
+
+  // Desktop horizontal scroll management for tabs
+  const tabsContainerRef = useRef<HTMLDivElement>(null)
+  const [canScrollLeft, setCanScrollLeft] = useState(false)
+  const [canScrollRight, setCanScrollRight] = useState(false)
+
+  const updateScrollState = useCallback(() => {
+    const el = tabsContainerRef.current
+    if (!el) return
+    const hasOverflow = el.scrollWidth > el.clientWidth + 2
+    setCanScrollLeft(el.scrollLeft > 4)
+    setCanScrollRight(hasOverflow && el.scrollLeft < el.scrollWidth - el.clientWidth - 4)
+  }, [])
+
+  useEffect(() => {
+    const el = tabsContainerRef.current
+    if (!el) return
+    updateScrollState()
+    el.addEventListener('scroll', updateScrollState, { passive: true })
+    window.addEventListener('resize', updateScrollState)
+    let ro: ResizeObserver | null = null
+    if (typeof ResizeObserver !== 'undefined') {
+      ro = new ResizeObserver(() => updateScrollState())
+      ro.observe(el)
+    }
+    return () => {
+      el.removeEventListener('scroll', updateScrollState)
+      window.removeEventListener('resize', updateScrollState)
+      ro?.disconnect()
+    }
+  }, [updateScrollState, data.language])
+
+  const scrollTabs = (direction: 'left' | 'right') => {
+    if (tabsContainerRef.current) {
+      tabsContainerRef.current.scrollBy({
+        left: direction === 'left' ? -200 : 200,
+        behavior: 'smooth',
+      })
+    }
+  }
+
+  const handleTabsWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+    const el = tabsContainerRef.current
+    if (!el) return
+    if (e.deltaY !== 0) {
+      const canL = el.scrollLeft > 0
+      const canR = el.scrollLeft < el.scrollWidth - el.clientWidth - 1
+      if ((e.deltaY < 0 && canL) || (e.deltaY > 0 && canR)) {
+        el.scrollLeft += e.deltaY
+      }
+    }
+  }
+
+  const handleTabClick = (
+    section: 'personal' | 'religion' | 'family' | 'horoscope' | 'about' | 'custom' | 'contact',
+    e: React.MouseEvent<HTMLButtonElement>
+  ) => {
+    setActiveSection(section)
+    e.currentTarget.scrollIntoView({
+      behavior: 'smooth',
+      block: 'nearest',
+      inline: 'center',
+    })
+  }
 
   // Calculate age from DOB
   const handleDobChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -349,91 +415,128 @@ export function BiodataEditor({ data, onChange, t }: BiodataEditorProps) {
         )}
       </div>
 
-      {/* Navigation Sections / Tabs (Sticky, Never Squashed, Guaranteed Height) */}
-      <div className="sticky top-0 z-20 shrink-0 flex items-center min-h-[46px] border-b border-border bg-card/95 backdrop-blur-md px-2 py-1.5 gap-1.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden text-xs shadow-xs">
+      {/* Navigation Sections / Tabs (Sticky, Desktop Wheel & Chevrons, Never Squashed) */}
+      <div className="sticky top-0 z-20 shrink-0 relative flex items-center border-b border-border bg-card/95 backdrop-blur-md">
+        {/* Left Arrow Button (visible on desktop/mobile when scrolled right) */}
         <button
           type="button"
-          onClick={() => setActiveSection('personal')}
-          className={`flex shrink-0 items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all select-none ${
-            activeSection === 'personal'
-              ? 'bg-primary text-primary-foreground shadow-xs font-bold'
-              : 'text-muted-foreground hover:text-foreground hover:bg-muted/70'
+          onClick={() => scrollTabs('left')}
+          className={`absolute left-0 top-0 bottom-0 z-30 flex items-center justify-start pl-1 pr-3 bg-gradient-to-r from-card via-card/90 to-transparent text-muted-foreground hover:text-foreground transition-opacity duration-200 ${
+            canScrollLeft ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
           }`}
+          aria-label="Scroll tabs left"
+          title="Scroll Left"
         >
-          <User className="size-3.5 shrink-0" />
-          <span>{t('personalDetails')}</span>
+          <div className="size-6 rounded-full bg-background/90 border border-border shadow-xs flex items-center justify-center hover:bg-muted transition-colors">
+            <ChevronLeft className="size-3.5" />
+          </div>
         </button>
+
+        {/* Scrollable Tabs List */}
+        <div
+          ref={tabsContainerRef}
+          onWheel={handleTabsWheel}
+          className="flex-1 flex items-center min-h-[46px] px-2 py-1.5 gap-1.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden text-xs shadow-xs scroll-smooth"
+        >
+          <button
+            type="button"
+            onClick={(e) => handleTabClick('personal', e)}
+            className={`flex shrink-0 items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all select-none ${
+              activeSection === 'personal'
+                ? 'bg-primary text-primary-foreground shadow-xs font-bold'
+                : 'text-muted-foreground hover:text-foreground hover:bg-muted/70'
+            }`}
+          >
+            <User className="size-3.5 shrink-0" />
+            <span>{t('personalDetails')}</span>
+          </button>
+          <button
+            type="button"
+            onClick={(e) => handleTabClick('religion', e)}
+            className={`flex shrink-0 items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all select-none ${
+              activeSection === 'religion'
+                ? 'bg-primary text-primary-foreground shadow-xs font-bold'
+                : 'text-muted-foreground hover:text-foreground hover:bg-muted/70'
+            }`}
+          >
+            <Scroll className="size-3.5 shrink-0 text-amber-500" />
+            <span>{data.language === 'hi' ? 'धर्म एवं संस्कृति' : 'Cultural & Faith'}</span>
+          </button>
+          <button
+            type="button"
+            onClick={(e) => handleTabClick('family', e)}
+            className={`flex shrink-0 items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all select-none ${
+              activeSection === 'family'
+                ? 'bg-primary text-primary-foreground shadow-xs font-bold'
+                : 'text-muted-foreground hover:text-foreground hover:bg-muted/70'
+            }`}
+          >
+            <Users className="size-3.5 shrink-0" />
+            <span>{t('familyDetails')}</span>
+          </button>
+          <button
+            type="button"
+            onClick={(e) => handleTabClick('horoscope', e)}
+            className={`flex shrink-0 items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all select-none ${
+              activeSection === 'horoscope'
+                ? 'bg-primary text-primary-foreground shadow-xs font-bold'
+                : 'text-muted-foreground hover:text-foreground hover:bg-muted/70'
+            }`}
+          >
+            <Compass className="size-3.5 shrink-0" />
+            <span>{data.language === 'hi' ? 'कुंडली विवरण' : 'Kundali / Horoscope'}</span>
+          </button>
+          <button
+            type="button"
+            onClick={(e) => handleTabClick('custom', e)}
+            className={`flex shrink-0 items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all select-none ${
+              activeSection === 'custom'
+                ? 'bg-primary text-primary-foreground shadow-xs font-bold'
+                : 'text-muted-foreground hover:text-foreground hover:bg-muted/70'
+            }`}
+          >
+            <Layers className="size-3.5 shrink-0" />
+            <span>{data.language === 'hi' ? 'अतिरिक्त विवरण' : 'Custom Details'}</span>
+          </button>
+          <button
+            type="button"
+            onClick={(e) => handleTabClick('about', e)}
+            className={`flex shrink-0 items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all select-none ${
+              activeSection === 'about'
+                ? 'bg-primary text-primary-foreground shadow-xs font-bold'
+                : 'text-muted-foreground hover:text-foreground hover:bg-muted/70'
+            }`}
+          >
+            <Sparkles className="size-3.5 shrink-0 text-amber-500" />
+            <span>{data.language === 'hi' ? 'परिचय (Bio)' : 'About / AI'}</span>
+          </button>
+          <button
+            type="button"
+            onClick={(e) => handleTabClick('contact', e)}
+            className={`flex shrink-0 items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all select-none ${
+              activeSection === 'contact'
+                ? 'bg-primary text-primary-foreground shadow-xs font-bold'
+                : 'text-muted-foreground hover:text-foreground hover:bg-muted/70'
+            }`}
+          >
+            <Phone className="size-3.5 shrink-0" />
+            <span>{t('contactDetails')}</span>
+          </button>
+        </div>
+
+        {/* Right Arrow Button (visible when more tabs exist on the right) */}
         <button
           type="button"
-          onClick={() => setActiveSection('religion')}
-          className={`flex shrink-0 items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all select-none ${
-            activeSection === 'religion'
-              ? 'bg-primary text-primary-foreground shadow-xs font-bold'
-              : 'text-muted-foreground hover:text-foreground hover:bg-muted/70'
+          onClick={() => scrollTabs('right')}
+          className={`absolute right-0 top-0 bottom-0 z-30 flex items-center justify-end pr-1 pl-3 bg-gradient-to-l from-card via-card/90 to-transparent text-muted-foreground hover:text-foreground transition-opacity duration-200 ${
+            canScrollRight ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
           }`}
+          aria-label="Scroll tabs right"
+          title="Scroll Right"
         >
-          <Scroll className="size-3.5 shrink-0 text-amber-500" />
-          <span>{data.language === 'hi' ? 'धर्म एवं संस्कृति' : 'Cultural & Faith'}</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => setActiveSection('family')}
-          className={`flex shrink-0 items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all select-none ${
-            activeSection === 'family'
-              ? 'bg-primary text-primary-foreground shadow-xs font-bold'
-              : 'text-muted-foreground hover:text-foreground hover:bg-muted/70'
-          }`}
-        >
-          <Users className="size-3.5 shrink-0" />
-          <span>{t('familyDetails')}</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => setActiveSection('horoscope')}
-          className={`flex shrink-0 items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all select-none ${
-            activeSection === 'horoscope'
-              ? 'bg-primary text-primary-foreground shadow-xs font-bold'
-              : 'text-muted-foreground hover:text-foreground hover:bg-muted/70'
-          }`}
-        >
-          <Compass className="size-3.5 shrink-0" />
-          <span>{data.language === 'hi' ? 'कुंडली विवरण' : 'Kundali / Horoscope'}</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => setActiveSection('custom')}
-          className={`flex shrink-0 items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all select-none ${
-            activeSection === 'custom'
-              ? 'bg-primary text-primary-foreground shadow-xs font-bold'
-              : 'text-muted-foreground hover:text-foreground hover:bg-muted/70'
-          }`}
-        >
-          <Layers className="size-3.5 shrink-0" />
-          <span>{data.language === 'hi' ? 'अतिरिक्त विवरण' : 'Custom Details'}</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => setActiveSection('about')}
-          className={`flex shrink-0 items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all select-none ${
-            activeSection === 'about'
-              ? 'bg-primary text-primary-foreground shadow-xs font-bold'
-              : 'text-muted-foreground hover:text-foreground hover:bg-muted/70'
-          }`}
-        >
-          <Sparkles className="size-3.5 shrink-0 text-amber-500" />
-          <span>{data.language === 'hi' ? 'परिचय (Bio)' : 'About / AI'}</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => setActiveSection('contact')}
-          className={`flex shrink-0 items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all select-none ${
-            activeSection === 'contact'
-              ? 'bg-primary text-primary-foreground shadow-xs font-bold'
-              : 'text-muted-foreground hover:text-foreground hover:bg-muted/70'
-          }`}
-        >
-          <Phone className="size-3.5 shrink-0" />
-          <span>{t('contactDetails')}</span>
+          <div className="size-6 rounded-full bg-background/90 border border-border shadow-xs flex items-center justify-center hover:bg-muted transition-colors">
+            <ChevronRight className="size-3.5" />
+          </div>
         </button>
       </div>
 

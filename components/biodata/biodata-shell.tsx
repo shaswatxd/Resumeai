@@ -288,7 +288,14 @@ export function BiodataShell() {
             </div>
 
             {/* Filter by Religion Tabs */}
-            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs border-b border-border/60">
+            <div
+              onWheel={(e) => {
+                if (e.deltaY !== 0) {
+                  e.currentTarget.scrollLeft += e.deltaY
+                }
+              }}
+              className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs border-b border-border/60 scroll-smooth"
+            >
               <span className="text-muted-foreground font-semibold mr-1">Filter:</span>
               {(['all', 'hindu', 'muslim', 'sikh', 'christian', 'jain'] as ReligionKey[]).map(
                 (rel) => (
