@@ -25,6 +25,7 @@ import {
   Maximize2,
   X,
   Check,
+  Heart,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { EditorPanel } from '@/components/builder/editor-panel'
@@ -342,6 +343,11 @@ export function BuilderShell() {
                     icon={HelpCircle}
                     label="STAR Interview Prep"
                     onClick={() => window.open('/interview', '_blank')}
+                  />
+                  <MenuItem
+                    icon={Heart}
+                    label="Shaadi Biodata Maker"
+                    onClick={() => window.open('/shaadi-biodata', '_blank')}
                   />
                   <MenuItem
                     icon={Copy}

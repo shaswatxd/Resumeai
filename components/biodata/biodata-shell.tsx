@@ -207,17 +207,17 @@ export function BiodataShell() {
         </div>
 
         {/* Right: Actions */}
-        <div className="flex items-center gap-1.5 sm:gap-2">
+        <div className="flex items-center gap-1 sm:gap-2">
           {/* Template Selector Button */}
           <Button
             variant="outline"
             size="sm"
             onClick={() => setIsTemplateModalOpen(true)}
-            className="h-9 gap-1.5 text-xs font-medium border-border px-2.5 sm:px-3"
+            className="h-8 sm:h-9 gap-1 sm:gap-1.5 text-xs font-medium border-border px-2 sm:px-3"
           >
-            <LayoutTemplate className="size-3.5 text-amber-500" />
+            <LayoutTemplate className="size-3.5 text-amber-500 shrink-0" />
             <span className="hidden md:inline">Template:</span>
-            <span className="font-bold text-foreground truncate max-w-[80px] sm:max-w-none">
+            <span className="font-bold text-foreground truncate max-w-[60px] sm:max-w-none">
               {BIODATA_TEMPLATES.find((t) => t.id === template)?.name.split(' ')[0]}
             </span>
           </Button>
@@ -227,10 +227,10 @@ export function BiodataShell() {
             variant="outline"
             size="sm"
             onClick={handleWhatsAppShare}
-            className="h-9 gap-1.5 text-xs font-semibold border-emerald-600/40 text-emerald-600 hover:bg-emerald-600/10 px-2.5 sm:px-3"
+            className="h-8 sm:h-9 gap-1 sm:gap-1.5 text-xs font-semibold border-emerald-600/40 text-emerald-600 hover:bg-emerald-600/10 px-2 sm:px-3"
             title="Share formatted bio on WhatsApp"
           >
-            <Share2 className="size-3.5" />
+            <Share2 className="size-3.5 shrink-0" />
             <span className="hidden sm:inline">WhatsApp</span>
           </Button>
 
@@ -238,10 +238,11 @@ export function BiodataShell() {
           <Button
             size="sm"
             onClick={handlePrint}
-            className="h-9 gap-1.5 bg-gradient-to-r from-rose-600 to-amber-600 hover:from-rose-700 hover:to-amber-700 text-white font-semibold text-xs sm:text-sm shadow-md px-3 sm:px-4"
+            className="h-8 sm:h-9 gap-1 sm:gap-1.5 bg-gradient-to-r from-rose-600 to-amber-600 hover:from-rose-700 hover:to-amber-700 text-white font-semibold text-xs sm:text-sm shadow-md px-2 sm:px-4"
           >
-            <Download className="size-4" />
-            <span>{translate('downloadPdf')}</span>
+            <Download className="size-3.5 sm:size-4 shrink-0" />
+            <span className="hidden sm:inline">{translate('downloadPdf')}</span>
+            <span className="sm:hidden">PDF</span>
           </Button>
         </div>
       </header>

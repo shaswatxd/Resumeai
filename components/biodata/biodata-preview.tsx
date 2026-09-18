@@ -1,10 +1,10 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import type { BiodataData, BiodataTemplateId } from '@/lib/biodata-types'
 import { BiodataDocument } from './templates'
 import { PrintSheet } from '@/components/print-sheet'
-import { ZoomIn, ZoomOut, RotateCcw } from 'lucide-react'
+import { ZoomIn, ZoomOut, RotateCcw, Maximize2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 interface BiodataPreviewProps {
@@ -14,18 +14,52 @@ interface BiodataPreviewProps {
 }
 
 export function BiodataPreview({ data, template, t }: BiodataPreviewProps) {
+  const containerRef = useRef<HTMLDivElement>(null)
   const [zoom, setZoom] = useState(0.85)
 
-  const handleZoomIn = () => setZoom((prev) => Math.min(prev + 0.1, 1.3))
-  const handleZoomOut = () => setZoom((prev) => Math.max(prev - 0.1, 0.45))
-  const handleResetZoom = () => setZoom(0.85)
+  // Auto-fit document on mobile / small screens on mount
+  useEffect(() => {
+    const handleResize = () => {
+      if (containerRef.current) {
+        const containerWidth = containerRef.current.clientWidth
+        if (containerWidth > 0 && containerWidth < 850) {
+          // Fit A4 (794px) into available width with safety padding
+          const fitScale = Math.min(
+            Math.max(Number(((containerWidth - 20) / 794).toFixed(2)), 0.35),
+            1.2
+          )
+          setZoom(fitScale)
+        }
+      }
+    }
+
+    handleResize()
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
+  const handleZoomIn = () => setZoom((prev) => Math.min(Number((prev + 0.1).toFixed(2)), 1.4))
+  const handleZoomOut = () => setZoom((prev) => Math.max(Number((prev - 0.1).toFixed(2)), 0.35))
+
+  const handleFitZoom = () => {
+    if (containerRef.current) {
+      const containerWidth = containerRef.current.clientWidth
+      const fitScale = Math.min(
+        Math.max(Number(((containerWidth - 20) / 794).toFixed(2)), 0.35),
+        1.2
+      )
+      setZoom(fitScale)
+    } else {
+      setZoom(0.85)
+    }
+  }
 
   return (
     <div className="relative flex-1 h-full flex flex-col bg-muted/30 overflow-hidden select-none">
       {/* Zoom Toolbar */}
-      <div className="no-print z-20 flex items-center justify-between px-4 py-2 bg-background/80 backdrop-blur border-b border-border text-xs">
-        <div className="text-muted-foreground font-medium">
-          A4 Portrait Document Preview
+      <div className="no-print z-20 flex items-center justify-between px-3 sm:px-4 py-2 bg-background/80 backdrop-blur border-b border-border text-xs">
+        <div className="text-muted-foreground font-medium truncate mr-2">
+          A4 Preview
         </div>
         <div className="flex items-center gap-1 bg-muted/60 p-1 rounded-md border border-border">
           <Button
@@ -37,7 +71,7 @@ export function BiodataPreview({ data, template, t }: BiodataPreviewProps) {
           >
             <ZoomOut className="size-3.5" />
           </Button>
-          <span className="w-12 text-center text-xs font-mono font-semibold">
+          <span className="w-10 text-center text-xs font-mono font-semibold">
             {Math.round(zoom * 100)}%
           </span>
           <Button
@@ -52,21 +86,26 @@ export function BiodataPreview({ data, template, t }: BiodataPreviewProps) {
           <Button
             variant="ghost"
             size="sm"
-            className="h-7 w-7 p-0 ml-1"
-            onClick={handleResetZoom}
-            title="Reset Zoom"
+            className="h-7 w-7 p-0 ml-0.5"
+            onClick={handleFitZoom}
+            title="Fit to screen"
           >
-            <RotateCcw className="size-3" />
+            <Maximize2 className="size-3" />
           </Button>
         </div>
       </div>
 
       {/* Screen Preview Canvas */}
-      <div className="flex-1 overflow-auto p-4 sm:p-8 flex justify-center items-start">
+      <div
+        ref={containerRef}
+        className="flex-1 overflow-auto p-2 sm:p-8 flex justify-center items-start"
+      >
         <div
-          className="transition-transform duration-150 origin-top shadow-2xl rounded-sm"
+          className="w-[794px] shrink-0 transition-transform duration-150 shadow-2xl rounded-sm"
           style={{
             transform: `scale(${zoom})`,
+            transformOrigin: 'top center',
+            marginBottom: zoom < 1 ? `-${Math.round(1123 * (1 - zoom))}px` : undefined,
           }}
         >
           <BiodataDocument data={data} template={template} t={t} />
@@ -82,3 +121,4 @@ export function BiodataPreview({ data, template, t }: BiodataPreviewProps) {
     </div>
   )
 }
+

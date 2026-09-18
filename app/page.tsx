@@ -8,6 +8,7 @@ import {
   Command,
   ShieldCheck,
   Zap,
+  Heart,
 } from 'lucide-react'
 import { buttonVariants } from '@/components/ui/button'
 import { ResumeDocument } from '@/components/resume/resume-document'
@@ -15,6 +16,7 @@ import { SAMPLE_DATA, TEMPLATES, THEMES } from '@/lib/resume-types'
 import { InteractiveHero } from '@/components/landing/interactive-hero'
 import { BentoGrid } from '@/components/landing/bento-grid'
 import { ComparisonSlider } from '@/components/landing/comparison-slider'
+import { LandingHeader } from '@/components/landing/landing-header'
 import { cn } from '@/lib/utils'
 
 const FAQS = [
@@ -65,57 +67,25 @@ export default function Page() {
         }}
       />
 
-      {/* Modern Studio Navbar */}
-      <header className="relative z-20 mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
-        <div className="flex items-center gap-3">
-          <span className="flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm">
-            <FileText className="size-5" />
+      {/* Top Auspicious Announcement Bar for Shaadi Biodata (Highlighted for Mobile & Desktop) */}
+      <div className="relative z-30 border-b border-rose-500/20 bg-gradient-to-r from-rose-950/50 via-amber-950/40 to-rose-950/50 px-3 sm:px-4 py-2 text-center text-xs backdrop-blur-md">
+        <Link
+          href="/shaadi-biodata"
+          className="inline-flex flex-wrap items-center justify-center gap-1.5 font-medium text-rose-200 hover:text-rose-100 transition-colors group"
+        >
+          <span className="flex items-center gap-1 rounded-full bg-rose-500/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-rose-300 border border-rose-500/30">
+            <Heart className="size-3 fill-rose-400 text-rose-400" /> Free Matrimonial
           </span>
-          <div className="flex items-center gap-2">
-            <span className="text-lg font-bold tracking-tight">ResumeAI</span>
-            <span className="rounded-full bg-secondary/80 px-2 py-0.5 text-[10px] font-mono font-medium text-muted-foreground">
-              v2.0
-            </span>
-          </div>
-        </div>
+          <span className="font-semibold text-white">Indian Shaadi Biodata Maker</span>
+          <span className="hidden sm:inline text-rose-200/80">— Hindi & English • 10+ Royal Templates</span>
+          <span className="font-semibold text-rose-400 group-hover:translate-x-0.5 transition-transform inline-flex items-center gap-0.5">
+            Create Now <ArrowRight className="size-3" />
+          </span>
+        </Link>
+      </div>
 
-        <nav className="hidden items-center gap-6 text-sm font-medium text-muted-foreground sm:flex">
-          <Link href="/templates" className="transition-colors hover:text-foreground">
-            15 Pro Layouts
-          </Link>
-          <Link href="/cover-letter" className="transition-colors hover:text-foreground">
-            Cover Letter
-          </Link>
-          <Link href="/tracker" className="transition-colors hover:text-foreground">
-            Job Tracker
-          </Link>
-          <Link href="/interview" className="transition-colors hover:text-foreground">
-            Interview Prep
-          </Link>
-          <Link href="/shaadi-biodata" className="text-rose-400 font-semibold transition-colors hover:text-rose-300">
-            Shaadi Biodata
-          </Link>
-          <Link
-            href="/builder"
-            className="flex items-center gap-1.5 transition-colors hover:text-foreground font-semibold text-foreground"
-          >
-            <span className="size-1.5 rounded-full bg-emerald-400" />
-            Studio
-          </Link>
-        </nav>
-
-        <div className="flex items-center gap-3">
-          <Link
-            href="/builder"
-            className={cn(
-              buttonVariants({ size: 'lg' }),
-              'h-10 gap-2 px-5 font-semibold shadow-sm',
-            )}
-          >
-            Open Studio <ArrowRight className="size-4" />
-          </Link>
-        </div>
-      </header>
+      {/* Modern Studio Navbar (Desktop + Responsive Mobile Menu) */}
+      <LandingHeader />
 
       {/* Interactive Hero with Live Studio Canvas */}
       <InteractiveHero />
@@ -148,6 +118,41 @@ export default function Page() {
 
       {/* Bento Grid Feature Studio */}
       <BentoGrid />
+
+      {/* Shaadi Biodata Spotlight Section (Highlighted for All Devices) */}
+      <section className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 py-6">
+        <div className="relative overflow-hidden rounded-3xl border border-rose-500/30 bg-gradient-to-br from-rose-950/40 via-card to-background p-6 sm:p-10 shadow-2xl backdrop-blur-xl">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+            <div className="space-y-3 max-w-2xl">
+              <div className="inline-flex items-center gap-2 rounded-full border border-rose-500/30 bg-rose-500/10 px-3 py-1 text-xs font-semibold text-rose-400">
+                <Heart className="size-3.5 fill-rose-500 text-rose-500" />
+                <span>Special Feature • All Indian Traditions</span>
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+                Free Indian Shaadi Biodata Maker
+              </h2>
+              <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
+                Create elegant matrimonial biodatas in Hindi (Devanagari) and English. Includes 10 royal religious themes (Hindu, Muslim, Sikh, Christian, Jain), auspicious crests (Ganesh, Om, Kalash, Swastik), horoscope details, and instant 1-click WhatsApp sharing.
+              </p>
+              <div className="flex flex-wrap gap-2 pt-1 text-xs text-rose-300/90 font-medium">
+                <span className="rounded-md bg-rose-500/10 border border-rose-500/20 px-2.5 py-1">✓ Hindi & English Unicode</span>
+                <span className="rounded-md bg-rose-500/10 border border-rose-500/20 px-2.5 py-1">✓ Kundali & Horoscope</span>
+                <span className="rounded-md bg-rose-500/10 border border-rose-500/20 px-2.5 py-1">✓ 1-Click WhatsApp Share</span>
+                <span className="rounded-md bg-rose-500/10 border border-rose-500/20 px-2.5 py-1">✓ A4 Vector PDF Export</span>
+              </div>
+            </div>
+
+            <div className="shrink-0 w-full sm:w-auto flex flex-col sm:flex-row gap-3">
+              <Link
+                href="/shaadi-biodata"
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-rose-600 to-amber-600 px-6 font-semibold text-sm text-white shadow-lg shadow-rose-600/25 hover:from-rose-500 hover:to-amber-500 transition-all active:scale-95"
+              >
+                Create Biodata Now <ArrowRight className="size-4" />
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* Handcrafted Template Showcase */}
       <section className="relative z-10 mx-auto max-w-7xl px-6 py-20">
@@ -272,7 +277,7 @@ export default function Page() {
             <span className="font-semibold text-foreground">ResumeAI</span>
             <span className="text-xs text-muted-foreground">— Bespoke Client-Side Resume Studio</span>
           </div>
-          <nav className="flex items-center gap-6">
+          <nav className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs sm:text-sm">
             <Link href="/builder" className="transition-colors hover:text-foreground">
               Studio Builder
             </Link>
@@ -288,8 +293,8 @@ export default function Page() {
             <Link href="/interview" className="transition-colors hover:text-foreground">
               Interview Prep
             </Link>
-            <Link href="/shaadi-biodata" className="transition-colors hover:text-foreground">
-              Shaadi Biodata
+            <Link href="/shaadi-biodata" className="inline-flex items-center gap-1 font-semibold text-rose-400 hover:text-rose-300 transition-colors">
+              <Heart className="size-3 fill-rose-500 text-rose-500" /> Shaadi Biodata
             </Link>
           </nav>
         </div>
