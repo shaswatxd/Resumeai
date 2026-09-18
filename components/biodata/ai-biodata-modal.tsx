@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Sparkles, Loader2, Check, X, Wand2, Zap } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import type { BiodataData, LanguageMode } from '@/lib/biodata-types'
@@ -15,6 +15,7 @@ interface AiBiodataModalProps {
 
 function generateLocalSummary(data: BiodataData, tone: 'traditional' | 'balanced' | 'modern', lang: LanguageMode) {
   const name = data.personal.fullName?.trim() || ''
+  const isFemale = (data.personal.gender || '').toLowerCase() === 'female'
   const occ = data.personal.occupation?.trim() || 'Professional'
   const comp = data.personal.company?.trim() ? ` at ${data.personal.company.trim()}` : ''
   const edu = data.personal.education?.trim() || ''
@@ -23,24 +24,24 @@ function generateLocalSummary(data: BiodataData, tone: 'traditional' | 'balanced
   if (lang === 'hi') {
     if (tone === 'traditional') {
       return {
-        aboutMe: `${name ? `${name} ` : ''}एक सुशिक्षित, विनम्र और पारिवारिक संस्कारों से परिपूर्ण व्यक्ति हैं। ${edu ? `इन्होंने ${edu} की शिक्षा प्राप्त की है और ` : ''}वर्तमान में ${occ}${comp ? ` में` : ''} कार्यरत हैं। जीवन में बड़ों का आदर, सनातन संस्कृति और परिवार की सुख-शांति को सर्वोच्च प्राथमिकता देते हैं।${hobbies ? ` रुचियों में ${hobbies} शामिल हैं।` : ''}`,
-        partnerExpectations: 'हम एक ऐसी सुसंस्कृत, समझदार और पारिवारिक मूल्यों का सम्मान करने वाली जीवनसाथी की कामना करते हैं, जो परिवार में सामंजस्य बनाए रखे और जीवन के प्रत्येक पड़ाव पर विश्वास व स्नेह के साथ साथ चले।',
+        aboutMe: `${name ? `${name} ` : ''}एक सुशिक्षित, ${isFemale ? 'शालीन और पारिवारिक संस्कारों से परिपूर्ण युवती' : 'विनम्र और पारिवारिक संस्कारों से परिपूर्ण व्यक्ति'} हैं। ${edu ? `इन्होंने ${edu} की शिक्षा प्राप्त की है और ` : ''}वर्तमान में ${occ}${comp ? ` में` : ''} कार्यरत हैं। जीवन में बड़ों का आदर, सनातन संस्कृति और परिवार की सुख-शांति को सर्वोच्च प्राथमिकता ${isFemale ? 'देती' : 'देते'} हैं।${hobbies ? ` रुचियों में ${hobbies} शामिल हैं।` : ''}`,
+        partnerExpectations: `हम एक ${isFemale ? 'ऐसे सुसंस्कृत, समझदार और पारिवारिक मूल्यों का सम्मान करने वाले जीवनसाथी' : 'ऐसी सुसंस्कृत, समझदार और पारिवारिक मूल्यों का सम्मान करने वाली जीवनसाथी'} की कामना करते हैं, जो परिवार में सामंजस्य बनाए रखे और जीवन के प्रत्येक पड़ाव पर विश्वास व स्नेह के साथ साथ चले।`,
       }
     } else if (tone === 'modern') {
       return {
-        aboutMe: `${name ? `${name} ` : ''}एक प्रगतिशील, खुले विचारों वाले और महत्वाकांक्षी इंसान हैं। ${edu ? `${edu} की उच्च शिक्षा के साथ ` : ''}वर्तमान में ${occ}${comp ? ` में` : ''} अपने करियर को समर्पित हैं। जीवन में नई चीजें सीखने, यात्रा करने और आपसी समझ को विशेष महत्व देते हैं।${hobbies ? ` खाली समय में ${hobbies} पसंद है।` : ''}`,
-        partnerExpectations: 'एक ऐसी आत्मनिर्भर, सुशिक्षित और सकारात्मक सोच वाली साथी की तलाश है, जो करियर और व्यक्तिगत जीवन में एक-दूसरे का संबल बने और आपसी सम्मान व मित्रता के साथ जीवन यात्रा साझा करे।',
+        aboutMe: `${name ? `${name} ` : ''}एक प्रगतिशील, खुले विचारों ${isFemale ? 'वाली और महत्वाकांक्षी युवती' : 'वाले और महत्वाकांक्षी इंसान'} हैं। ${edu ? `${edu} की उच्च शिक्षा के साथ ` : ''}वर्तमान में ${occ}${comp ? ` में` : ''} अपने करियर को समर्पित हैं। जीवन में नई चीजें सीखने, यात्रा करने और आपसी समझ को विशेष महत्व ${isFemale ? 'देती' : 'देते'} हैं।${hobbies ? ` खाली समय में ${hobbies} पसंद है।` : ''}`,
+        partnerExpectations: `एक ${isFemale ? 'ऐसे आत्मनिर्भर, सुशिक्षित और सकारात्मक सोच वाले साथी' : 'ऐसी आत्मनिर्भर, सुशिक्षित और सकारात्मक सोच वाली साथी'} की तलाश है, जो करियर और व्यक्तिगत जीवन में एक-दूसरे का संबल बने और आपसी सम्मान व मित्रता के साथ जीवन यात्रा साझा करे।`,
       }
     } else {
       return {
-        aboutMe: `${name ? `${name} ` : ''}एक सुलझे हुए, सकारात्मक और पारिवारिक मूल्यों के साथ आधुनिक सोच का सुंदर संतुलन रखने वाले व्यक्ति हैं। ${edu ? `${edu} की शिक्षा के साथ ` : ''}वर्तमान में ${occ}${comp ? ` में` : ''} सेवारत हैं। कार्य के प्रति निष्ठा और परिवार के प्रति स्नेह इनके स्वभाव का प्रमुख अंग है।${hobbies ? ` इन्हें ${hobbies} में विशेष रुचि है।` : ''}`,
-        partnerExpectations: 'एक ऐसी सुशिक्षित, स्नेही और जीवन के प्रति व्यावहारिक दृष्टिकोण रखने वाली साथी की तलाश है, जो परिवार के साथ तालमेल बनाए रखे और जीवन के हर मोड़ पर एक सच्ची मित्र साबित हो।',
+        aboutMe: `${name ? `${name} ` : ''}एक सुलझे हुए, सकारात्मक और पारिवारिक मूल्यों के साथ आधुनिक सोच का सुंदर संतुलन रखने वाले ${isFemale ? 'इंसान' : 'व्यक्ति'} हैं। ${edu ? `${edu} की शिक्षा के साथ ` : ''}वर्तमान में ${occ}${comp ? ` में` : ''} सेवारत हैं। कार्य के प्रति निष्ठा और परिवार के प्रति स्नेह इनके स्वभाव का प्रमुख अंग है।${hobbies ? ` इन्हें ${hobbies} में विशेष रुचि है।` : ''}`,
+        partnerExpectations: `एक ${isFemale ? 'ऐसे सुशिक्षित, स्नेही और जीवन के प्रति व्यावहारिक दृष्टिकोण रखने वाले साथी' : 'ऐसी सुशिक्षित, स्नेही और जीवन के प्रति व्यावहारिक दृष्टिकोण रखने वाली साथी'} की तलाश है, जो परिवार के साथ तालमेल बनाए रखे और जीवन के हर मोड़ पर एक सच्चे मित्र साबित हों।`,
       }
     }
   } else if (lang === 'hinglish') {
     if (tone === 'traditional') {
       return {
-        aboutMe: `${name ? `${name} is ` : ''}a well-grounded and family-oriented person with deep respect for Indian cultural values. ${edu ? `Holding a degree in ${edu}, ` : ''}currently working as a ${occ}${comp}. Believes in maintaining strong family bonds, simplicity, and humility in life.${hobbies ? ` Enjoys ${hobbies} during free time.` : ''}`,
+        aboutMe: `${name ? `${name} is ` : ''}a well-grounded and family-oriented individual with deep respect for Indian cultural values. ${edu ? `Holding a degree in ${edu}, ` : ''}currently working as a ${occ}${comp}. Believes in maintaining strong family bonds, simplicity, and humility in life.${hobbies ? ` Enjoys ${hobbies} during free time.` : ''}`,
         partnerExpectations: 'Looking for a cultured, kind-hearted, and family-loving partner who values mutual respect, traditions, and joyful togetherness.',
       }
     } else if (tone === 'modern') {
@@ -87,6 +88,14 @@ export function AiBiodataModal({
   const [loading, setLoading] = useState(false)
   const [generatedAbout, setGeneratedAbout] = useState(data.aboutMe || '')
   const [generatedExpectations, setGeneratedExpectations] = useState(data.partnerExpectations || '')
+
+  useEffect(() => {
+    if (isOpen) {
+      setGeneratedAbout(data.aboutMe || '')
+      setGeneratedExpectations(data.partnerExpectations || '')
+      if (data.language) setLang(data.language)
+    }
+  }, [isOpen, data.aboutMe, data.partnerExpectations, data.language])
 
   if (!isOpen) return null
 
@@ -145,7 +154,13 @@ export function AiBiodataModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs"
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+      role="dialog"
+      aria-modal="true"
+      aria-label="AI Biodata Summary Generator"
+    >
       <div className="relative w-full max-w-lg rounded-2xl bg-popover p-5 sm:p-6 shadow-2xl border border-border text-foreground space-y-4 max-h-[92vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
         {/* Header */}
         <div className="flex items-center justify-between pb-3 border-b border-border">
