@@ -259,7 +259,7 @@ export function BiodataEditor({ data, onChange, t }: BiodataEditorProps) {
 
           <div className="flex items-center gap-2">
             <div className="inline-flex rounded-lg border border-border p-0.5 bg-background shadow-2xs">
-              {(['hi', 'en', 'hinglish'] as LanguageMode[]).map((mode) => (
+              {(['en', 'hi', 'hinglish'] as LanguageMode[]).map((mode) => (
                 <button
                   key={mode}
                   type="button"
@@ -275,7 +275,7 @@ export function BiodataEditor({ data, onChange, t }: BiodataEditorProps) {
                       : 'text-muted-foreground hover:text-foreground'
                   }`}
                 >
-                  {mode === 'hi' ? 'हिंदी' : mode === 'en' ? 'English' : 'Hinglish'}
+                  {mode === 'en' ? 'English' : mode === 'hi' ? 'हिंदी' : 'Hinglish'}
                 </button>
               ))}
             </div>

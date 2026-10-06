@@ -84,7 +84,7 @@ export function AiBiodataModal({
 }: AiBiodataModalProps) {
   const toast = useToast()
   const [tone, setTone] = useState<'traditional' | 'balanced' | 'modern'>('balanced')
-  const [lang, setLang] = useState<LanguageMode>(data.language || 'hi')
+  const [lang, setLang] = useState<LanguageMode>(data.language || 'en')
   const [loading, setLoading] = useState(false)
   const [generatedAbout, setGeneratedAbout] = useState(data.aboutMe || '')
   const [generatedExpectations, setGeneratedExpectations] = useState(data.partnerExpectations || '')
@@ -234,17 +234,6 @@ export function AiBiodataModal({
             <div className="grid grid-cols-3 gap-2">
               <button
                 type="button"
-                onClick={() => setLang('hi')}
-                className={`px-3 py-2 text-xs font-medium rounded-lg border transition-all ${
-                  lang === 'hi'
-                    ? 'border-primary bg-primary/10 text-primary font-bold'
-                    : 'border-border hover:bg-muted text-muted-foreground'
-                }`}
-              >
-                हिंदी (Hindi)
-              </button>
-              <button
-                type="button"
                 onClick={() => setLang('en')}
                 className={`px-3 py-2 text-xs font-medium rounded-lg border transition-all ${
                   lang === 'en'
@@ -253,6 +242,17 @@ export function AiBiodataModal({
                 }`}
               >
                 English
+              </button>
+              <button
+                type="button"
+                onClick={() => setLang('hi')}
+                className={`px-3 py-2 text-xs font-medium rounded-lg border transition-all ${
+                  lang === 'hi'
+                    ? 'border-primary bg-primary/10 text-primary font-bold'
+                    : 'border-border hover:bg-muted text-muted-foreground'
+                }`}
+              >
+                हिंदी (Hindi)
               </button>
               <button
                 type="button"

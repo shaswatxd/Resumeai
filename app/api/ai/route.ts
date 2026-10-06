@@ -56,7 +56,7 @@ async function generate(opts: { system: string; prompt: string }) {
 
 function fallbackBiodataAbout(b: NonNullable<Body['biodataContext']>) {
   const tone = b.tone || 'balanced'
-  const lang = b.language || 'hi'
+  const lang = b.language || 'en'
   const name = b.name?.trim() || ''
   const isFemale = (b.gender || '').toLowerCase() === 'female'
   const occ = b.occupation?.trim() || 'Professional'
