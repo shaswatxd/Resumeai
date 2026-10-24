@@ -47,10 +47,45 @@ export default function CoverLetterPage() {
   const [error, setError] = useState('')
   const [copied, setCopied] = useState(false)
 
-  const generate = () => {
+  const generate = async () => {
     setLoading(true)
     setError('')
-    setTimeout(() => {
+    try {
+      const res = await fetch('/api/ai', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'cover',
+          company: company.trim(),
+          role: role.trim(),
+          hiringManager: hiringManager.trim(),
+          tone,
+          jobDescription: jd.trim(),
+          context: {
+            name: data.fullName,
+            role: data.role,
+            skills: data.skills,
+            summary: data.summary,
+            experience: data.experience.map((e) => ({
+              role: e.role,
+              company: e.company,
+              bullets: e.bullets.filter(Boolean).slice(0, 4),
+            })),
+            education: data.education.map((e) => ({ degree: e.degree, school: e.school })),
+            projects: data.projects.slice(0, 3).map((p) => ({ name: p.name, description: p.description })),
+          },
+        }),
+      })
+      const result = await res.json()
+      if (!res.ok || !result.text) throw new Error(result.error || 'Generation failed')
+      setLetter(result.text)
+      if (result.fallback) {
+        setError(
+          'AI providers are unavailable right now — this is a basic built-in template, not an AI-written letter. Edit every line before sending.',
+        )
+      }
+    } catch {
+      /* Offline / API error: fall back to the local template, honestly labeled. */
       try {
         const candidateName = data.fullName || 'Candidate'
         const targetCompany = company || 'Your Organization'
@@ -62,44 +97,7 @@ export default function CoverLetterPage() {
           ? `In my previous role as ${topExp.role} at ${topExp.company}, I ${topExp.bullets[0].replace(/^[A-Z]/, (c) => c.toLowerCase())}`
           : `Throughout my career as a ${data.role || 'professional'}, I have focused on driving measurable outcomes and shipping robust solutions.`
 
-        let letterBody = ''
-
-        if (tone === 'Confident') {
-          letterBody = `${managerGreeting}
-
-I am writing to express my strong interest in the ${targetRole} position at ${targetCompany}. With a proven track record in ${topSkills}, I am eager to bring my expertise and results-driven mindset to your high-performing team.
-
-${achievementHighlight} I thrive in fast-paced environments where ownership, technical agility, and collaborative execution are valued. My background aligns closely with the goals ${targetCompany} is pursuing.
-
-I would welcome the opportunity to discuss how my skillset and proactive approach can contribute to your team's upcoming milestones. Thank you for your time and consideration.
-
-Sincerely,
-${candidateName}`
-        } else if (tone === 'Warm') {
-          letterBody = `${managerGreeting}
-
-I was thrilled to come across the ${targetRole} opening at ${targetCompany}. Having followed your company's impressive work and culture, I would love the opportunity to contribute my skills in ${topSkills} to your team.
-
-${achievementHighlight} What excites me most about ${targetCompany} is the opportunity to solve meaningful problems alongside passionate colleagues. I pride myself on clear communication, continuous learning, and crafting dependable solutions.
-
-I would love to connect and share more about what I can bring to ${targetCompany}. Thank you so much for reviewing my application!
-
-Warm regards,
-${candidateName}`
-        } else if (tone === 'Enthusiastic') {
-          letterBody = `${managerGreeting}
-
-I am beyond excited to apply for the ${targetRole} role at ${targetCompany}! As someone deeply passionate about innovation and high-impact execution, joining your team would be an incredible milestone.
-
-With hands-on proficiency in ${topSkills}, I have consistently pushed the envelope in previous initiatives. ${achievementHighlight} I am energized by the prospect of bringing this same dedication and positive momentum to ${targetCompany}.
-
-Thank you for your time and consideration — I look forward to the possibility of speaking with you soon!
-
-Best regards,
-${candidateName}`
-        } else {
-          // Professional default
-          letterBody = `${managerGreeting}
+        const letterBody = `${managerGreeting}
 
 Please accept this letter and the accompanying resume as an application for the ${targetRole} position at ${targetCompany}. Given my background in ${topSkills}, I am confident in my ability to make an immediate, positive contribution to your organization.
 
@@ -109,15 +107,17 @@ I welcome the chance to discuss how my qualifications match the needs of ${targe
 
 Sincerely,
 ${candidateName}`
-        }
 
         setLetter(letterBody)
+        setError(
+          'Could not reach the AI service — this is a basic built-in template, not an AI-written letter. Edit every line before sending.',
+        )
       } catch {
         setError('Failed to generate cover letter. Please try again.')
-      } finally {
-        setLoading(false)
       }
-    }, 250)
+    } finally {
+      setLoading(false)
+    }
   }
 
   const copy = async () => {
@@ -132,7 +132,9 @@ ${candidateName}`
       ? `${data.fullName} - Cover Letter`
       : 'Cover Letter - ResumeAI'
     window.print()
-    document.title = prev
+    setTimeout(() => {
+      document.title = prev
+    }, 1000)
   }
 
   const resumeEmpty =
@@ -164,7 +166,7 @@ ${candidateName}`
           <div>
             <h1 className="text-2xl font-bold">Smart Cover Letter</h1>
             <p className="text-sm text-muted-foreground">
-              Generated instantly from your resume — customized to the company and role.
+              Written from your resume against the company, role and job description — fully editable.
             </p>
           </div>
         </div>

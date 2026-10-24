@@ -6,6 +6,7 @@ import { ClassicSection } from '@/components/resume/blocks'
 import { EditableText } from '@/components/resume/editable'
 import { useResumeEdit } from '@/components/resume/resume-context'
 import { SectionList } from '@/lib/section-registry'
+import { isSectionVisible } from '@/lib/resume-types'
 
 /* ATS Professional — pure single column, no photo, no color graphics.
  * Optimized for resume parsers: plain headings, no tables, no icons. */
@@ -35,16 +36,18 @@ export function AtsProTemplate({ data, theme }: TP) {
         <ContactRow data={data} className="mt-2 text-[11.5px] text-slate-600" />
       </header>
 
-      <ClassicSection title="Summary" theme={theme}>
-        <EditableText
-          as="p"
-          className="text-slate-700"
-          value={data.summary}
-          placeholder="Two to three sentence professional summary…"
-          multiline
-          onChange={(v) => update((d) => ({ ...d, summary: v }))}
-        />
-      </ClassicSection>
+      {isSectionVisible(design, 'summary') && (
+        <ClassicSection title="Summary" theme={theme}>
+          <EditableText
+            as="p"
+            className="text-slate-700"
+            value={data.summary}
+            placeholder="Two to three sentence professional summary…"
+            multiline
+            onChange={(v) => update((d) => ({ ...d, summary: v }))}
+          />
+        </ClassicSection>
+      )}
 
       <div className="flex flex-col" style={{ gap: 'var(--doc-section-gap)' }}>
         <SectionList

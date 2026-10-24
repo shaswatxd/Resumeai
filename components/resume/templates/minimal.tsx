@@ -4,6 +4,7 @@ import type { TP } from '@/components/resume/blocks'
 import { ContactRow, MinimalSection } from '@/components/resume/blocks'
 import { EditableText } from '@/components/resume/editable'
 import { useResumeEdit } from '@/components/resume/resume-context'
+import { isSectionVisible } from '@/lib/resume-types'
 import { SectionList } from '@/lib/section-registry'
 
 /* Minimal Quiet — no color blocks, no photo, a centered small-caps name and
@@ -11,7 +12,7 @@ import { SectionList } from '@/lib/section-registry'
  * breathing room between sections beyond the usual rhythm, accent color
  * reserved for the role line alone. Understated and confident. */
 export function MinimalTemplate({ data, theme }: TP) {
-  const { design, update } = useResumeEdit()
+  const { design, isEditable, update } = useResumeEdit()
   return (
     <div
       className="flex flex-col text-[13px] text-slate-700"
@@ -40,7 +41,7 @@ export function MinimalTemplate({ data, theme }: TP) {
       <div className="mt-4 border-b border-slate-200" />
 
       <div className="mt-8 flex flex-col gap-8">
-        {(data.summary || false) && (
+        {isSectionVisible(design, 'summary') && (data.summary.trim() || isEditable ? (
           <MinimalSection title="Summary">
             <EditableText
               as="p"
@@ -51,7 +52,7 @@ export function MinimalTemplate({ data, theme }: TP) {
               onChange={(v) => update((d) => ({ ...d, summary: v }))}
             />
           </MinimalSection>
-        )}
+        ) : null)}
 
         <SectionList
           data={data}

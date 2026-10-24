@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import {
   SAMPLE_BIODATA_HINDU,
@@ -32,10 +32,56 @@ import {
 import { Button } from '@/components/ui/button'
 import { useToast } from '@/components/ui/toast'
 
+/*
+ * Local persistence — matrimonial biodata previously vanished on refresh and
+ * depended entirely on the browser session. Stored in its own namespaced key
+ * (separate from resume storage) with an explicit version so a schema change
+ * can never corrupt older saves; invalid or foreign payloads are ignored.
+ */
+const BIODATA_STORAGE_KEY = 'resumeai:biodata:v1'
+
+function loadSavedBiodata(): { data?: BiodataData; template?: BiodataTemplateId } | null {
+  try {
+    const raw = localStorage.getItem(BIODATA_STORAGE_KEY)
+    if (!raw) return null
+    const parsed = JSON.parse(raw) as { data?: BiodataData; template?: BiodataTemplateId }
+    if (parsed?.data && typeof parsed.data === 'object' && parsed.data.personal && parsed.data.language) {
+      return parsed
+    }
+    return null
+  } catch {
+    return null
+  }
+}
+
 export function BiodataShell() {
   const toast = useToast()
   const [data, setData] = useState<BiodataData>(SAMPLE_BIODATA_HINDU)
   const [template, setTemplate] = useState<BiodataTemplateId>('royal-marigold')
+  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [hydrated, setHydrated] = useState(false)
+
+  // Restore any previously saved biodata after mount (avoids SSR mismatch).
+  useEffect(() => {
+    const restored = loadSavedBiodata()
+    if (restored?.data) setData(restored.data)
+    if (restored?.template) setTemplate(restored.template)
+    setHydrated(true)
+  }, [])
+
+  // Debounced autosave.
+  useEffect(() => {
+    if (!hydrated) return
+    if (saveTimer.current) clearTimeout(saveTimer.current)
+    saveTimer.current = setTimeout(() => {
+      try {
+        localStorage.setItem(BIODATA_STORAGE_KEY, JSON.stringify({ data, template }))
+      } catch {
+        /* storage full / private mode — editing still works in-session */
+      }
+    }, 400)
+  }, [data, template, hydrated])
+
   const [mobileTab, setMobileTab] = useState<'edit' | 'preview'>('edit')
   const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false)
   const [filterReligion, setFilterReligion] = useState<ReligionKey>('all')
@@ -48,7 +94,9 @@ export function BiodataShell() {
       ? `${data.personal.fullName} - Marriage Biodata`
       : 'Marriage Biodata - ResumeAI'
     window.print()
-    document.title = prev
+    setTimeout(() => {
+      document.title = prev
+    }, 1000)
   }
 
   const handleLoadReligionSample = (rel: ReligionKey) => {
@@ -142,7 +190,7 @@ export function BiodataShell() {
             <div className="size-8 sm:size-9 rounded-xl bg-gradient-to-tr from-rose-600 to-amber-500 flex items-center justify-center text-white shadow-xs">
               <Heart className="size-4 sm:size-5 fill-white" />
             </div>
-            <div className="hidden sm:block">
+            <div className="hidden lg:block">
               <div className="flex items-center gap-1.5">
                 <span className="font-extrabold text-sm tracking-tight text-foreground">
                   ResumeAI
@@ -227,22 +275,23 @@ export function BiodataShell() {
             variant="outline"
             size="sm"
             onClick={handleWhatsAppShare}
+            aria-label="Share formatted bio on WhatsApp"
             className="h-8 sm:h-9 gap-1 sm:gap-1.5 text-xs font-semibold border-emerald-600/40 text-emerald-600 hover:bg-emerald-600/10 px-2 sm:px-3"
             title="Share formatted bio on WhatsApp"
           >
             <Share2 className="size-3.5 shrink-0" />
-            <span className="hidden sm:inline">WhatsApp</span>
+            <span className="hidden md:inline">WhatsApp</span>
           </Button>
 
           {/* Download Vector PDF Button */}
           <Button
             size="sm"
             onClick={handlePrint}
+            aria-label={translate('downloadPdf')}
             className="h-8 sm:h-9 gap-1 sm:gap-1.5 bg-gradient-to-r from-rose-600 to-amber-600 hover:from-rose-700 hover:to-amber-700 text-white font-semibold text-xs sm:text-sm shadow-md px-2 sm:px-4"
           >
             <Download className="size-3.5 sm:size-4 shrink-0" />
-            <span className="hidden sm:inline">{translate('downloadPdf')}</span>
-            <span className="sm:hidden">PDF</span>
+            <span className="hidden md:inline">{translate('downloadPdf')}</span>
           </Button>
         </div>
       </header>
@@ -308,7 +357,7 @@ export function BiodataShell() {
                         : 'bg-muted/50 text-muted-foreground hover:text-foreground'
                     }`}
                   >
-                    {rel === 'all' ? 'All Templates (10)' : rel}
+                    {rel === 'all' ? `All Templates (${BIODATA_TEMPLATES.length})` : rel}
                   </button>
                 )
               )}

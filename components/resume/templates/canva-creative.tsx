@@ -14,7 +14,7 @@ export function CanvaCreativeTemplate({ data, theme }: TP) {
       <header
         className="relative flex flex-col p-8 pb-14 text-white"
         style={{
-          background: 'linear-gradient(135deg, var(--doc-accent) 0%, #4338ca 100%)',
+          background: 'linear-gradient(135deg, var(--doc-accent) 0%, color-mix(in srgb, var(--doc-accent) 55%, #312e81) 100%)',
           borderRadius: '0 0 2rem 2rem',
         }}
       >

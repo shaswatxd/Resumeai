@@ -66,15 +66,15 @@ export function CommandPalette({
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose()
+        return
+      }
+      // ⌘K / Ctrl+K toggles — driving the open state from the shell keeps the
+      // shortcut working whether the palette is open or closed.
+      if (!open) return
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault()
-        if (open) onClose()
-        else {
-          setQuery('')
-          setSelectedIndex(0)
-        }
-      }
-      if (e.key === 'Escape' && open) {
         onClose()
       }
     }
@@ -96,7 +96,7 @@ export function CommandPalette({
         category: 'Quick Actions',
         id: 'export-pdf',
         title: 'Download / Print PDF',
-        subtitle: 'Export high-res vector PDF',
+        subtitle: 'Selectable-text PDF matching the preview',
         icon: Download,
         action: () => {
           onClose()
@@ -107,7 +107,7 @@ export function CommandPalette({
         category: 'Quick Actions',
         id: 'ai-copilot',
         title: 'Open AI Assistant Copilot',
-        subtitle: 'Build entire resume, rewrite bullets with Google XYZ formula',
+        subtitle: 'Rewrite bullets, summarize, coach — real AI',
         icon: Sparkles,
         action: () => {
           onClose()
@@ -118,7 +118,7 @@ export function CommandPalette({
         category: 'Quick Actions',
         id: 'bullet-lib',
         title: 'Open Pro Bullet Library',
-        subtitle: '50+ role-tested bullet points & action verbs',
+        subtitle: 'Example bullets & phrasing per role',
         icon: BookOpen,
         action: () => {
           onClose()
@@ -214,7 +214,9 @@ export function CommandPalette({
                 {
                   id: `exp-${Date.now()}`,
                   role: role.title,
-                  company: 'Leading Enterprise Inc.',
+                  // Clearly a placeholder — the user must replace it; we never
+                  // invent an employer name for them.
+                  company: '[Your Company]',
                   start: '2022',
                   end: 'Present',
                   bullets: role.bullets,

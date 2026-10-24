@@ -101,7 +101,7 @@ function InfographicMainSection({ title, children }: { title: string; theme: unk
 
 function InfographicSidebarSection({ title, children }: { title: string; theme: unknown; children: React.ReactNode }) {
   return (
-    <section className="rounded-xl bg-slate-50 p-4 border border-slate-150">
+    <section className="rounded-xl bg-slate-50 p-4 border border-slate-200">
       <h2 className="mb-2 text-[11px] font-bold uppercase tracking-wider text-indigo-900">
         {title}
       </h2>

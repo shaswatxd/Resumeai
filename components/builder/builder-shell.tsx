@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useToast } from '@/components/ui/toast'
 import {
@@ -55,7 +55,6 @@ export function BuilderShell() {
     setTemplate,
     setTheme,
     setDesign,
-    reset,
   } = useResumeStore()
 
   const [drawerOpen, setDrawerOpen] = useState(false)
@@ -71,8 +70,21 @@ export function BuilderShell() {
   const importRef = useRef<HTMLInputElement>(null)
   const toast = useToast()
 
-  // Synchronized ATS score
-  const quickAtsScore = calculateAtsScore(data.fullName ? data : SAMPLE_DATA)
+  // Global ⌘K / Ctrl+K opens the command palette (from shell state).
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault()
+        setPaletteOpen((v) => !v)
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [])
+
+  // Synchronized ATS readiness score (structural checks — same algorithm as the
+  // auditor's base score; JD keyword matching adds a separate blended score there).
+  const quickAtsScore = calculateAtsScore(data)
 
   const handleFitToOnePage = () => {
     setDesign({
@@ -133,10 +145,11 @@ export function BuilderShell() {
   }
 
   const doReset = () => {
+    // Single setData push keeps the clear action in undo history — the toast's
+    // "you can undo" promise stays true. (reset() additionally wipes history.)
     setData(EMPTY_DATA)
-    reset()
     setConfirmReset(false)
-    toast('Resume cleared. You can Undo if needed.', 'info')
+    toast('Resume cleared. Press Ctrl+Z to undo if needed.', 'info')
   }
 
   const handleFillSample = () => {
@@ -168,7 +181,10 @@ export function BuilderShell() {
       ? `${data.fullName} - Resume`
       : 'Resume - ResumeAI'
     window.print()
-    document.title = prev
+    // Chrome bills us the title immediately; Safari returns before printing.
+    setTimeout(() => {
+      document.title = prev
+    }, 1000)
   }
 
   const handleExport = () => {
@@ -548,7 +564,7 @@ export function BuilderShell() {
                     1-Click Role Presets
                   </h3>
                   <p className="text-xs text-muted-foreground">
-                    Pre-filled with battle-tested XYZ-formula bullets & high-impact skills
+                    Example summaries, bullets and skills per role — placeholders to replace with your real experience, not ready-to-send content.
                   </p>
                 </div>
               </div>
@@ -608,7 +624,7 @@ export function BuilderShell() {
                     }}
                   >
                     <Check className="size-3.5" />
-                    Load Role Template
+                    Use preset (replaces current resume)
                   </Button>
                 </div>
               ))}

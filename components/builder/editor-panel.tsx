@@ -221,11 +221,9 @@ function PersonalTab({
         throw new Error(result.error || 'Failed to generate summary')
       }
       set('summary', result.text)
-      toast('AI created an executive ATS summary for your profile!', 'success')
+      toast('Summary generated from your profile — edit it to make it yours.', 'success')
     } catch {
-      const fallbackSummary = `Results-oriented ${data.role || 'Professional'} with hands-on expertise in ${data.skills.slice(0, 4).join(', ') || 'strategic problem solving'}. Proven track record of executing key initiatives, streamlining core workflows, and delivering scalable solutions that achieve organizational goals. Adept at cross-functional collaboration and operational excellence.`
-      set('summary', fallbackSummary)
-      toast('Executive summary created for your profile!', 'success')
+      toast('AI is unavailable right now — nothing was written. Try again, or draft it manually.', 'error')
     } finally {
       setLoadingAiSummary(false)
     }
@@ -511,16 +509,11 @@ function ExperienceTab({
         throw new Error(result.error || 'Failed to polish bullets')
       }
       update(expId, { bullets: result.bullets })
-      toast(`Polished bullets using Google XYZ achievement formula!`, 'success')
+      toast('Bullets rewritten in the XYZ style (action → approach → result).', 'success')
     } catch {
-      const roleName = roleItem.role || data.role || 'key deliverables'
-      const fallbackBullets = [
-        `Spearheaded the development and execution of ${roleName}, achieving a 28% increase in delivery speed.`,
-        `Engineered streamlined workflows across cross-functional teams, reducing operational bottlenecks by 32%.`,
-        `Established automated benchmarks and rigorous quality standards, boosting team output by 25%.`,
-      ]
-      update(expId, { bullets: fallbackBullets })
-      toast(`Polished bullets using Google XYZ formula!`, 'success')
+      // On AI failure we deliberately leave the user's own bullets untouched —
+      // inventing metrics would fabricate achievements.
+      toast('AI is unavailable right now. Your bullets were kept — try the Bullet Library for phrasing examples.', 'error')
     } finally {
       setPolishingId(null)
     }
@@ -559,20 +552,10 @@ function ExperienceTab({
           return match && match.bullets?.length ? { ...e, bullets: match.bullets } : e
         }),
       }))
-      toast('Auto-enhanced all experience bullets with Google XYZ formula & impact metrics!', 'success')
+      toast('All experience bullets enhanced with impact-style phrasing.', 'success')
     } catch {
-      onChange((p) => ({
-        ...p,
-        experience: p.experience.map((e) => ({
-          ...e,
-          bullets: [
-            `Spearheaded key initiatives for ${e.role || data.role || 'deliverables'}, accelerating milestone completion by 28%.`,
-            `Engineered streamlined workflows at ${e.company || 'the team'}, decreasing operational turnaround by 32%.`,
-            `Collaborated with cross-functional leadership to deploy scalable features, supporting user growth by 25%.`,
-          ],
-        })),
-      }))
-      toast('Polished experience bullets using Google XYZ formula!', 'success')
+      // Keep the user's real bullets; never substitute fabricated metrics.
+      toast('AI is unavailable right now. Your bullets were kept unchanged — try again later or edit manually.', 'error')
     } finally {
       setPolishingAll(false)
     }
@@ -584,7 +567,7 @@ function ExperienceTab({
         <div className="flex items-center justify-between rounded-xl border border-purple-500/30 bg-purple-500/10 p-3 shadow-2xs">
           <div className="flex items-center gap-2 text-xs font-medium text-purple-400">
             <Sparkles className="size-4 shrink-0 text-purple-400" />
-            <span>AI Bullet Optimizer (Google XYZ Formula)</span>
+            <span>AI Bullet Optimizer</span>
           </div>
           <Button
             size="sm"
@@ -668,7 +651,7 @@ function ExperienceTab({
                   onClick={() => handlePolishRole(exp.id)}
                   disabled={polishingId === exp.id}
                   className="inline-flex items-center gap-1 rounded-md border border-purple-500/40 bg-purple-500/10 px-2 py-1 text-xs font-semibold text-purple-400 transition-colors hover:bg-purple-500/20 disabled:opacity-50 shadow-2xs"
-                  title="Polish bullets with Google XYZ achievement formula"
+                  title="Rewrite bullets with impact phrasing"
                 >
                   {polishingId === exp.id ? (
                     <>

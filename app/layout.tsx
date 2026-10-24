@@ -92,7 +92,7 @@ export const metadata: Metadata = {
     template: '%s · ResumeAI',
   },
   description:
-    'Build a standout resume in minutes: 26 premium templates, pro bullet & phrase library, ATS score with job-description matching, smart cover letters, and one-click PDF export. Free, no sign-up.',
+    'Build a standout resume in minutes: 15 professional templates, pro bullet & phrase library, ATS readiness checks with job-description keyword matching, smart cover letters, and one-click PDF export. Free, no sign-up — your data stays in your browser.',
   keywords: [
     'resume builder',
     'free resume maker',
@@ -112,7 +112,7 @@ export const metadata: Metadata = {
     url: SITE_URL,
     title: 'ResumeAI — Free Professional Resume Builder with ATS Auditor',
     description:
-      '26 premium templates, pro bullet library, ATS scoring, cover letters and one-click PDF. Free, no sign-up.',
+      '15 professional templates, pro bullet library, ATS readiness checks, cover letters and one-click PDF. Free, no sign-up.',
     siteName: 'ResumeAI',
     images: [{ url: '/og.png', width: 1200, height: 630, alt: 'ResumeAI' }],
   },
@@ -120,7 +120,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'ResumeAI — Free Professional Resume Builder',
     description:
-      '26 templates · Pro bullet library · ATS score · Cover letters · Free PDF export',
+      '15 templates · Pro bullet library · ATS readiness checks · Cover letters · Free PDF export',
     images: ['/og.png'],
   },
   icons: {
@@ -150,7 +150,7 @@ export const viewport: Viewport = {
   maximumScale: 5,
   viewportFit: 'cover',
   colorScheme: 'dark',
-  themeColor: '#1a1526',
+  themeColor: '#252527',
 }
 
 export default function RootLayout({

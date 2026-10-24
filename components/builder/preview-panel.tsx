@@ -22,8 +22,7 @@ import {
   Minimize2,
   FileCheck,
   AlertTriangle,
-  Sliders,
-  Sparkles,
+  Zap,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -54,6 +53,9 @@ function countWords(d: ResumeData): number {
   return parts.join(' ').split(/\s+/).filter(Boolean).length
 }
 
+/* Print sheet heights at CSS 96dpi */
+const PAGE_HEIGHT: Record<DesignSettings['pageSize'], number> = { a4: 1123, letter: 1056 }
+
 function isEmpty(d: ResumeData) {
   return (
     !d.fullName &&
@@ -82,12 +84,17 @@ export function PreviewPanel({
   const [showPageBreak, setShowPageBreak] = useState(true)
   const [photoEditorOpen, setPhotoEditorOpen] = useState(false)
   const docRef = useRef<HTMLDivElement>(null)
+  const sheetRef = useRef<HTMLDivElement>(null)
   const [docHeight, setDocHeight] = useState(1000)
+  const [fit, setFit] = useState(1)
 
   const showSample = isEmpty(data)
   const rendered = showSample ? SAMPLE_DATA : data
   const atsScore = calculateAtsScore(rendered)
   const totalWords = countWords(rendered)
+
+  const pageH = PAGE_HEIGHT[design.pageSize] ?? 1123
+  const paperHeight = Math.max(docHeight, pageH)
 
   useEffect(() => {
     if (!docRef.current) return
@@ -102,7 +109,23 @@ export function PreviewPanel({
     return () => ro.disconnect()
   }, [rendered, template, theme, design])
 
-  const isMultiPage = docHeight > 1135
+  /*
+   * Fit the A4/Letter sheet to the available viewport width so the whole page
+   * is always visible — no clipping or horizontal scrolling on phones, and
+   * scale-neutral on desktop. The manual zoom control multiplies on top.
+   */
+  useEffect(() => {
+    const el = sheetRef.current
+    if (!el) return
+    const update = () => setFit(Math.min(1, Math.max(0.24, (el.clientWidth - 24) / 794)))
+    update()
+    const ro = new ResizeObserver(update)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
+
+  const scale = (zoom / 100) * fit
+  const isMultiPage = docHeight > pageH + 4
 
   const handleAutoFitSpacing = () => {
     if (!onDesignChange) return
@@ -144,12 +167,12 @@ export function PreviewPanel({
             {isMultiPage ? (
               <span className="flex items-center gap-1 text-amber-400 font-semibold bg-amber-400/10 border border-amber-400/30 px-2 py-0.5 rounded-full">
                 <AlertTriangle className="size-3.5" />
-                ~2 Pages ({totalWords} words)
+                ~2 pages ({totalWords} words)
               </span>
             ) : (
               <span className="flex items-center gap-1 text-emerald-400 font-semibold bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded-full">
                 <FileCheck className="size-3.5" />
-                ✓ 1 Page ({totalWords} words)
+                ✓ 1 page ({totalWords} words)
               </span>
             )}
             {isMultiPage && onDesignChange && (
@@ -159,7 +182,7 @@ export function PreviewPanel({
                 className="ml-1 rounded-md bg-amber-400/20 border border-amber-400/40 px-2 py-0.5 text-[11px] font-bold text-amber-300 hover:bg-amber-400/30 transition-colors shadow-sm"
                 title="Slightly tighten spacing and margins to keep resume on 1 page"
               >
-                ⚡ Auto-Fit 1-Page
+                <Zap className="size-3" /> Auto-Fit 1-Page
               </button>
             )}
           </div>
@@ -254,79 +277,87 @@ export function PreviewPanel({
       </div>
 
       {/* Sheet Preview Body */}
-      <div className="scroll-thin flex-1 overflow-auto p-4 sm:p-8 flex justify-center items-start">
+      <div ref={sheetRef} className="scroll-thin flex-1 overflow-auto p-4 sm:p-8">
         <div
+          className="mx-auto"
           style={{
-            transform: zoom !== 100 ? `scale(${zoom / 100})` : undefined,
-            transformOrigin: 'top center',
-            transition: 'transform 0.15s ease-out',
+            width: Math.round(794 * scale),
+            height: Math.round(paperHeight * scale),
           }}
-          className="w-full max-w-[820px]"
         >
           <div
-            ref={docRef}
-            className="relative overflow-hidden rounded-xl bg-white shadow-2xl ring-1 ring-black/5 min-h-[1123px]"
+            style={{
+              transform: scale !== 1 ? `scale(${scale})` : undefined,
+              transformOrigin: 'top left',
+              width: 794,
+            }}
           >
-            {/* Page 1 Cutoff Warning (ONLY when content overflows Page 1) */}
-            {showPageBreak && isMultiPage && (
-              <div
-                className="no-print pointer-events-none absolute left-0 right-0 z-30 flex items-center justify-between border-b-2 border-dashed border-rose-500/80 px-4 select-none opacity-90 shadow-sm"
-                style={{ top: 1123 }}
-              >
-                <span className="rounded-b bg-rose-600 px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-wider text-white shadow-md">
-                  ⚠ Page 1 Cutoff
-                </span>
-                <span className="rounded-b bg-rose-600 px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-wider text-white shadow-md">
-                  Page 2 Starts Below
-                </span>
-              </div>
-            )}
+            <div
+              ref={docRef}
+              className="relative overflow-hidden rounded-xl bg-white paper-shadow"
+              style={{ minHeight: pageH }}
+            >
+              {/* Page 1 Cutoff Warning (ONLY when content overflows Page 1) */}
+              {showPageBreak && isMultiPage && (
+                <div
+                  className="no-print pointer-events-none absolute left-0 right-0 z-30 flex items-center justify-between border-b-2 border-dashed border-rose-500/80 px-4 select-none opacity-90 shadow-sm"
+                  style={{ top: pageH }}
+                >
+                  <span className="rounded-b bg-rose-600 px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-wider text-white shadow-md">
+                    ⚠ Page 1 Cutoff
+                  </span>
+                  <span className="rounded-b bg-rose-600 px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-wider text-white shadow-md">
+                    Page 2 Starts Below
+                  </span>
+                </div>
+              )}
 
-            {/* Page 1 Safe Boundary (when content cleanly fits on Page 1) */}
-            {showPageBreak && !isMultiPage && (
-              <div
-                className="no-print pointer-events-none absolute left-0 right-0 z-30 flex items-center justify-between border-b border-dashed border-emerald-500/40 px-4 select-none opacity-60"
-                style={{ top: 1123 }}
-              >
-                <span className="rounded-b bg-emerald-700/80 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-white">
-                  ✓ Page 1 Safe Boundary
-                </span>
-                <span className="rounded-b bg-emerald-700/80 px-2 py-0.5 text-[9px] font-medium text-white">
-                  Fits on 1 Page
-                </span>
-              </div>
-            )}
+              {/* Page 1 Safe Boundary (when content cleanly fits on Page 1) */}
+              {showPageBreak && !isMultiPage && (
+                <div
+                  className="no-print pointer-events-none absolute left-0 right-0 z-30 flex items-center justify-between border-b border-dashed border-emerald-500/40 px-4 select-none opacity-60"
+                  style={{ top: pageH - 2 }}
+                >
+                  <span className="rounded-b bg-emerald-700/80 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-white">
+                    ✓ Page 1 Safe Boundary
+                  </span>
+                  <span className="rounded-b bg-emerald-700/80 px-2 py-0.5 text-[9px] font-medium text-white">
+                    Fits on 1 Page
+                  </span>
+                </div>
+              )}
 
-            {/* Page 2 Break Indicator (Height = 2246px) */}
-            {showPageBreak && isMultiPage && docHeight > 2246 && (
-              <div
-                className="no-print pointer-events-none absolute left-0 right-0 z-30 flex items-center justify-between border-b-2 border-dashed border-rose-500/70 px-4 select-none opacity-85"
-                style={{ top: 2246 }}
-              >
-                <span className="rounded-b bg-rose-600 px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-wider text-white shadow-md">
-                  --- Page 2 End ---
-                </span>
-                <span className="rounded-b bg-rose-600 px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-wider text-white shadow-md">
-                  --- Page 3 Start ---
-                </span>
-              </div>
-            )}
+              {/* Page 2 Break Indicator */}
+              {showPageBreak && isMultiPage && docHeight > 2 * pageH && (
+                <div
+                  className="no-print pointer-events-none absolute left-0 right-0 z-30 flex items-center justify-between border-b-2 border-dashed border-rose-500/70 px-4 select-none opacity-85"
+                  style={{ top: 2 * pageH }}
+                >
+                  <span className="rounded-b bg-rose-600 px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-wider text-white shadow-md">
+                    --- Page 2 End ---
+                  </span>
+                  <span className="rounded-b bg-rose-600 px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-wider text-white shadow-md">
+                    --- Page 3 Start ---
+                  </span>
+                </div>
+              )}
 
-            <ResumeDocument
-              data={rendered}
-              template={template}
-              theme={THEMES.find((t) => t.id === theme) ?? THEMES[0]}
-              design={design}
-              isEditable={true}
-              onChange={onChange}
-              openPhotoEditor={() => setPhotoEditorOpen(true)}
-            />
+              <ResumeDocument
+                data={rendered}
+                template={template}
+                theme={THEMES.find((t) => t.id === theme) ?? THEMES[0]}
+                design={design}
+                isEditable={true}
+                onChange={onChange}
+                openPhotoEditor={() => setPhotoEditorOpen(true)}
+              />
+            </div>
           </div>
         </div>
       </div>
 
       {/* Hidden print renderer for pixel-perfect standard A4/Letter prints */}
-      <PrintSheet>
+      <PrintSheet pageSize={design.pageSize}>
         <ResumeDocument
           data={rendered}
           template={template}

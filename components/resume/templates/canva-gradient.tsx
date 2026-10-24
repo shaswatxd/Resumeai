@@ -15,7 +15,7 @@ export function CanvaGradientTemplate({ data, theme }: TP) {
       <header
         className="relative flex flex-col items-center justify-center p-8 text-center text-white"
         style={{
-          background: 'linear-gradient(135deg, var(--doc-accent) 0%, #3b82f6 50%, #8b5cf6 100%)',
+          background: 'linear-gradient(135deg, var(--doc-accent) 0%, color-mix(in srgb, var(--doc-accent) 60%, #7c3aed) 55%, color-mix(in srgb, var(--doc-accent) 40%, #7c3aed) 100%)',
           paddingBottom: '3.5rem',
         }}
       >

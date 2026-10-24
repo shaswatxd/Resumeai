@@ -261,16 +261,53 @@ export const DEFAULT_DESIGN_SETTINGS: DesignSettings = {
   colorMode: 'light',
 }
 
+/*
+ * Single source of truth for the 8 structural readiness checks.
+ * Used by the builder header badge and preview pill; the ATS auditor panel
+ * renders the same conditions (with hints) so every surface shows the
+ * same number. JD keyword matching is a separate, clearly-labeled score
+ * in the auditor and is NOT merged here.
+ */
+export function calculateStructuralChecks(d: ResumeData): { label: string; pass: boolean }[] {
+  const text = [
+    d.fullName,
+    d.role,
+    d.summary,
+    ...d.experience.flatMap((e) => [e.role, e.company, ...e.bullets]),
+    ...d.education.map((e) => `${e.degree} ${e.school} ${e.detail}`),
+    ...d.skills,
+    ...d.projects.map((p) => `${p.name} ${p.tech} ${p.description}`),
+    ...d.certifications.map((c) => `${c.name} ${c.issuer}`),
+    ...d.achievements,
+  ]
+    .join(' ')
+    .toLowerCase()
+  const totalWords = text.split(/\s+/).filter(Boolean).length
+
+  const bullets = d.experience.flatMap((e) => e.bullets).filter((b) => b.trim())
+  const quantified = bullets.filter((b) => /\d|%|\$|₹|k|m/i.test(b))
+  const verbStarts = bullets.filter((b) =>
+    /^(led|built|architected|designed|developed|launched|shipped|created|improved|optimized|reduced|increased|drove|managed|mentored|migrated|automated|delivered|implemented|scaled|owned|spearheaded|established|streamlined|negotiated|analyzed|engineered|founded|grew|won|achieved|transformed|modernized|accelerated|championed|orchestrated|pioneered|constructed|formulated|delegated|mobilized)/i.test(
+      b.trim(),
+    ),
+  )
+  const summaryWords = d.summary.trim().split(/\s+/).filter(Boolean).length
+
+  return [
+    { label: 'Complete contact details', pass: Boolean(d.email?.trim() && d.phone?.trim() && (d.linkedin?.trim() || d.website?.trim() || d.github?.trim())) },
+    { label: 'Focused summary (30–90 words)', pass: summaryWords >= 30 && summaryWords <= 90 },
+    { label: 'Experience with 3+ bullets', pass: d.experience.length > 0 && bullets.length >= 3 },
+    { label: 'Quantified bullets (≥ 40%)', pass: bullets.length > 0 && quantified.length / bullets.length >= 0.4 },
+    { label: 'Action-verb openers (≥ 60%)', pass: bullets.length > 0 && verbStarts.length / bullets.length >= 0.6 },
+    { label: '6+ relevant skills', pass: d.skills.length >= 6 },
+    { label: 'Education listed', pass: d.education.length > 0 },
+    { label: 'Length in range (250–800 words)', pass: totalWords >= 250 && totalWords <= 800 },
+  ]
+}
+
 export function calculateAtsScore(d: ResumeData): number {
-  let score = 0
-  if (d.fullName?.trim()) score += 15
-  if (d.role?.trim()) score += 15
-  if (d.email?.trim() && d.phone?.trim()) score += 15
-  if (d.summary && d.summary.length > 30) score += 15
-  if (d.experience && d.experience.length >= 1 && d.experience.some((e) => e.bullets?.length)) score += 20
-  if (d.education && d.education.length >= 1) score += 10
-  if (d.skills && d.skills.length >= 4) score += 10
-  return Math.min(100, score)
+  const checks = calculateStructuralChecks(d)
+  return Math.round((checks.filter((c) => c.pass).length / checks.length) * 100)
 }
 
 export function isSectionVisible(design: DesignSettings, id: SectionId) {

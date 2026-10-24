@@ -214,9 +214,9 @@ export function AtsPanel({
               <Gauge className="size-4" />
             </span>
             <div>
-              <h2 className="text-sm font-semibold">ATS Intelligence Auditor</h2>
+              <h2 className="text-sm font-semibold">Readiness Auditor</h2>
               <p className="text-[11px] text-muted-foreground">
-                Instant offline recruiter readiness & JD keyword matching
+                8-point structure check, offline · optional JD keyword match
               </p>
             </div>
           </div>
@@ -265,16 +265,19 @@ export function AtsPanel({
             <div>
               <p className="text-sm font-semibold">
                 {score >= 80
-                  ? '🚀 Excellent — Recruiter Ready'
+                  ? 'Strong structure — ready to send'
                   : score >= 55
-                    ? '⚡ Decent — Great Potential'
-                    : '⚠️ Needs Optimization'}
+                    ? 'Decent — polish the flagged checks'
+                    : 'Needs work — start with the checklist'}
               </p>
               <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
                 {passCount}/{checks.length} structure checks passed
                 {keywordScore !== null && (
                   <> · <strong>{keywordScore}%</strong> JD keyword match</>
                 )}
+              </p>
+              <p className="mt-1.5 text-[11px] leading-relaxed text-muted-foreground/80">
+                A heuristic — not a guarantee of how any specific ATS will read your resume.
               </p>
               {onOpenLibrary && (
                 <Button
@@ -319,29 +322,42 @@ export function AtsPanel({
             </div>
           </div>
 
-          {/* Structure Checklist */}
+          {/* Structure Checklist — grouped by category */}
           <h3 className="mb-2 mt-6 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-            Structure & Readiness Checklist
+            Structure & readiness checklist
           </h3>
-          <div className="flex flex-col gap-1.5">
-            {checks.map((c) => (
-              <div
-                key={c.label}
-                className="flex items-start gap-2.5 rounded-lg border border-border bg-secondary/20 px-3 py-2"
-              >
-                {c.pass ? (
-                  <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-emerald-400" />
-                ) : (
-                  <XCircle className="mt-0.5 size-4 shrink-0 text-red-400" />
-                )}
-                <div>
-                  <p className="text-sm font-medium">{c.label}</p>
-                  {!c.pass && (
-                    <p className="text-xs text-muted-foreground">{c.hint}</p>
-                  )}
+          <div className="flex flex-col gap-2.5">
+            {(['Structure', 'Content', 'Impact'] as const).map((cat) => {
+              const catChecks = checks.filter((c) => c.category === cat)
+              if (catChecks.length === 0) return null
+              return (
+                <div key={cat}>
+                  <p className="mb-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/70">
+                    {cat}
+                  </p>
+                  <div className="flex flex-col gap-1.5">
+                    {catChecks.map((c) => (
+                      <div
+                        key={c.label}
+                        className="flex items-start gap-2.5 rounded-lg border border-border bg-secondary/20 px-3 py-2"
+                      >
+                        {c.pass ? (
+                          <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-emerald-400" />
+                        ) : (
+                          <XCircle className="mt-0.5 size-4 shrink-0 text-red-400" />
+                        )}
+                        <div>
+                          <p className="text-sm font-medium">{c.label}</p>
+                          {!c.pass && (
+                            <p className="text-xs text-muted-foreground">{c.hint}</p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
 
           {/* JD Matching section */}
@@ -393,6 +409,10 @@ export function AtsPanel({
                       </button>
                     ))}
                   </div>
+                  <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground/80">
+                    Only add keywords for skills you genuinely have — padding a skills list
+                    is easy for a recruiter to spot in an interview.
+                  </p>
                 </div>
               )}
               {matched.length > 0 && (

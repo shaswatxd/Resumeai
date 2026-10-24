@@ -4,6 +4,7 @@ import type { TP } from '@/components/resume/blocks'
 import { ContactRow } from '@/components/resume/blocks'
 import { EditableText } from '@/components/resume/editable'
 import { useResumeEdit } from '@/components/resume/resume-context'
+import { isSectionVisible } from '@/lib/resume-types'
 import { SectionList } from '@/lib/section-registry'
 
 /* Terminal — a macOS-style terminal window for a header (traffic-light
@@ -45,14 +46,16 @@ export function DeveloperTemplate({ data, theme }: TP) {
         className="flex flex-col bg-white"
         style={{ padding: 'var(--doc-margin)', gap: 'var(--doc-section-gap)' }}
       >
-        <EditableText
-          as="p"
-          className="text-slate-600"
-          value={data.summary}
-          placeholder="A short professional summary…"
-          multiline
-          onChange={(v) => update((d) => ({ ...d, summary: v }))}
-        />
+        {isSectionVisible(design, 'summary') && (
+          <EditableText
+            as="p"
+            className="text-slate-600"
+            value={data.summary}
+            placeholder="A short professional summary…"
+            multiline
+            onChange={(v) => update((d) => ({ ...d, summary: v }))}
+          />
+        )}
 
         <div className="flex flex-col" style={{ gap: 'var(--doc-section-gap)' }}>
           <SectionList data={data} theme={theme} design={design} S={CodeSection} skip={['summary']} />

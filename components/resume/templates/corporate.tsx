@@ -5,6 +5,7 @@ import { ContactRow } from '@/components/resume/blocks'
 import { ClassicSection } from '@/components/resume/blocks'
 import { EditableText } from '@/components/resume/editable'
 import { useResumeEdit } from '@/components/resume/resume-context'
+import { isSectionVisible } from '@/lib/resume-types'
 import { SectionList } from '@/lib/section-registry'
 
 /* Corporate Boardroom — full-width accent band carrying the name and role in
@@ -51,16 +52,18 @@ export function CorporateTemplate({ data, theme }: TP) {
         className="flex flex-col"
         style={{ padding: 'var(--doc-margin)', gap: 'var(--doc-section-gap)' }}
       >
-        <ClassicSection title="Summary" theme={theme}>
-          <EditableText
-            as="p"
-            className="text-slate-600"
-            value={data.summary}
-            placeholder="A concise summary of your professional track record…"
-            multiline
-            onChange={(v) => update((d) => ({ ...d, summary: v }))}
-          />
-        </ClassicSection>
+        {isSectionVisible(design, 'summary') && (
+          <ClassicSection title="Summary" theme={theme}>
+            <EditableText
+              as="p"
+              className="text-slate-600"
+              value={data.summary}
+              placeholder="A concise summary of your professional track record…"
+              multiline
+              onChange={(v) => update((d) => ({ ...d, summary: v }))}
+            />
+          </ClassicSection>
+        )}
 
         <div className="flex flex-col" style={{ gap: 'var(--doc-section-gap)' }}>
           <SectionList

@@ -5,6 +5,7 @@ import { ContactRow, Photo, Section } from '@/components/resume/blocks'
 import { EditableText } from '@/components/resume/editable'
 import { useResumeEdit } from '@/components/resume/resume-context'
 import { SectionList } from '@/lib/section-registry'
+import { isSectionVisible } from '@/lib/resume-types'
 
 /* Modern Edge — geometric photo, bold name, accent underline rule. */
 export function ModernTemplate({ data, theme }: TP) {
@@ -42,14 +43,16 @@ export function ModernTemplate({ data, theme }: TP) {
       </header>
       <div className="h-[3px] w-full rounded-full" style={{ background: 'var(--doc-accent)' }} />
 
-      <EditableText
-        as="p"
-        className="text-slate-600"
-        value={data.summary}
-        placeholder="A short, punchy professional summary…"
-        multiline
-        onChange={(v) => update((d) => ({ ...d, summary: v }))}
-      />
+      {isSectionVisible(design, 'summary') && (
+        <EditableText
+          as="p"
+          className="text-slate-600"
+          value={data.summary}
+          placeholder="A short, punchy professional summary…"
+          multiline
+          onChange={(v) => update((d) => ({ ...d, summary: v }))}
+        />
+      )}
 
       <div className="flex flex-col" style={{ gap: 'var(--doc-section-gap)' }}>
         <SectionList data={data} theme={theme} design={design} S={Section} skip={['summary']} />

@@ -17,7 +17,7 @@ export function CanvaExecutiveTemplate({ data, theme }: TP) {
       style={{ lineHeight: 'var(--doc-line-height)' }}
     >
       <header
-        className="flex items-center justify-between border-b-2 border-amber-500/40 bg-slate-900 px-8 py-6 text-white"
+        className="flex items-center justify-between border-b-2 border-amber-500/40 bg-slate-900 text-white"
         style={{ padding: 'var(--doc-margin)' }}
       >
         <div className="flex flex-col">

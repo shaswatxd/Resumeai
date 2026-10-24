@@ -55,7 +55,7 @@ export function CanvaCoralTemplate({ data, theme }: TP) {
 
 function CoralSection({ title, children }: { title: string; theme: unknown; children: React.ReactNode }) {
   return (
-    <section className="rounded-xl border border-slate-150 bg-white p-4 shadow-sm">
+    <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
       <h2 className="mb-2.5 flex items-center justify-between border-b border-rose-100 pb-1.5 text-[11.5px] font-bold uppercase tracking-widest text-slate-900">
         <span>{title}</span>
         <span className="h-1.5 w-6 rounded-full" style={{ background: 'var(--doc-accent)' }} />

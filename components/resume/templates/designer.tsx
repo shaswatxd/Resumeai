@@ -4,6 +4,7 @@ import type { TP } from '@/components/resume/blocks'
 import { ContactRow, Photo } from '@/components/resume/blocks'
 import { EditableText } from '@/components/resume/editable'
 import { useResumeEdit } from '@/components/resume/resume-context'
+import { isSectionVisible } from '@/lib/resume-types'
 import { SectionList } from '@/lib/section-registry'
 
 /* Portfolio Grid — every section lives inside its own bordered, rounded
@@ -46,16 +47,18 @@ export function DesignerTemplate({ data, theme }: TP) {
         </div>
       </header>
 
-      <div className="border border-slate-200 p-4 shadow-sm" style={{ borderRadius: 'var(--doc-radius)' }}>
-        <EditableText
-          as="p"
-          className="text-slate-600"
-          value={data.summary}
-          placeholder="A short professional summary…"
-          multiline
-          onChange={(v) => update((d) => ({ ...d, summary: v }))}
-        />
-      </div>
+      {isSectionVisible(design, 'summary') && (
+        <div className="border border-slate-200 p-4 shadow-sm" style={{ borderRadius: 'var(--doc-radius)' }}>
+          <EditableText
+            as="p"
+            className="text-slate-600"
+            value={data.summary}
+            placeholder="A short professional summary…"
+            multiline
+            onChange={(v) => update((d) => ({ ...d, summary: v }))}
+          />
+        </div>
+      )}
 
       <div className="flex flex-col" style={{ gap: 'var(--doc-section-gap)' }}>
         <SectionList data={data} theme={theme} design={design} S={CardSection} skip={['summary']} />

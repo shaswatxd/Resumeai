@@ -17,7 +17,6 @@ function providerChain(): { name: string; model: LanguageModel }[] {
     const groq = createGroq({ apiKey: groqKey })
     // Active high-performance and multilingual Groq models
     chain.push({ name: 'groq-gpt-oss-120b', model: groq('openai/gpt-oss-120b') })
-    chain.push({ name: 'groq-qwen3.8-27b', model: groq('qwen/qwen3.8-27b') })
     chain.push({ name: 'groq-gpt-oss-20b', model: groq('openai/gpt-oss-20b') })
     chain.push({ name: 'groq-compound-mini', model: groq('groq/compound-mini') })
     chain.push({ name: 'groq-compound', model: groq('groq/compound') })
@@ -77,7 +76,7 @@ function fallbackBiodataAbout(b: NonNullable<Body['biodataContext']>) {
       }
     } else {
       return {
-        aboutMe: `${name ? `${name} ` : ''}एक सुलझे हुए, सकारात्मक और पारिवारिक मूल्यों के साथ आधुनिक सोच का सुंदर संतुलन रखने वाले ${isFemale ? 'इंसान' : 'इंसान'} हैं। ${edu ? `${edu} की शिक्षा प्राप्त कर ` : ''}वर्तमान में ${occ}${comp ? ` में` : ''} सेवारत हैं। कार्य के प्रति निष्ठा और परिवार के प्रति अगाध प्रेम इनके स्वभाव का मुख्य हिस्सा है।${hobbies ? ` इन्हें ${hobbies} में विशेष रुचि है।` : ''}`,
+        aboutMe: `${name ? `${name} ` : ''}सुलझे हुए, सकारात्मक और पारिवारिक मूल्यों के साथ आधुनिक सोच का सुंदर संतुलन रखने ${isFemale ? 'वाली युवती' : 'वाले व्यक्ति'} हैं। ${edu ? `${edu} की शिक्षा प्राप्त कर ` : ''}वर्तमान में ${occ}${comp ? ` में` : ''} सेवारत हैं। कार्य के प्रति निष्ठा और परिवार के प्रति अगाध प्रेम इनके स्वभाव का मुख्य हिस्सा है।${hobbies ? ` इन्हें ${hobbies} में विशेष रुचि है।` : ''}`,
         partnerExpectations: `एक ${isFemale ? 'ऐसे सुशिक्षित, स्नेही और जीवन के प्रति व्यावहारिक दृष्टिकोण रखने वाले साथी' : 'ऐसी सुशिक्षित, स्नेही और जीवन के प्रति व्यावहारिक दृष्टिकोण रखने वाली साथी'} की तलाश है, जो परिवार के साथ तालमेल बनाए रखे और जीवन की नई शुरुआत में सच्चे मित्र साबित हों।`,
       }
     }
@@ -267,18 +266,12 @@ export async function POST(req: Request) {
       } catch (err) {
         console.warn('[ai] enhance-all LLM failed, using fallback:', err)
       }
-      const role = context?.role || 'Professional'
-      return Response.json({
-        summary: `Accomplished ${role} recognized for driving cross-functional efficiency, architectural excellence, and customer-focused product delivery. Adept at leveraging modern methodologies to streamline operations and scale business impact.`,
-        experience: (context?.experience ?? []).map((e) => ({
-          id: (e as { id?: string }).id || '',
-          bullets: [
-            `Spearheaded the design and delivery of key ${e.role || role} deliverables, improving operational efficiency by 26%.`,
-            `Collaborated closely with cross-functional stakeholders at ${e.company || 'the team'} to accelerate sprint delivery and reduce roadblocks.`,
-            `Engineered scalable processes and standardized quality benchmarks, decreasing turnaround time by 30%.`,
-          ],
-        })),
-      })
+      // No fabricated content on failure — the client keeps the user's real
+      // bullets and surfaces an honest "AI unavailable" message instead.
+      return Response.json(
+        { error: 'AI provider unavailable.' },
+        { status: 503 },
+      )
     }
 
     if (action === 'bullets') {
@@ -298,14 +291,13 @@ export async function POST(req: Request) {
       } catch (err) {
         console.warn('[ai] bullets LLM failed, using fallback:', err)
       }
-      const role = context?.role || 'role deliverables'
-      return Response.json({
-        bullets: [
-          `Spearheaded key initiatives for ${role}, improving delivery speed and operational efficiency by 28%.`,
-          `Engineered scalable solutions and streamlined core workflows, reducing errors and technical turnaround time by 35%.`,
-          `Collaborated with cross-functional leadership to define project milestones, delivering high-impact results on schedule.`,
-        ],
-      })
+      // No fabricated achievements on failure — rewriting the user's own
+      // bullets with invented metrics would be dishonest. Return an error so
+      // the UI keeps their original text.
+      return Response.json(
+        { error: 'AI provider unavailable.' },
+        { status: 503 },
+      )
     }
 
     if (action === 'skills') {
@@ -349,8 +341,12 @@ export async function POST(req: Request) {
         return Response.json({ text: text.trim() })
       } catch (err) {
         console.warn('[ai] ats LLM failed, using fallback:', err)
-        const fallbackATS = `SCORE: 85\nVERDICT: Strong ATS readiness with clean formatting and high keyword relevance.\nSTRENGTHS:\n- Clear career progression and well-structured experience sections\n- Strong technical and role-specific keywords highlighted\nIMPROVEMENTS:\n- Increase quantifiable metrics using Google XYZ formula (e.g., % growth, latency saved)\n- Tailor summary section to match specific job posting keywords\n- Ensure all bullet points begin with high-impact action verbs\nMISSING_KEYWORDS: none`
-        return Response.json({ text: fallbackATS })
+        /* A fake "SCORE: 85" report reads as analysis but is fiction. Fail
+           honestly instead — the local auditor panel always works offline. */
+        return Response.json(
+          { error: 'AI provider unavailable — use the local readiness auditor instead.' },
+          { status: 503 },
+        )
       }
     }
 
@@ -391,7 +387,9 @@ export async function POST(req: Request) {
         const company = body.company || 'your team'
         const skills = context?.skills?.slice(0, 4).join(', ') || 'strategic problem solving and operational execution'
         const fallbackLetter = `Dear Hiring Team,\n\nI am writing to express my enthusiastic interest in the ${role} position at ${company}. With a strong background in ${skills}, I have consistently delivered scalable solutions and led cross-functional initiatives that drive measurable impact.\n\nThroughout my career, I have focused on optimizing core workflows, collaborating closely with key stakeholders, and elevating technical standards to solve complex challenges. I am inspired by ${company}'s forward-looking mission and would welcome the opportunity to bring my proven experience to your team.\n\nThank you for your consideration. I look forward to discussing how my skill set aligns with your strategic goals.\n\nSincerely,\n${context?.name || 'Applicant'}`
-        return Response.json({ text: fallbackLetter })
+        /* `fallback: true` tells the UI to disclose that no AI wrote this —
+           it is a plain local template. */
+        return Response.json({ text: fallbackLetter, fallback: true })
       }
     }
 

@@ -2,12 +2,12 @@
 
 Free AI resume builder — live: **[resumeaihai.vercel.app](https://resumeaihai.vercel.app)**
 
-Build a standout resume in minutes: live A4 preview, 12 professional templates, real AI writing help, ATS scoring with job-description matching, AI cover letters, and one-click PDF export. No sign-up — everything saves in your browser.
+Build a standout resume in minutes: live A4/Letter preview, 15 professional templates, real AI writing help, ATS scoring with job-description matching, AI cover letters, and one-click PDF export. No sign-up — everything saves in your browser.
 
 ## Features
 
 - **Live preview** — every edit rendered instantly on a pixel-perfect A4 sheet
-- **12 templates** — Dark Glass, Classic Pro, Minimal, Sidebar, Banded, Executive, Modern Split, Compact, Elegant, Timeline, Bold Type, Tech Mono
+- **15 templates** — Luxury Gold, Emerald Suite, Coral Luxe, ATS Pro, Modern Edge, Corporate Suite, Minimal, Elegant, Designer, Developer + 5 creative canva-style layouts
 - **10 accent colors** + font size and line-spacing controls
 - **Real AI (Groq → Gemini → Cerebras fallback chain)**
   - Generate professional summary from your profile

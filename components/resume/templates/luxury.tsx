@@ -5,6 +5,7 @@ import type { TP } from '@/components/resume/blocks'
 import { ContactRow, Photo } from '@/components/resume/blocks'
 import { EditableText } from '@/components/resume/editable'
 import { useResumeEdit } from '@/components/resume/resume-context'
+import { isSectionVisible } from '@/lib/resume-types'
 import { SectionList } from '@/lib/section-registry'
 
 /* Refined, small-caps letter-spaced heading with a thin top rule instead
@@ -69,14 +70,16 @@ export function LuxuryTemplate({ data, theme }: TP) {
         className="mx-auto flex w-full max-w-[85%] flex-col"
         style={{ padding: 'var(--doc-margin)', gap: 'var(--doc-section-gap)' }}
       >
-        <EditableText
-          as="p"
-          className="text-center text-slate-600"
-          value={data.summary}
-          placeholder="A refined, understated summary of your career…"
-          multiline
-          onChange={(v) => update((d) => ({ ...d, summary: v }))}
-        />
+        {isSectionVisible(design, 'summary') && (
+          <EditableText
+            as="p"
+            className="text-center text-slate-600"
+            value={data.summary}
+            placeholder="A refined, understated summary of your career…"
+            multiline
+            onChange={(v) => update((d) => ({ ...d, summary: v }))}
+          />
+        )}
         <SectionList data={data} theme={theme} design={design} S={RefinedSection} skip={['summary']} />
       </div>
     </div>

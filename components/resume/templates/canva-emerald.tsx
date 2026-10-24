@@ -20,7 +20,7 @@ export function CanvaEmeraldTemplate({ data, theme }: TP) {
       <aside
         className="col-span-4 flex flex-col p-6 text-white"
         style={{
-          background: 'linear-gradient(180deg, var(--doc-accent) 0%, #064e3b 100%)',
+          background: 'linear-gradient(180deg, var(--doc-accent) 0%, color-mix(in srgb, var(--doc-accent) 35%, #052e26) 100%)',
           gap: 'var(--doc-section-gap)',
         }}
       >

@@ -58,8 +58,8 @@ export function BulletLibraryModal({ open, onClose, onApplyData }: Props) {
           experience: [
             {
               id: uid('exp'),
-              role: 'Software Engineer',
-              company: 'Company Name',
+              role: '[Your Role]',
+              company: '[Your Company]',
               start: '2022',
               end: 'Present',
               bullets: [bullet],
@@ -77,8 +77,7 @@ export function BulletLibraryModal({ open, onClose, onApplyData }: Props) {
         experience: updated,
       }
     })
-    handleCopy(bullet)
-    showToast('Added bullet to your resume!')
+    showToast('Bullet added to your first experience entry — edit it freely.')
   }
 
   const handleApplyRoleComplete = (role: { title: string; summary: string; bullets: string[]; skills: string[] }) => {
@@ -92,7 +91,7 @@ export function BulletLibraryModal({ open, onClose, onApplyData }: Props) {
         {
           id: uid('exp'),
           role: role.title,
-          company: 'Leading Enterprise Inc.',
+          company: '[Your Company]',
           start: '2022',
           end: 'Present',
           bullets: role.bullets,
@@ -100,7 +99,7 @@ export function BulletLibraryModal({ open, onClose, onApplyData }: Props) {
         ...prev.experience,
       ],
     }))
-    showToast(`Loaded "${role.title}" preset & bullets!`)
+    showToast(`"${role.title}" examples added — replace every placeholder with your real details.`)
   }
 
   const filteredCategories = useMemo(() => {
@@ -149,14 +148,11 @@ export function BulletLibraryModal({ open, onClose, onApplyData }: Props) {
               <BookOpen className="size-5" />
             </span>
             <div>
-              <h2 className="text-sm font-semibold flex items-center gap-1.5">
-                Pro Bullet & Phrase Library
-                <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-bold text-emerald-400">
-                  Offline Ready
-                </span>
+              <h2 className="text-sm font-semibold">
+                Bullet &amp; Phrase Library
               </h2>
               <p className="text-[11px] text-muted-foreground">
-                Recruiter-tested bullet points, power verbs & metric formulas
+                Example bullets, action verbs & metric formulas — edit everything after inserting
               </p>
             </div>
           </div>
@@ -281,7 +277,7 @@ export function BulletLibraryModal({ open, onClose, onApplyData }: Props) {
                           onClick={() => handleApplyRoleComplete(role)}
                         >
                           <Sparkles className="mr-1 size-3.5" />
-                          Apply Full Role
+                          Apply examples
                         </Button>
                       )}
                     </div>

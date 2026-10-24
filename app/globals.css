@@ -7,6 +7,7 @@
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
   --font-serif: var(--font-fraunces), ui-serif, Georgia, serif;
+  --font-display: var(--font-fraunces), ui-serif, Georgia, serif;
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -36,37 +37,39 @@
 
 :root {
   color-scheme: dark;
-  --radius: 0.875rem;
+  --radius: 0.625rem;
 
-  /* Dark Glass — deep violet-tinted near-black */
-  --background: oklch(0.16 0.02 285);
-  --foreground: oklch(0.97 0.005 285);
+  /* Graphite ink — desaturated near-black, no color cast.
+     The chrome recedes so the white resume paper reads as the product. */
+  --background: oklch(0.165 0.004 260);
+  --foreground: oklch(0.965 0.003 260);
 
-  --card: oklch(0.21 0.025 285);
-  --card-foreground: oklch(0.97 0.005 285);
+  --card: oklch(0.212 0.004 260);
+  --card-foreground: oklch(0.965 0.003 260);
 
-  --popover: oklch(0.19 0.025 285);
-  --popover-foreground: oklch(0.97 0.005 285);
+  --popover: oklch(0.192 0.004 260);
+  --popover-foreground: oklch(0.965 0.003 260);
 
-  /* Violet primary accent */
-  --primary: oklch(0.62 0.2 292);
-  --primary-foreground: oklch(0.99 0 0);
+  /* Brass ink accent — warm, restrained, ties to printed-document craft.
+     Used sparingly: primary actions, focus rings, active states only. */
+  --primary: oklch(0.8 0.09 85);
+  --primary-foreground: oklch(0.22 0.02 85);
 
-  --secondary: oklch(0.26 0.03 285);
-  --secondary-foreground: oklch(0.97 0.005 285);
+  --secondary: oklch(0.26 0.005 260);
+  --secondary-foreground: oklch(0.965 0.003 260);
 
-  --muted: oklch(0.26 0.025 285);
-  --muted-foreground: oklch(0.68 0.02 285);
+  --muted: oklch(0.26 0.005 260);
+  --muted-foreground: oklch(0.7 0.004 260);
 
-  --accent: oklch(0.3 0.06 292);
-  --accent-foreground: oklch(0.97 0.005 285);
+  --accent: oklch(0.28 0.015 85);
+  --accent-foreground: oklch(0.95 0.03 85);
 
   --destructive: oklch(0.62 0.21 25);
   --destructive-foreground: oklch(0.99 0 0);
 
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 12%);
-  --ring: oklch(0.62 0.2 292);
+  --ring: oklch(0.8 0.09 85);
 }
 
 @layer base {
@@ -83,43 +86,70 @@
     max-width: 100vw;
     overflow-x: hidden;
   }
+  /* Fluid readability floor: body copy stays legible on phones. */
+  h1,
+  h2,
+  h3,
+  h4 {
+    text-wrap: balance;
+  }
+
+  /* Respect users who prefer reduced motion — also softens framer-motion
+     springs driven by CSS transitions. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
 }
 
 @layer utilities {
-  .glass {
-    background: oklch(0.22 0.03 285 / 55%);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
+  /* Solid elevated surface — replaced the old translucent glass treatment */
+  .surface-raised {
+    background: oklch(0.212 0.004 260);
+    box-shadow: 0 1px 0 0 oklch(1 0 0 / 6%) inset, 0 8px 30px -12px oklch(0 0 0 / 55%);
   }
-  .bg-studio-grid {
-    background-image: radial-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px);
-    background-size: 24px 24px;
-  }
-  .glow-border {
-    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1), 0 12px 32px -8px rgba(0, 0, 0, 0.5);
+  .paper-shadow {
+    box-shadow:
+      0 1px 2px oklch(0 0 0 / 18%),
+      0 12px 40px -12px oklch(0 0 0 / 55%),
+      0 0 0 1px oklch(0 0 0 / 8%);
   }
   .sheet-shadow {
-    box-shadow: 0 35px 90px -15px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.12);
+    box-shadow:
+      0 1px 2px oklch(0 0 0 / 20%),
+      0 24px 60px -18px oklch(0 0 0 / 55%),
+      0 0 0 1px oklch(1 0 0 / 10%);
   }
   .scroll-thin {
     scrollbar-width: thin;
-    scrollbar-color: oklch(0.5 0.05 292 / 40%) transparent;
+    scrollbar-color: oklch(0.55 0.01 260 / 40%) transparent;
   }
   .scroll-thin::-webkit-scrollbar {
     width: 8px;
     height: 8px;
   }
   .scroll-thin::-webkit-scrollbar-thumb {
-    background: oklch(0.5 0.05 292 / 35%);
+    background: oklch(0.55 0.01 260 / 35%);
     border-radius: 999px;
   }
   .scroll-thin::-webkit-scrollbar-thumb:hover {
-    background: oklch(0.55 0.08 292 / 55%);
+    background: oklch(0.6 0.01 260 / 55%);
+  }
+  .text-balance {
+    text-wrap: balance;
   }
 }
 
 /* Print: a body-level .print-sheet copy is the only thing that prints.
-   On screen it is display:none; in print everything else is display:none. */
+   On screen it is display:none; in print everything else is display:none.
+   The @page size (A4 vs Letter) is injected per-instance by PrintSheet;
+   the static rule below is the A4 default. */
 .print-sheet {
   display: none;
 }
@@ -149,6 +179,37 @@
   }
   .no-print {
     display: none !important;
+  }
+
+  /* ---- Document pagination quality ----
+     Keep individual list items intact and stop section headings from
+     being stranded at the bottom of a page. Applied only to the printed
+     resume paper so app chrome is unaffected. */
+  .print-sheet .resume-page {
+    overflow: visible !important;
+  }
+  .print-sheet .resume-page h2,
+  .print-sheet .resume-page h3 {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+  .print-sheet .resume-page li,
+  .print-sheet .resume-page p,
+  .print-sheet .resume-page .r-item,
+  .print-sheet .resume-page .r-section-header {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  /* The full-bleed header (photo/name/contact band) should never split. */
+  .print-sheet .resume-page > div:first-child,
+  .print-sheet .resume-page > header:first-child {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  /* Sidebar grids: keep template scaffolding together when it fits. */
+  .print-sheet .resume-page .r-keep {
+    break-inside: avoid;
+    page-break-inside: avoid;
   }
 }
 

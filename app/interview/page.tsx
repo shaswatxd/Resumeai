@@ -24,6 +24,7 @@ import {
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/field'
+import { PrintSheet } from '@/components/print-sheet'
 import { cn } from '@/lib/utils'
 import { EMPTY_DATA, SAMPLE_DATA, type ResumeData } from '@/lib/resume-types'
 
@@ -281,10 +282,10 @@ export default function InterviewPrepPage() {
         <div className="flex items-center gap-2 overflow-x-auto py-5 border-b border-border/60">
           {[
             { id: 'all', label: 'All Questions' },
-            { id: 'resume-specific', label: '🎯 Resume-Specific' },
-            { id: 'behavioral', label: '🧠 Behavioral & Conflict' },
-            { id: 'technical', label: '⚙️ Technical Depth' },
-            { id: 'leadership', label: '👑 Leadership & Mentorship' },
+            { id: 'resume-specific', label: 'Resume-Specific' },
+            { id: 'behavioral', label: 'Behavioral & Conflict' },
+            { id: 'technical', label: 'Technical Depth' },
+            { id: 'leadership', label: 'Leadership & Mentorship' },
           ].map((cat) => (
             <button
               key={cat.id}
@@ -410,6 +411,41 @@ export default function InterviewPrepPage() {
           })}
         </div>
       </div>
+
+      {/* Print cheat sheet — rendered only in print media by the body-level
+          PrintSheet mechanism; the app chrome is hidden automatically. */}
+      <PrintSheet>
+        <div className="px-12 py-10 text-slate-900">
+          <h1 className="mb-1 text-xl font-bold">
+            STAR Interview Cheat Sheet — {resumeData.fullName || 'Candidate'}
+          </h1>
+          <p className="mb-6 text-xs text-slate-500">
+            {resumeData.role || 'Candidate'} · Prepared with ResumeAI
+          </p>
+          <div className="flex flex-col gap-6">
+            {questions.map((q, idx) => (
+              <div key={q.id} style={{ breakInside: 'avoid' }}>
+                <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                  {idx + 1}. {q.category.replace('-', ' ')}
+                </p>
+                <p className="text-sm font-semibold text-slate-900">{q.question}</p>
+                <div className="mt-1 text-xs leading-relaxed text-slate-600">
+                  <p><strong className="text-slate-800">Situation:</strong> {q.starGuide.situation}</p>
+                  <p><strong className="text-slate-800">Task:</strong> {q.starGuide.task}</p>
+                  <p><strong className="text-slate-800">Action:</strong> {q.starGuide.action}</p>
+                  <p><strong className="text-slate-800">Result:</strong> {q.starGuide.result}</p>
+                </div>
+                {userNotes[q.id]?.trim() ? (
+                  <p className="mt-1 text-xs leading-relaxed text-slate-700">
+                    <strong className="text-slate-800">My notes:</strong>{' '}
+                    <span className="whitespace-pre-wrap">{userNotes[q.id]}</span>
+                  </p>
+                ) : null}
+              </div>
+            ))}
+          </div>
+        </div>
+      </PrintSheet>
     </main>
   )
 }

@@ -24,7 +24,6 @@ const SECTION_GAP: Record<DesignSettings['sectionSpacing'], string> = { compact:
 const PAGE_MARGIN: Record<DesignSettings['pageMargin'], string> = { narrow: '22px', normal: '36px', wide: '54px' }
 const RADIUS: Record<DesignSettings['borderRadius'], string> = { none: '0px', soft: '8px', rounded: '18px' }
 const PHOTO_RADIUS: Record<DesignSettings['photoShape'], string> = { circle: '9999px', rounded: '20%', square: '4px' }
-const PAGE_ASPECT: Record<DesignSettings['pageSize'], string> = { a4: '210 / 297', letter: '8.5 / 11' }
 
 /*
  * Thin dispatcher: turns DesignSettings into CSS custom properties on a
@@ -56,7 +55,6 @@ export function ResumeDocument({
     ['--doc-margin' as string]: PAGE_MARGIN[design.pageMargin],
     ['--doc-radius' as string]: RADIUS[design.borderRadius],
     ['--doc-photo-radius' as string]: PHOTO_RADIUS[design.photoShape],
-    ['--doc-page-aspect' as string]: PAGE_ASPECT[design.pageSize],
     background,
     color: design.colorMode === 'dark' ? '#e2e8f0' : undefined,
     fontFamily: 'var(--doc-font)',

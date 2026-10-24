@@ -4,6 +4,7 @@ import type { TP } from '@/components/resume/blocks'
 import { ContactRow } from '@/components/resume/blocks'
 import { EditableText } from '@/components/resume/editable'
 import { useResumeEdit } from '@/components/resume/resume-context'
+import { isSectionVisible } from '@/lib/resume-types'
 import { SectionList } from '@/lib/section-registry'
 
 /* Elegant Atelier — a centered, letter-spaced header framed by twin hairline
@@ -48,14 +49,16 @@ export function ElegantTemplate({ data, theme }: TP) {
         <div className="mt-3 h-px w-24" style={{ background: 'color-mix(in srgb, var(--doc-accent) 45%, transparent)' }} />
       </header>
 
-      <EditableText
-        as="p"
-        className="text-center text-slate-600"
-        value={data.summary}
-        placeholder="A refined, brief statement of your professional story…"
-        multiline
-        onChange={(v) => update((d) => ({ ...d, summary: v }))}
-      />
+      {isSectionVisible(design, 'summary') && (
+        <EditableText
+          as="p"
+          className="text-center text-slate-600"
+          value={data.summary}
+          placeholder="A refined, brief statement of your professional story…"
+          multiline
+          onChange={(v) => update((d) => ({ ...d, summary: v }))}
+        />
+      )}
 
       <div className="flex flex-col" style={{ gap: 'var(--doc-section-gap)' }}>
         <SectionList data={data} theme={theme} design={design} S={ElegantSection} skip={['summary']} />

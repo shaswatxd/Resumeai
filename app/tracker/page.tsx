@@ -14,19 +14,11 @@ import {
   Trash2,
   Edit2,
   X,
-  CheckCircle2,
-  Clock,
-  Send,
-  Sparkles,
   Search,
   Filter,
   Download,
-  Upload,
-  Layers,
-  ChevronRight,
-  TrendingUp,
 } from 'lucide-react'
-import { Button, buttonVariants } from '@/components/ui/button'
+import { Button } from '@/components/ui/button'
 import { Input, Label, Textarea } from '@/components/ui/field'
 import { cn } from '@/lib/utils'
 import { useToast } from '@/components/ui/toast'
